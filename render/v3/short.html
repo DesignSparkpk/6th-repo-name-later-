@@ -226,6 +226,7 @@ window.render = function (t) {
     }).join('');
     const ek = (t - H.emojiT) / 0.3;
     hk.innerHTML = `<div class="emo" style="opacity:${ek > 0 ? 1 : 0};transform:scale(${0.2 + 0.8 * back(ek)}) rotate(${(1 - clamp(ek)) * -30}deg)">${H.emoji || ''}</div>` + lines;
+    hk.querySelectorAll('.ln').forEach(el => { const w = el.scrollWidth; if (w > 960) el.style.fontSize = Math.floor(150 * 960 / w) + 'px'; });
     hk.style.opacity = 1 - out; hk.style.transform = `scale(${1 + out * 0.4})`;
     hk.style.background = `rgba(6,7,11,${0.86 * (1 - out)})`;
     rays.style.opacity = 0.9 * (1 - out); rays.style.transform = `rotate(${t * 25}deg)`;
