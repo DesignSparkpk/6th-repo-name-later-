@@ -1,5 +1,6 @@
 // Renders an animated HTML Short (it must expose window.render(t) and window.DURATION) to a 1080x1920 MP4.
 // Usage: node render/render.js render/s01.html output/S01.mp4
+//        node render/render.js "render/short.html#S02" output/S02.mp4
 const { chromium } = require('playwright');
 const { spawn } = require('child_process');
 const path = require('path');
@@ -12,7 +13,8 @@ const FPS = Number(fpsArg) || 30;
   fs.mkdirSync(path.dirname(output), { recursive: true });
   const browser = await chromium.launch();
   const page = await browser.newPage({ viewport: { width: 1080, height: 1920 }, deviceScaleFactor: 1 });
-  await page.goto('file://' + path.resolve(input));
+  const [file, hash] = input.split('#');
+  await page.goto('file://' + path.resolve(file) + (hash ? '#' + hash : ''));
   await page.evaluate(() => document.fonts.ready);
   const duration = await page.evaluate(() => window.DURATION);
   const frames = Math.round(duration * FPS);

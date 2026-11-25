@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<!-- brand.html#logo (800x800) or brand.html#banner (2560x1440) -->
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body { background:#0E0F12; color:#fff; font-family:'Inter Display','Inter',sans-serif; overflow:hidden; position:relative; }
+  .glow { position:absolute; inset:0; }
+  .grid { position:absolute; inset:0; opacity:.08; background-image:linear-gradient(#fff 1px,transparent 1px),linear-gradient(90deg,#fff 1px,transparent 1px); }
+  #logo { width:800px; height:800px; display:none; position:relative; }
+  #logo .glow { background: radial-gradient(520px 520px at 50% 45%, rgba(45,107,255,.55), transparent 70%); }
+  #logo .grid { background-size:80px 80px; }
+  #logo .mark { position:absolute; left:50%; top:50%; transform:translate(-50%,-50%); width:520px; height:520px; border-radius:130px;
+    background: linear-gradient(145deg,#1B2233,#10131A); border:6px solid rgba(198,255,61,.5);
+    box-shadow:0 0 120px rgba(198,255,61,.25), inset 0 0 60px rgba(45,107,255,.25); display:flex; align-items:center; justify-content:center; }
+  #logo svg { width:330px; height:330px; filter: drop-shadow(0 0 30px rgba(198,255,61,.6)); }
+  #banner { width:2560px; height:1440px; display:none; position:relative; }
+  #banner .glow { background: radial-gradient(1100px 500px at 50% 50%, rgba(45,107,255,.38), transparent 70%),
+                               radial-gradient(800px 400px at 72% 62%, rgba(198,255,61,.10), transparent 70%); }
+  #banner .grid { background-size:100px 100px; }
+  /* safe area: centre 1546x423 */
+  #banner .safe { position:absolute; left:507px; top:508px; width:1546px; height:423px; display:flex; align-items:center; gap:60px; justify-content:center; }
+  #banner .badge { flex:none; width:230px; height:230px; border-radius:58px; background:linear-gradient(145deg,#1B2233,#10131A);
+    border:4px solid rgba(198,255,61,.55); display:flex; align-items:center; justify-content:center; box-shadow:0 0 80px rgba(198,255,61,.25); }
+  #banner .badge svg { width:150px; height:150px; filter: drop-shadow(0 0 18px rgba(198,255,61,.6)); }
+  #banner h1 { font-weight:900; font-size:118px; letter-spacing:-3px; line-height:1; }
+  #banner h1 span { color:#C6FF3D; }
+  #banner p { margin-top:22px; font-family:'Inter'; font-weight:700; font-size:46px; color:#C9D3E6; }
+  #banner p b { color:#C6FF3D; }
+  .card { position:absolute; border-radius:26px; background:rgba(23,26,33,.8); border:2px solid #262B36; padding:24px 30px; font-family:'Inter'; font-weight:600; font-size:30px; color:#AEB7C9; }
+  .card .k { color:#C6FF3D; font-family:'JetBrains Mono'; }
+</style>
+</head>
+<body>
+<div id="logo"><div class="glow"></div><div class="grid"></div>
+  <div class="mark"><svg viewBox="0 0 24 24"><path d="M13.2 1.8L4.2 13.6h6.6l-1.2 8.6 9.6-12.6h-6.8l.8-7.8z" fill="#C6FF3D"/><path d="M15.6 13.2l5.6 2.2-2.4 1 1.9 2.6-1.3.9-1.9-2.6-1.4 2.2z" fill="#fff" stroke="#0E0F12" stroke-width=".7" stroke-linejoin="round"/></svg></div>
+</div>
+<div id="banner"><div class="glow"></div><div class="grid"></div>
+  <div class="card" style="left:120px; top:300px; transform:rotate(-4deg)">&gt; <span class="k">ask me questions first</span></div>
+  <div class="card" style="left:180px; top:1010px; transform:rotate(3deg)">✓ Email written in 20s</div>
+  <div class="card" style="right:150px; top:330px; transform:rotate(4deg)">Role · Task · Context · Format</div>
+  <div class="card" style="right:110px; top:1000px; transform:rotate(-3deg)">&gt; <span class="k">quiz me on chapter 3</span></div>
+  <div class="safe">
+    <div class="badge"><svg viewBox="0 0 24 24"><path d="M13.2 1.8L4.2 13.6h6.6l-1.2 8.6 9.6-12.6h-6.8l.8-7.8z" fill="#C6FF3D"/><path d="M15.6 13.2l5.6 2.2-2.4 1 1.9 2.6-1.3.9-1.9-2.6-1.4 2.2z" fill="#fff" stroke="#0E0F12" stroke-width=".7" stroke-linejoin="round"/></svg></div>
+    <div><h1>AI Shortcut <span>Lab</span></h1><p>AI tools &amp; skills in <b>under 30 seconds</b> · New Short daily</p></div>
+  </div>
+</div>
+<script>
+  const id = location.hash.slice(1) || 'logo';
+  document.getElementById(id).style.display = 'block';
+</script>
+</body>
+</html>

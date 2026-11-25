@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<!-- Generic animated Short. Open as short.html#S02 — content comes from shorts-data.js -->
+<style>
+  :root { --blue:#2D6BFF; --lime:#C6FF3D; --bg:#0E0F12; --card:#171A21; --muted:#8A93A6; --red:#FF4D5E; }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { width: 1080px; height: 1920px; overflow: hidden; background: var(--bg); }
+  body { font-family: 'Inter', sans-serif; color: #fff; position: relative; }
+  #glow { position:absolute; inset:0; }
+  #grid { position:absolute; inset:0; opacity:.07;
+    background-image: linear-gradient(#fff 1px, transparent 1px), linear-gradient(90deg, #fff 1px, transparent 1px);
+    background-size: 90px 90px; }
+  #bar { position:absolute; top:0; left:0; height:14px; background: var(--lime); box-shadow: 0 0 24px var(--lime); }
+  .scene { position:absolute; left:90px; right:150px; top:0; height:1500px; opacity:0;
+           display:flex; flex-direction:column; justify-content:center; }
+  .anim { opacity:0; }
+  .big { font-family:'Inter Display'; font-weight:900; font-size:112px; line-height:1.03; letter-spacing:-3px; }
+  .mid { font-family:'Inter Display'; font-weight:800; font-size:76px; line-height:1.08; letter-spacing:-1.5px; }
+  .hl { color: var(--lime); }
+  .hlb { color: #6E9BFF; }
+  .hlr { color: var(--red); }
+  .dim { color: var(--muted); }
+  .tag { align-self:flex-start; font-weight:800; font-size:34px; letter-spacing:3px; padding:14px 26px; margin-bottom:46px;
+         border-radius:14px; background: rgba(45,107,255,.18); color:#9DB8FF; border:2px solid rgba(45,107,255,.5); }
+  .chat { margin-top:52px; display:flex; flex-direction:column; gap:26px; }
+  .msg { padding:28px 34px; border-radius:30px; font-size:43px; line-height:1.3; max-width:830px; }
+  .user { align-self:flex-end; background: var(--blue); border-bottom-right-radius:8px; font-weight:600; }
+  .ai { align-self:flex-start; background: var(--card); border:2px solid #262B36; border-bottom-left-radius:8px; color:#D6DBE6; }
+  .label { font-size:27px; font-weight:800; letter-spacing:2px; color: var(--muted); margin-bottom:10px; }
+  .stamp { align-self:flex-start; margin-top:40px; font-family:'Inter Display'; font-weight:900; font-size:62px;
+           padding:12px 34px; border:6px solid var(--red); color:var(--red); border-radius:18px; }
+  .stamp.good { border-color: var(--lime); color: var(--lime); }
+  .prompt { margin-top:52px; background:#0B0D11; border:4px solid var(--lime); border-radius:30px; padding:42px;
+            font-family:'JetBrains Mono'; font-weight:600; font-size:46px; line-height:1.4; color:#F2FFD6;
+            box-shadow: 0 0 60px rgba(198,255,61,.25); white-space:pre-wrap; }
+  .caret { display:inline-block; width:24px; height:52px; background: var(--lime); vertical-align:-8px; margin-left:4px; }
+  .list { margin-top:50px; display:flex; flex-direction:column; gap:22px; }
+  .item { display:flex; gap:26px; align-items:flex-start; background: var(--card); border:2px solid #262B36;
+          border-radius:26px; padding:26px 30px; font-size:44px; font-weight:600; line-height:1.25; }
+  .num { flex:none; width:64px; height:64px; border-radius:18px; background: var(--lime); color: var(--bg);
+         font-family:'Inter Display'; font-weight:900; font-size:40px; display:flex; align-items:center; justify-content:center; }
+  .cmp { margin-top:50px; display:flex; flex-direction:column; gap:30px; }
+  .side { border-radius:28px; padding:30px 34px; font-size:42px; line-height:1.3; }
+  .side .label { margin-bottom:12px; }
+  .bad { background: rgba(255,77,94,.08); border:3px solid rgba(255,77,94,.6); color:#E9C9CD; }
+  .bad .label { color: var(--red); }
+  .good { background: rgba(198,255,61,.07); border:3px solid var(--lime); color:#EEF8D9; }
+  .good .label { color: var(--lime); }
+  .icon { width:210px; height:210px; margin-bottom:56px; }
+  .circle { border-radius:50%; background: var(--lime); display:flex; align-items:center; justify-content:center;
+            box-shadow:0 0 90px rgba(198,255,61,.45); }
+  .circle svg { width:118px; height:118px; }
+  .sub { margin-top:46px; font-size:50px; font-weight:700; color:#D6DBE6; line-height:1.25; }
+  #handle { position:absolute; left:90px; bottom:420px; font-weight:800; font-size:40px; color:#fff; opacity:.9;
+            display:flex; align-items:center; gap:18px; }
+  #handle .dot { width:56px; height:56px; border-radius:16px; background: linear-gradient(135deg, var(--blue), var(--lime)); }
+</style>
+</head>
+<body>
+<div id="glow"></div><div id="grid"></div><div id="bar"></div>
+<div id="stage"></div>
+<div id="handle"><div class="dot"></div><span id="handleText"></span></div>
+<script src="shorts-data.js"></script>
+<script>
+  const spec = window.SHORTS[location.hash.slice(1)];
+  if (!spec) throw new Error('Unknown short id: ' + location.hash);
+  document.getElementById('handleText').textContent = window.HANDLE;
+
+  // varied background per Short so videos don't look identical
+  const seed = [...spec.id].reduce((a, c) => a + c.charCodeAt(0), 0);
+  const gx = 25 + (seed * 37) % 55, gy = 18 + (seed * 53) % 30;
+  document.getElementById('glow').style.background =
+    `radial-gradient(900px 700px at ${gx}% ${gy}%, rgba(45,107,255,.28), transparent 70%),` +
+    `radial-gradient(700px 600px at ${100 - gx}% 88%, rgba(198,255,61,.08), transparent 70%)`;
+
+  // *lime*  ~blue~  !red!  ^dim^  and \n line breaks
+  const esc = s => s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+  const md = s => esc(s).replace(/\*([\s\S]+?)\*/g, '<span class="hl">$1</span>')
+    .replace(/~([\s\S]+?)~/g, '<span class="hlb">$1</span>').replace(/!([\s\S]+?)!/g, '<span class="hlr">$1</span>')
+    .replace(/\^([\s\S]+?)\^/g, '<span class="dim">$1</span>').replace(/\n/g, '<br>');
+
+  const ICONS = {
+    check: '<div class="icon circle anim" data-k="pop" data-at="0.15"><svg viewBox="0 0 24 24" fill="none" stroke="#0E0F12" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7"/></svg></div>',
+    save: '<svg class="icon anim" data-k="pop" data-at="0.15" viewBox="0 0 24 24" fill="#C6FF3D"><path d="M6 2h12a1 1 0 0 1 1 1v19l-7-4.5L5 22V3a1 1 0 0 1 1-1z"/></svg>',
+    bolt: '<svg class="icon anim" data-k="pop" data-at="0.15" viewBox="0 0 24 24" fill="#C6FF3D"><path d="M13 2L4 14h7l-1 8 9-12h-7l1-8z"/></svg>',
+    warn: '<svg class="icon anim" data-k="pop" data-at="0.15" viewBox="0 0 24 24" fill="#FF4D5E"><path d="M12 2L1 21h22L12 2zm-1 7h2v6h-2V9zm0 8h2v2h-2v-2z"/></svg>',
+  };
+
+  // Build scenes. Each element with class "anim" animates in at data-at seconds after its scene starts.
+  const stage = document.getElementById('stage');
+  let clock = 0;
+  const scenes = spec.scenes.map(sc => {
+    const el = document.createElement('div');
+    el.className = 'scene';
+    let h = '';
+    if (sc.icon) h += ICONS[sc.icon];
+    if (sc.tag) h += `<div class="tag anim" data-k="rise" data-at="0.1">${md(sc.tag)}</div>`;
+    if (sc.title) h += `<div class="${sc.type === 'hook' || sc.type === 'big' ? 'big' : 'mid'}">${md(sc.title)}</div>`;
+    let at = 0.6;
+    if (sc.type === 'chat') {
+      h += '<div class="chat">' + sc.msgs.map(m => {
+        const s = `<div class="msg ${m.from} anim" data-k="rise" data-at="${at}">${m.from === 'ai' ? '<div class="label">AI</div>' : ''}${md(m.text)}</div>`;
+        at += m.from === 'ai' ? 1.3 : 0.9; return s;
+      }).join('') + '</div>';
+    }
+    if (sc.type === 'type') {
+      h += `<div class="prompt"><span class="typed" data-at="0.5" data-cps="${sc.cps || 20}" data-text="${esc(sc.text)}"></span><span class="caret"></span></div>`;
+    }
+    if (sc.type === 'list') {
+      h += '<div class="list">' + sc.items.map((it, i) => {
+        const s = `<div class="item anim" data-k="rise" data-at="${(0.6 + i * (sc.gap || 0.7)).toFixed(2)}"><div class="num">${i + 1}</div><div>${md(it)}</div></div>`;
+        return s;
+      }).join('') + '</div>';
+    }
+    if (sc.type === 'compare') {
+      h += `<div class="cmp"><div class="side bad anim" data-k="rise" data-at="0.6"><div class="label">${esc(sc.bad.label || 'BEFORE')}</div>${md(sc.bad.text)}</div>` +
+           `<div class="side good anim" data-k="rise" data-at="${sc.goodAt || 2.0}"><div class="label">${esc(sc.good.label || 'AFTER')}</div>${md(sc.good.text)}</div></div>`;
+    }
+    if (sc.stamp) h += `<div class="stamp ${sc.stamp.good ? 'good' : ''} anim" data-k="stamp" data-at="${sc.stamp.at || at + 0.4}">${esc(sc.stamp.text)}</div>`;
+    if (sc.sub) h += `<div class="sub anim" data-k="rise" data-at="${sc.subAt || 0.7}">${md(sc.sub)}</div>`;
+    el.innerHTML = h;
+    stage.appendChild(el);
+    const rec = { el, start: clock, end: clock + sc.dur };
+    clock += sc.dur;
+    return rec;
+  });
+  const DURATION = clock;
+  window.DURATION = DURATION;
+
+  const clamp = (x, a = 0, b = 1) => Math.max(a, Math.min(b, x));
+  const ease = x => 1 - Math.pow(1 - clamp(x), 3);
+  const back = x => { x = clamp(x); const c = 1.7; return 1 + (c + 1) * Math.pow(x - 1, 3) + c * Math.pow(x - 1, 2); };
+
+  window.render = function (t) {
+    document.getElementById('bar').style.width = (clamp(t / DURATION) * 100) + '%';
+    scenes.forEach((s, idx) => {
+      const last = idx === scenes.length - 1;
+      const i = ease((t - s.start) / 0.35);
+      const o = last ? 0 : ease((t - (s.end - 0.3)) / 0.3);
+      const vis = (t < s.start || (!last && t > s.end)) ? 0 : i * (1 - o);
+      s.el.style.opacity = vis;
+      s.el.style.transform = `translateY(${(1 - i) * 60 - o * 40}px) scale(${1 + 0.02 * clamp((t - s.start) / (s.end - s.start))})`;
+      const lt = t - s.start;
+      s.el.querySelectorAll('.anim').forEach(a => {
+        const k = (lt - parseFloat(a.dataset.at)) / 0.35;
+        if (a.dataset.k === 'rise') { a.style.opacity = ease(k); a.style.transform = `translateY(${(1 - ease(k)) * 40}px)`; }
+        else if (a.dataset.k === 'pop') { a.style.opacity = k > 0 ? 1 : 0; a.style.transform = `scale(${0.6 + 0.4 * back(k)})`; }
+        else if (a.dataset.k === 'stamp') { a.style.opacity = k > 0 ? 1 : 0; a.style.transform = `rotate(-6deg) scale(${1.8 - 0.8 * ease(k / 0.85)})`; }
+      });
+      s.el.querySelectorAll('.typed').forEach(ty => {
+        const txt = ty.dataset.text, n = Math.floor(clamp((lt - parseFloat(ty.dataset.at)) * parseFloat(ty.dataset.cps) / txt.length) * txt.length);
+        ty.textContent = txt.slice(0, n);
+        ty.nextSibling.style.opacity = (n < txt.length || Math.floor(t * 2.5) % 2 === 0) ? 1 : 0;
+      });
+    });
+  };
+  render(0);
+</script>
+</body>
+</html>

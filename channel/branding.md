@@ -17,9 +17,9 @@ Why this niche:
 
 ## Channel description (About section)
 > Learn the AI tools that save you hours and help you earn online — no fluff, no hype.
-> Every video shows a real workflow you can copy today: writing, research, design, video, automation and side income.
+> Every Short shows one real AI skill you can copy in seconds: writing, research, design, video, automation and side income.
 >
-> 🆕 New videos every week + daily Shorts
+> ⚡ A new AI shortcut every day (under 30 seconds)
 > 📩 Business inquiries: [your email]
 >
 > Some links are affiliate links; they support the channel at no extra cost to you.
@@ -32,14 +32,20 @@ Why this niche:
 - **Fonts:** Montserrat ExtraBold for thumbnails, Inter for on-screen text (both free on Google Fonts).
 - **Thumbnail style:** dark background, one large logo or interface element, 2–4 words of lime or white text, and a red or lime arrow or circle. Never more than 4 words.
 
-## Image prompts (paste into any image generator)
+## Logo and banner: already made
+- **Profile picture:** `output/brand/logo.png` (800×800; YouTube crops it to a circle and the mark fits inside).
+- **Banner:** `output/brand/banner.png` (2560×1440; the title sits in the area that shows on phones).
+
+Upload both in YouTube Studio → Customization → Branding. To change the name on them, ask Claude to re-render `render/brand.html`.
+
+## Image prompts (only if you want an alternative look)
 **Logo (800×800):**
 > Minimal flat vector logo, a lightning bolt merged with a computer cursor arrow, electric blue #2D6BFF and neon lime #C6FF3D on near-black #0E0F12 background, bold geometric, no text, centered, app-icon style
 
 **Banner (2560×1440, keep the text inside the middle 1546×423 safe area):**
 > Wide dark tech banner, near-black background with subtle blue circuit-line glow on the edges, floating glass UI cards showing chat windows and charts, empty clean center area for text, electric blue and neon lime accents, modern, high detail
 
-Text to place in the middle of the banner: **AI TOOLS THAT SAVE HOURS & MAKE MONEY · New videos weekly**
+Text to place in the middle of the banner: **AI TOOLS & SKILLS IN UNDER 30 SECONDS · New Short daily**
 
 ## Affiliate programs (sign up in week 1, put links in every description)
 Search "<tool name> affiliate program" and apply to programs for tools you actually show in videos, for example writing, voice, video, design, hosting and automation tools. Put the links in a free link page (Linktree or Beacons) and add it to the description of every video.
