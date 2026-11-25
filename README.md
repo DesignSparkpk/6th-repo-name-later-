@@ -5,12 +5,14 @@ A faceless YouTube Shorts channel about **AI tools and AI skills**. Every Short 
 ## Folders
 | Folder | What's in it |
 |---|---|
-| `output/` | **Finished Shorts (MP4, 1080×1920). Upload these.** |
+| `output/v2/` | **Finished Shorts with voice (MP4, 1080×1920). Upload these.** |
+| `research/what-works-ai-shorts.md` | Analysis of winning and losing AI Shorts, and the rules the Shorts follow |
+| `output/archive-v1/` | Old silent Shorts. Don't post them. |
 | `channel/posting-guide.md` | How to upload, with the title and hashtags for every Short |
 | `channel/90-day-plan.md` | Posting schedule, targets and what to check every week |
 | `channel/branding.md` | Channel name, About text, logo and banner prompts |
 | `scripts/shorts/` | The text of each Short |
-| `render/` | The engine that builds the videos (Claude uses this to make new batches) |
+| `render/v2/` | The engine that builds the videos: `scripts.js` (content), `voice.py` (Kokoro voice), `short.html` (animation), `make.js` (render) |
 | `scripts/long/` | Long-video scripts. Not part of the Shorts plan; kept in case you add long videos later. |
 
 ## How monetization works for a Shorts-only channel
@@ -25,7 +27,7 @@ A faceless YouTube Shorts channel about **AI tools and AI skills**. Every Short 
 3. **Sponsors**: AI tool companies pay creators in this niche even at 10,000–50,000 subscribers.
 
 ## Making new Shorts
-Ask Claude: *"Make the next batch of 14 Shorts"* and share your best and worst performers from YouTube Studio. Claude writes them into `render/shorts-data.js` and runs `node render/render-all.js`, and the MP4s appear in `output/`.
+Ask Claude: *"Make the next batch of 14 Shorts"* and share your best and worst performers from YouTube Studio. Claude writes them into `render/v2/scripts.js` and runs `render/v2/make.js`, and the MP4s appear in `output/v2/`. The voice is Kokoro, an open-source model licensed under Apache 2.0, so commercial use is allowed.
 
 ## Rules that keep the channel monetizable
 - Every Short teaches one real, specific, usable thing. No filler or recycled facts.

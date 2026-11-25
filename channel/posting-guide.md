@@ -1,38 +1,30 @@
-# Posting guide
+# Posting guide (version 2 Shorts)
+
+Upload the videos in `output/v2/`. The ones in `output/archive-v1/` are the old silent style; **don't post them** (see `research/what-works-ai-shorts.md` for why).
 
 ## Each upload (about 2 minutes)
-1. YouTube app → **+** → **Upload a video** → pick the MP4 from `output/`. (On desktop: YouTube Studio → Create → Upload.)
-2. **Add sound:** in the app, tap **Sound** and pick a trending instrumental track at low volume. The videos are silent on purpose so you can use trending audio.
-3. Paste the **title** from the table below. Put the hashtags in the description.
-4. Description: `Follow for a new AI shortcut every day ⚡ Tools I use: [your link page]`
-5. Audience: **No, it's not made for kids**.
-6. Altered or synthetic content: **No**. These are animated graphics, not realistic AI people or events.
-7. Schedule it, or publish.
-8. Pin a comment asking the question listed below.
+1. YouTube app → **+** → **Upload a video** → pick the MP4.
+2. **Sound (optional):** the Shorts already have a voice and sound effects. If you add a trending track, set its volume to **10–15%** so the voice stays clear.
+3. Paste the **title** from the table. Description: `Follow for a new AI shortcut every day ⚡ Tools: [your link page]  #AI #AItools #Shorts <extra hashtag>`
+4. Audience: **No, it's not made for kids**.
+5. Altered or synthetic content: tick **Yes** for the AI voice. YouTube asks you to disclose realistic synthetic voices. It doesn't hurt reach, and it protects the channel.
+6. Schedule it, or publish. Then pin the comment listed below.
 
-## Titles, hashtags and pinned comments
-Every Short gets `#AI #AItools #Shorts` plus the hashtag listed.
+## Order, titles and pinned comments
+| Day | ID | Format | Title | Extra hashtag | Pinned comment |
+|---|---|---|---|---|---|
+| 1 AM | V02 | Myth Bust | Your AI is lying to you (to be nice) | #chatgpt | Did you know AI does this? 👀 |
+| 1 PM | V03 | Mega List | 25 AI prompts every student should steal | #studytips | Which number are you using first? |
+| 2 AM | V01 | One Prompt | This prompt turns AI into a brutally honest mentor | #mindset | What would you ask your honest mentor? 💀 |
+| 2 PM | V04 | Real Work | Stop googling Excel formulas | #excel | Want part 2 (AI builds the dashboard)? Comment "PART 2" |
+| 3 AM | V06 | Hidden Trick | Most people never let AI interview them | #promptengineering | What did the AI ask you? |
+| 3 PM | V05 | Before→After | Your AI cover letter sounds like everyone else's | #jobsearch | What job are you applying for? |
+| 4 AM | V08 | Myth Bust | Stop telling AI to "make it better" | #writingtips | What do you use AI to edit most? |
+| 4 PM | V10 | Mega List | 15 AI prompts that save office workers hours | #productivity | Which one saves you the most time? |
+| 5 AM | V07 | Real Work | Reply to an angry customer in 10 seconds | #smallbusiness | Worst customer message you've ever got? 😅 |
+| 5 PM | V09 | One Prompt | Learn anything by explaining it to AI | #studytips | What topic will you test yourself on? |
 
-| ID | Title | Extra hashtag | Pinned comment |
-|---|---|---|---|
-| S01 | The one line that fixes bad AI answers | #promptengineering | Try it and tell me what the AI asked you 👇 |
-| S02 | Make AI edit itself (free second draft) | #writingtips | What do you use AI to write most? |
-| S03 | Write any email in 20 seconds with AI | #emailtips | What's the most annoying email you have to write? |
-| S04 | Learn anything faster with this AI prompt | #studytips | What topic would you try this on? |
-| S05 | Turn messy meeting notes into action items with AI | #worksmarter | How many meetings do you have a week? 😅 |
-| S06 | Make your resume match any job with AI | #jobsearch | What job are you applying for? |
-| S07 | Why you should give AI a role | #chatgpt | What role would you give your AI? |
-| S08 | Never trust AI numbers without this check | #airesearch | Has AI ever given you a fake fact? |
-| S09 | Plan your whole week in 30 seconds with AI | #productivity | Morning person or night owl? |
-| S10 | The honest truth about making money with AI | #sidehustle | Which skill would you sell? |
-| S11 | Turn your notes into an AI tutor | #studywithme | Which subject do you need help with? |
-| S12 | Let AI decide dinner from your fridge | #lifehacks | What's in your fridge right now? 😂 |
-| S13 | The pro trick for consistent AI results | #promptengineering | Did you know this trick? |
-| S14 | Practice hard conversations with AI role-play | #careertips | What conversation would you practice? |
-| S15 | The only AI prompt template you need (save this) | #aitips | Screenshot it? Comment "saved" ✅ |
+The order alternates formats and puts the strongest hooks first. Ask Claude for batch 3 on **day 4**.
 
-## Channel settings (do these once)
-- Channel name, handle, About text, logo and banner: see `branding.md`.
-- **Customization → Layout:** feature the Shorts tab.
-- **Links:** add your affiliate link page to the channel header.
-- Make 3 playlists and sort Shorts into them: "Prompting skills", "AI for work", "AI for students".
+## If a Short does well (viewed vs swiped away above 70%)
+Ask Claude for a **Part 2** of it within 48 hours. Series are the fastest way to grow on Shorts.

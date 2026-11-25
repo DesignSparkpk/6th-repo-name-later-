@@ -5,19 +5,8 @@
 - Space them 6–8 hours apart. Use YouTube Studio's **Schedule** option so you can upload a whole week in one sitting.
 - Good posting times for a US and global English audience are 15:00, 19:00 and 23:00 UTC (8 pm, midnight and 4 am Pakistan time). Scheduling handles this for you.
 
-## Week 1 (videos ready in `output/`)
-| Day | Morning | Evening |
-|---|---|---|
-| 1 | S01 | S07 |
-| 2 | S15 | S03 |
-| 3 | S08 | S06 |
-| 4 | S04 | S12 |
-| 5 | S02 | S10 |
-| 6 | S13 | S09 |
-| 7 | S11 | S05 |
-| 8 | S14 | (next batch) |
-
-Ask Claude for batch 2 on **day 5**, so there's no gap in posting.
+## Week 1
+Post the 10 version 2 Shorts in the order given in `posting-guide.md` (days 1–5). Ask Claude for batch 3 on **day 4**, so there's no gap in posting.
 
 ## Targets (realistic, not guaranteed)
 | By | Total views | Subscribers |
