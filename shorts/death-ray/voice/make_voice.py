@@ -5,7 +5,7 @@ from kokoro_onnx import Kokoro
 VOICE, SPEED = sys.argv[1], float(sys.argv[2])
 k = Kokoro('/opt/kokoro/kokoro-v1.0.onnx', '/opt/kokoro/voices-v1.0.bin')
 lines = json.load(open('voice/lines.json'))
-GAP = {"hook1": 0.12, "hair1": 0.28, "umb1": 0.3, "egg": 0.3, "wait": 0.12, "fifteen": 0.25, "excuse": 0.35, "quote": 0.55}
+GAP = {"hook1": 0.12, "hair1": 0.28, "complain": 0.2, "umb1": 0.3, "egg": 0.3, "wait": 0.12, "explain": 0.2, "excuse": 0.35, "quote": 0.55}
 SR = 24000; out = []; t = 0.08; words = []; meta = []
 def trim(a, thr=0.006):
     i = np.where(np.abs(a) > thr)[0]; return a[max(i[0]-120, 0): i[-1]+240]
