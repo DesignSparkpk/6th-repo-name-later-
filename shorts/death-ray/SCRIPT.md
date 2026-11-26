@@ -23,32 +23,37 @@ The Vdara half is fresh, the London half is proven interest, and "he did it twic
 - **Fix:** a brise soleil sunshade was fitted in 2014. ([Construction Index](https://www.theconstructionindex.co.uk/news/view/walkie-scorchie-sun-shade-goes-up-this-month?amp=1), [Wikipedia](https://www.wikipedia.org/wiki/Fryscraper))
 - **Punchline quote:** "When I first came to London years ago, it wasn't like this. Now you have all these sunny days." ([Dezeen](https://www.dezeen.com/2013/09/06/we-made-a-lot-of-mistakes-with-this-building-says-walkie-scorchie-architect-vinoly/))
 
-## Script (about 227 words, about 61 s at 3.7 words/s)
+## Script review (v2): checked against references/STYLE_BIBLE.md and the sources
+| Check | v1 | Fix in v2 |
+|---|---|---|
+| Hook = paradox as fact, sentence 1, 10-16 words | ✅ 14 words, stakes + open loop ("not his first") | kept |
+| Short in-character dialogue in the escalation | ❌ none | ✅ the staff's real line: "Yeah, we know. We call it the death ray." ([NBC](https://www.nbcnews.com/news/amp/wbna39403349)) |
+| Every joke is a real fact | ⚠️ "shopping bags" was second-hand | ✅ his own plastic bag melted and he smelled his own hair burning ([Review-Journal](https://www.reviewjournal.com/entertainment/celebrity/vdara-death-ray-scorches-hair-melts-plastic)) |
+| Dates | ❌ "finishes a skyscraper" in 2013: it was completed in 2014 | ✅ "is finishing a skyscraper" |
+| Explanation length | ❌ about 15 s (24 % of the video), a likely swipe-away zone | ✅ about 11 s: the two physics lines merged into one |
+| One thread through the story | ⚠️ five separate characters | ✅ the (generic, unnamed) architect is the visual through-line: proud in Vegas, proud in London, shrugging at the end |
+| "You see," pivot + childhood analogy, mystery beat, ending on the last word | ✅ | kept |
+| Length at 3.65 words/s | 64 s | about 61 s |
+
+## Script v2 (about 223 words)
 | # | Beat | Narration | Picture |
 |---|---|---|---|
-| 1 | Hook | This architect's building melted a car. And it wasn't even his first death ray. | Extreme close-up: a car's wing mirror sags like warm cheese, a thin curl of smoke. Hard flash. |
-| 2 | Setting | Las Vegas, 2010. A shiny new hotel opens, with a giant curved glass wall wrapped around the pool. | Aerial glide down the curved tower to the sparkling pool, palm trees, loungers. Golden light. |
-| 3 | Escalation 1 | A guest is relaxing in the sun when he smells burning hair. His own. | Guest on a lounger, eyes snap open; a wisp of smoke rises from his head. |
-| 4 | Escalation 2 | Nearby, plastic cups start drooping. Shopping bags start to melt. | A cup folds over on a table; a bag slumps. |
-| 5 | Escalation 3 | The staff even give it a name: the Vdara death ray. | A pool attendant squints up at the glass, hand over eyes, dazzled. |
+| 1 | Hook | This architect's building melted a car. And it wasn't even his first death ray. | Extreme close-up: a car's wing mirror sags like warm cheese, smoke curls. Hard flash. The architect beams at camera, holding a little model tower. |
+| 2 | Setting | Las Vegas, twenty ten. A shiny new hotel opens, with a giant curved glass wall wrapped around the pool. | Aerial glide down the curved tower to the sparkling pool; the architect cuts a ribbon. |
+| 3 | Escalation 1 | A guest is lying by the pool when he smells burning hair. His own. | Guest on a lounger sniffs, eyes slide up; a wisp of smoke rises from his own head. |
+| 4 | Escalation 2 | His plastic bag melts. Drink cups start drooping. | His bag slumps on the tiles; a cup folds over. |
+| 5 | Dialogue | When he complains, the staff just giggle. "Yeah, we know. We call it the death ray." | Bartender giggles behind the bar, shrugs. |
 | 6 | Joke | The hotel's solution? Bigger umbrellas. | Workers wheel in a comically huge umbrella. |
-| 7 | Turn | Three years later, the same architect finishes a skyscraper in London. Same shiny glass. Same curve. | Whip to grey-blue London; camera tilts up a top-heavy curved tower. |
-| 8 | Escalation 4 | A man parks his Jaguar on the street below. When he comes back, the mirror is melted. The badge is melted. The panels are melted. | Man locks his car, strolls off. Returns: three quick push-ins on mirror, badge, panel, each worse. |
-| 9 | Escalation 5 | A shop's carpet gets scorched. A reporter walks over with a frying pan, and cooks an egg on the pavement. | Shopkeeper stamps on a smoking mat. A reporter cracks an egg into a pan; it sizzles. |
-| 10 | Mystery | Wait. How does a building cook an egg? | Slow push-in on the egg. |
-| 11 | "You see" | You see, a curved glass wall works like a giant magnifying glass. Ever burned a leaf with one as a kid? Same trick. | A kid with a magnifying glass, a bright dot on a leaf, smoke. |
-| 12 | Explanation | The curve catches sunlight from the whole face of the building and squeezes it onto one small spot on the street. Scientists worked out that spot was getting up to fifteen times more sun than normal. | Sun rays bounce off the tower and converge on one glowing spot on the pavement. |
+| 7 | Turn | Three years later, the same architect is finishing a skyscraper in London. Same shiny glass. Same curve. | Whip to London; tilt up a top-heavy curved tower; the architect waves from the street. |
+| 8 | Escalation 3 | A man parks his Jaguar on the street below. When he comes back, the mirror is melted. The badge is melted. The panels are melted. | Man locks the car, strolls off. Returns: three push-ins, each worse. |
+| 9 | Escalation 4 | A shop's carpet gets scorched. A reporter walks over with a frying pan, and cooks an egg on the pavement. | Shopkeeper stamps on a smoking mat; reporter cracks an egg into a pan on the pavement; it sizzles. |
+| 10 | Mystery | Wait. How does a building cook an egg? | Slow push-in on the sizzling egg. |
+| 11 | "You see" | You see, a curved glass wall works like a giant magnifying glass. Ever burned a leaf with one as a kid? Same trick. | Kid with a magnifying glass, bright dot on a leaf, smoke. |
+| 12 | Explanation | The curve catches sunlight from the whole building and squeezes it onto one spot on the street. Up to fifteen times stronger than normal sunshine. | Light rays bounce off the curved face and meet at one glowing spot by the Jaguar. |
 | 13 | Consequence | London ends up bolting giant sunshades onto the tower. | Long fins slide onto the facade; the hot spot fades. |
-| 14 | Payoff setup | And the architect's explanation? "When I first came to London years ago, it wasn't like this. Now you have all these sunny days." | A generic cartoon architect shrugs, squinting at the sky. |
-| 15 | Payoff | In London. | Hard cut: it's pouring with rain, umbrellas everywhere. Ends on the last word. |
-
-## Why it should hold viewers (from references/STYLE_BIBLE.md)
-- Hook is a paradox with stakes in sentence one (14 words), no setup.
-- An open loop from frame 1 ("not his first") that pays off at beat 7.
-- Five escalation beats, each bigger: hair, cups, then a car, then an egg.
-- A mystery beat, the "You see," pivot and a childhood analogy (magnifying glass), as in 14 of the 20 reference shorts.
-- The punchline lands on the last two words; the rain shot makes it work even with the sound off.
+| 14 | Payoff setup | And the architect's explanation? "When I first came to London years ago, it wasn't like this. Now you have all these sunny days." | The architect shrugs, squinting up at a blazing sky. |
+| 15 | Payoff | In London. | Hard cut: pouring rain, umbrellas everywhere, the architect soaked. Ends on the last word. |
 
 ## Production notes
-- New sets needed: Vegas pool deck + curved hotel, London street + curved tower, rainy London. The ink, lighting, lens and character systems come from the bridge template.
-- Characters are generic; no real person is named or drawn as a likeness.
+- Sets: Vegas pool deck + curved hotel (golden light), London street + curved tower (day), rainy London (overcast), kid with magnifying glass (park insert). Ink, light, lens, grade and characters come from the bridge template.
+- Characters are generic; no real person is named or drawn as a likeness. The quote is attributed only to "the architect".
