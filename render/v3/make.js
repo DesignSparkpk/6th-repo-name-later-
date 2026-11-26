@@ -1,5 +1,5 @@
 // Build version 3 Shorts: Kokoro voice + synthesized beat + SFX + animation -> MP4.
-// Setup once:  python3 -m venv kvenv && kvenv/bin/pip install kokoro-onnx soundfile
+// Setup once:  the environment's setup script installs Kokoro to /opt/kokoro (or set KOKORO_PY / KOKORO_MODEL), then: npm install
 //              download kokoro-v1.0.onnx and voices-v1.0.bin (github.com/thewh1teagle/kokoro-onnx releases) into a folder
 // Usage:       KOKORO_PY=kvenv/bin/python KOKORO_MODEL=kmodel node render/v3/make.js [V01 ...] [--stills]
 const { chromium } = require('playwright');
@@ -33,7 +33,7 @@ const MIX = [
     const spec = { ...window.V3[id], voice: window.VOICE };
     const specFile = path.join(work, `${id}.json`);
     fs.writeFileSync(specFile, JSON.stringify(spec));
-    execFileSync(process.env.KOKORO_PY || 'python3', ['-I', path.join(__dirname, 'audio.py'), specFile, work, process.env.KOKORO_MODEL || 'kmodel'], { stdio: 'inherit' });
+    execFileSync(process.env.KOKORO_PY || (fs.existsSync('/opt/kokoro/venv/bin/python') ? '/opt/kokoro/venv/bin/python' : 'python3'), ['-I', path.join(__dirname, 'audio.py'), specFile, work, process.env.KOKORO_MODEL || (fs.existsSync('/opt/kokoro/voices-v1.0.bin') ? '/opt/kokoro' : 'kmodel')], { stdio: 'inherit' });
     const timing = JSON.parse(fs.readFileSync(path.join(work, `${id}.timing.json`)));
 
     const page = await browser.newPage({ viewport: { width: 1080, height: 1920 } });

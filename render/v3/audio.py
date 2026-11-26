@@ -72,14 +72,32 @@ for i, (b, bt) in enumerate(zip(spec['beats'], beats)):
             impacts += lt; flashes.append(lt[0])
         if 'stamp' in a: impacts.append(bt['start'] + 0.05); flashes.append(bt['start'] + 0.05)
         if a.get('clear') or 'list' in a or ('split' in a and 'good' not in a['split']) or 'cta' in a: whips.append(bt['start'])
+        if i > 0 and b.get('scene') and b['scene'] != spec['beats'][i - 1].get('scene') and a is b['do'][0] and spec['beats'][i - 1].get('scene') not in ('hookSky',):
+            whips.append(bt['start'])
         if a.get('rehook') and i + 1 < len(beats):
             rehooks.append((bt['start'], beats[i + 1]['start']))
             impacts.append(beats[i + 1]['start']); flashes.append(beats[i + 1]['start'])
 if hooks: whips.append(drop_t); impacts.append(drop_t); flashes.append(drop_t)
 
+
+def word_time(bt, key):
+    for w in bt['words']:
+        if re.sub(r'\W', '', w['w']).lower().startswith(key.lower()): return w['s']
+    return bt['start']
+
+
+cues = []  # timed sound cues, also used by 3D scenes to sync visuals: {sfx:[{k, at: secs | -secs from end | 'word:xyz'}]}
+for i, (b, bt) in enumerate(zip(spec['beats'], beats)):
+    for a in b['do']:
+        for c in a.get('sfx', []):
+            at = c.get('at', 0)
+            tt = word_time(bt, at[5:]) if isinstance(at, str) else (bt['end'] + at if at < 0 else bt['start'] + at)
+            cues.append({**c, 't': round(tt, 3), 'beat': i})
+            if c['k'] in ('boom', 'burst'): impacts.append(tt); flashes.append(tt) if c['k'] == 'boom' else None
+
 json.dump({'total': total, 'beats': beats, 'events': events, 'hooks': hooks, 'drop': drop_t,
            'fx': {'impacts': sorted(set(round(x, 3) for x in impacts)), 'flashes': sorted(set(round(x, 3) for x in flashes)),
-                  'whips': sorted(set(round(x, 3) for x in whips))}, 'rehooks': rehooks},
+                  'whips': sorted(set(round(x, 3) for x in whips))}, 'rehooks': rehooks, 'cues': cues},
           open(f"{out_dir}/{spec['id']}.timing.json", 'w'))
 
 # ---------------------------------------------------------------- synth helpers
@@ -229,6 +247,44 @@ for ev in events:
     if 'hl' in a: place(fx, ding(), t0 + 0.1, 0.8)
     if 'zoom' in a: place(fx, whoosh(0.22), t0 - 0.05, 0.4)
     if 'cta' in a: place(fx, ding(), t0 + 0.25, 0.9)
+def crackle(d=1.6, n=90):
+    out = np.zeros(int(d * SR), dtype=np.float32)
+    for _ in range(n):
+        at = rng.random() ** 1.6 * (d - 0.02); c = click() * (0.6 + rng.random()) * (1 - at / d)
+        i = int(at * SR); out[i:i + len(c)] += c[: len(out) - i]
+    return out
+
+
+def boom():
+    x = tt(2.4)
+    low = np.sin(2 * np.pi * np.cumsum(70 * np.exp(-x * 2) + 28) / SR) * np.exp(-x * 2.2)
+    body = onepole_lp(noise(2.4), 600) * np.exp(-x * 3) * 3.0
+    b = (low + body + noise(2.4) * np.exp(-x * 300) * 0.8).astype(np.float32)
+    cr = crackle(); b[int(0.35 * SR): int(0.35 * SR) + len(cr)] += cr * 1.4
+    return b
+
+
+def burst():
+    x = tt(1.2)
+    return ((np.sin(2 * np.pi * np.cumsum(90 * np.exp(-x * 4) + 40) / SR) * np.exp(-x * 5) + onepole_lp(noise(1.2), 1200) * np.exp(-x * 6) * 2)
+            * 0.7).astype(np.float32)
+
+
+def launch():
+    th = impact(False) * 0.9
+    w = riser(0.9) * 0.6
+    out = np.zeros(int(1.2 * SR), dtype=np.float32); out[: len(th)] += th; out[int(0.05 * SR): int(0.05 * SR) + len(w)] += w
+    return out
+
+
+def hiss(d):
+    x = tt(d); return (onepole_lp(np.diff(noise(d), prepend=0), 7000) * (0.35 + 0.15 * np.sin(2 * np.pi * 9 * x)) * np.minimum(1, x * 6) * np.minimum(1, (d - x) * 4)).astype(np.float32)
+
+
+CUE_SFX = {'boom': lambda c: boom(), 'burst': lambda c: burst(), 'launch': lambda c: launch(), 'hiss': lambda c: hiss(c.get('d', 2.0)),
+           'ding': lambda c: ding(), 'whoosh': lambda c: whoosh(0.4), 'pop': lambda c: pop(400, 1600, 0.12, 0.6), 'zap': lambda c: pop(2000, 300, 0.25, 0.5)}
+for c in cues:
+    if c['k'] in CUE_SFX: place(fx, CUE_SFX[c['k']](c), c['t'], c.get('vol', 1.0))
 fx = fx[: int(total * SR)]
 fx /= max(1e-6, np.abs(fx).max()) / 0.9
 sf.write(f"{out_dir}/{spec['id']}.sfx.wav", fx, SR)

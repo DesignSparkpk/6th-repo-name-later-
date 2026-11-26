@@ -5,6 +5,7 @@ A faceless YouTube Shorts channel about **AI tools and AI skills**. Every Short 
 ## Folders
 | Folder | What's in it |
 |---|---|
+| `output/v4/` | **3D "How it works" explainers (Three.js), e.g. the fireworks Short.** |
 | `output/v3/` | **Finished Shorts: voice, original beat, sound effects, transitions (MP4, 1080×1920). Upload these.** |
 | `output/voice-samples/` | 6 voice options. Tell Claude which one you like best. |
 | `research/what-works-ai-shorts.md` | Analysis of winning and losing AI Shorts, and the rules the Shorts follow |
@@ -13,6 +14,7 @@ A faceless YouTube Shorts channel about **AI tools and AI skills**. Every Short 
 | `channel/90-day-plan.md` | Posting schedule, targets and what to check every week |
 | `channel/branding.md` | Channel name, About text, logo and banner prompts |
 | `scripts/shorts/` | The text of each Short |
+| `render/v4/` | 3D engine: `scripts.js` (story + sound cues), `short3d.html` (3D scenes, Volt the mascot, overlays), `make.js` (render). Audio comes from `render/v3/audio.py`. |
 | `render/v3/` | The engine that builds the videos: `scripts.js` (content), `audio.py` (voice, beat, sound effects), `short.html` (visuals), `make.js` (render and mix) |
 | `scripts/long/` | Long-video scripts. Not part of the Shorts plan; kept in case you add long videos later. |
 
@@ -34,3 +36,10 @@ Ask Claude: *"Make the next batch of 14 Shorts"* and share your best and worst p
 - Every Short teaches one real, specific, usable thing. No filler or recycled facts.
 - Don't re-upload the same video, or near-copies of it.
 - Vary the formats: chat demos, before/after comparisons, lists and typed prompts. The template already mixes these.
+
+## Tools and setup
+Everything runs in the cloud session, so you don't install anything. The environment **6th-repo-name-later-** has a setup script that installs:
+- **Kokoro** voice (to `/opt/kokoro`), the open-source text-to-speech model, licensed for commercial use
+- **Three.js** for 3D (`npm install`)
+
+Chromium, Playwright and ffmpeg are already part of the cloud image. Pick the **6th-repo-name-later-** environment when you start a new session.
