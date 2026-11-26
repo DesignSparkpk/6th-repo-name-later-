@@ -1,7 +1,7 @@
 #!/bin/bash
 # usage: scripts/render-chunks.sh <Comp> <outdir> <total_frames> [chunk] [concurrency]
 # renders [a, b] chunks to <outdir>/chunk_<a>.mp4, skipping chunks that already exist, then concatenates them
-COMP=$1; OUT=$2; TOT=$3; CH=${4:-240}; CONC=${5:-3}
+COMP=$1; OUT=$2; TOT=$3; CH=${4:-240}; CONC=${5:-1}  # >1 tabs under swangle produce tiled glitch frames
 mkdir -p $OUT
 for ((a=0; a<TOT; a+=CH)); do
   b=$((a+CH-1)); [ $b -ge $TOT ] && b=$((TOT-1))
