@@ -16,7 +16,7 @@ const SH_FELT: C3 = [0.62, 0.62, 0.7];
 export type Build = "adult" | "stout" | "kid";
 export type Outfit = {
   jacket: string; pants: string; boots: string; hat?: string | null; belt?: string | null; buttons?: string; rifle?: boolean;
-  sash?: string; sword?: boolean; moustache?: string; skin?: string; head?: number; beard?: string; chops?: string; monocle?: boolean; wig?: boolean; specs?: boolean; chain?: boolean; cigar?: boolean; style?: "zip" | "stripes" | "collar" | "hawaii" | "vest"; trim?: string; cap?: string; hair?: string; dress?: string;
+  sash?: string; sword?: boolean; moustache?: string; skin?: string; head?: number; beard?: string; chops?: string; monocle?: boolean; wig?: boolean; specs?: boolean; chain?: boolean; cigar?: boolean; style?: "zip" | "stripes" | "collar" | "hawaii" | "vest" | "tee"; trim?: string; cap?: string; hair?: string; dress?: string;
   build?: Build;
 };
 type P2 = [number, number];
@@ -669,6 +669,7 @@ export const bodyFront = (p: Pen, o: Outfit, opts: FrontOpts) => {
       if (o.style === "zip") { p.stroke([[tcx + 2 * u * facing, chin + 0.05 * HH], [tcx + 2 * u * facing, bot]], 1.8 * u, INK); p.band([[tcx - 1.3 * T.a, torsoBot - 0.12 * HH], [tcx + 1.3 * T.a, torsoBot - 0.12 * HH]], tr, 0.09 * HH, 1.6 * u); }
       if (o.style === "collar" || o.style === "zip" || o.style === "vest") for (const sd of [-1, 1]) p.poly([[tcx + sd * 1.5 * u, chin + 0.02 * HH], [tcx + sd * 0.55 * T.a, chin - 0.06 * HH], [tcx + sd * 0.32 * T.a, chin + 0.2 * HH]], o.style === "zip" ? tr : "#f6f3ee", 1.6 * u);
       if (o.style === "collar") p.poly([[tcx - 2.5 * u, chin + 0.08 * HH], [tcx + 2.5 * u, chin + 0.08 * HH], [tcx + 4 * u, chin + 0.55 * HH], [tcx, chin + 0.62 * HH], [tcx - 4 * u, chin + 0.55 * HH]], tr, 1.4 * u);
+      if (o.style === "tee") p.arc(tcx + 2 * u * facing, chin - 0.06 * HH, 0.32 * T.a, 0.1 * HH, 15, 165, 4 * u, tr); // crew-neck band
       if (!o.style) for (let i = 0; i < 4; i++) {
         const y = chin + 0.12 * HH + i * 0.2 * HH;
         if (o.sash && Math.abs(y - (torsoBot - 0.32 * HH)) < 0.08 * HH) continue;

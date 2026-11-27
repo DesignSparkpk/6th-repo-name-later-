@@ -40,6 +40,7 @@ export const CRANE: V3 = [DX - 5.5, 0, -1.0];
 export const SX = 1500;                   // the storm at sea
 export const PRX = 1900;                  // the printing press
 export const QX = 2300;                   // the town square at dusk
+export const GX = 2800;                   // the school gym
 
 // ---------------- clocks ----------------
 export const T = {
@@ -61,7 +62,9 @@ export const T = {
   wife: wf("wife"), gallery: wf("wife", "gallery"), wifeW: wf("wife", "wife"), handing: wf("wife", "handing"), reporters: wf("wife", "reporters"),
   papers: wf("papers"), printW: wf("papers", "print"), every: wf("papers", "every"), wordW: wf("papers", "word"), crowd: wf("papers", "crowd"),
   jokes: wf("papers", "jokes"), ifMr: wf("papers", "if"), mad: wf("papers", "mad"), bite: wf("papers", "bite"), mps: wf("papers", "mps"),
-  caves: wf("caves"),
+  caves: wf("caves"), cavesW: wf("caves", "caves"), yearA: wf("caves", "a"), british: wf("caves", "british"), wear: wf("caves", "wear"), lineC: wf("caves", "line"),
+  shoes: wf("shoes"), rubber: wf("shoes", "rubber"), gym: wf("shoes", "gym"), looked: wf("shoes", "looked"), got: wf("shoes", "got"), name: wf("shoes", "name"),
+  plimsolls: wf("shoes", "plimsolls"),
 };
 /** dawn: Plimsoll strides down the quay toward the camera, stops at the edge with his pot and brush */
 export const PL_WALK0: V3 = [DX - 7.2, 0, -1.9], PL_STOP: V3 = [DX - 1.6, 0, -1.25];
@@ -88,6 +91,9 @@ export const BIN: V3 = [1.75, 0, 0.95];
 export const SPEAKER: V3 = [0, 1.08, -13.85];
 export const WIFE: V3 = [-6.35, 4.5, -8.6];
 export const REPORTERS: V3[] = [[-6.45, 4.5, -9.6], [-6.25, 4.5, -10.5], [-6.55, 4.5, -7.7]];
+/** the ending: the hero pair of plimsolls on the gym floor; Plimsoll on the quay at sunrise */
+export const SHOE: V3 = [GX + 0.6, 0, 2.0];
+export const PL_OLD: V3 = [DX + 1.2, 0, -0.9];
 /** the orator on his crate in the square */
 export const ORATOR: V3 = [QX, 0.55, 0];
 /** the stamped policy blowing off the clerk's desk and landing against the rotten hull */
@@ -98,7 +104,7 @@ export const paperAt = (f: number): V3 => {
 };
 /** frames of the hidden cuts: under a rising-bubble wipe into the dock, under lightning flashes in and out of the storm */
 export const CUT = { dock: T_DOCK(), storm1: T.ifSinks, night: T.richer - 16, storm2: T.coffin, dawn: T.fix, club: T.laugh, snaps: T.snaps, papers: T.papers,
-  square: T.wordW + 11, caves: T.caves };
+  square: T.wordW + 11, caves: T.caves, year: T.yearA, shoes: T.shoes };
 function T_DOCK() { return wf("yousee") + 6; }
 /** crate drops on the beat: [frame, crate index]; plus a fast time-lapse that fills the deck before "until" */
 export const DROPS: [number, number][] = [[T.cram, 0], [T.withC, 1], [T.cargo, 2], ...[3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13].map((k, i) => [T.cargo + 6 + i * 2, k] as [number, number])];
@@ -224,6 +230,20 @@ const KEYS: Key[] = [
   { f: T.ifMr - 4, dur: 24, s: (f) => dolly([QX + 0.8, 2.05, 4.7], [QX, 2.2, 0], pushK(f, T.ifMr + 20, 0.003), { fov: 42, roll: -0.03 }) },
   { f: T.bite - 3, dur: 6, s: () => ({ pos: [QX + 0.45, 2.2, 3.0], look: [QX, 2.32, 0], fov: 40, roll: 0.06 }) },
   { f: T.mps, dur: 14, s: (f) => dolly([QX + 1.7, 2.9, 9.2], [QX, 2.3, 0], pushK(f, T.mps + 14, 0.003), { fov: 44, roll: -0.02 }) },
+  // ---- "Within weeks, Parliament caves": whip back into the chamber, the emergency act stamped at the table ----
+  { f: CUT.caves, cut: true, s: (f) => dolly([-1.6, 1.68, 0.85], [1.05, 1.1, 0.3], pushK(f, CUT.caves, 0.003), { fov: 42, roll: 0.03 }) },
+  { f: T.cavesW - 5, dur: 7, s: () => ({ pos: [0.27, 1.95, 1.02], look: [0.25, 0.955, 0.45], fov: 38, roll: -0.05 }) },   // top-down on the act as the stamp slams
+  // ---- "A year later": a sun glare; craning down over the sunrise harbour from the water, every hull wearing the mark ----
+  { f: CUT.year, cut: true, s: () => ({ pos: [DX - 12, 9.5, 15], look: [DX + 2, 0.2, 2.5], fov: 46, roll: 0.02 }) },
+  { f: T.british - 4, dur: 34, s: () => ({ pos: [MARK[0] + 1.4, MARK[1] + 1.2, MARK[2] + 5.2], look: [MARK[0] - 0.4, MARK[1] + 0.9, MARK[2] - 1.5], fov: 44, roll: -0.02 }) },
+  { f: T.wear - 4, dur: 18, s: (f) => dolly([MARK[0] + 0.1, DW + 1.45 - 0.5 + 0.02, MARK[2] + 1.75], [MARK[0], DW + 1.45 - 0.5, MARK[2]], pushK(f, T.wear + 14, 0.004), { fov: 40, roll: 0 }) },
+  // ---- MATCH CUT: the hull's line becomes the rubber stripe on a gym shoe; slide along it, then pull back ----
+  { f: CUT.shoes, cut: true, s: () => ({ pos: [SHOE[0] + 0.02, 0.024, SHOE[2] + 0.36], look: [SHOE[0] + 0.02, 0.018, SHOE[2]], fov: 40, roll: 0 }) },
+  { f: T.rubber, dur: 40, s: () => ({ pos: [SHOE[0] + 0.11, 0.03, SHOE[2] + 0.33], look: [SHOE[0] + 0.09, 0.02, SHOE[2]], fov: 40, roll: 0.02 }) },
+  { f: T.looked - 4, dur: 30, s: () => ({ pos: [SHOE[0] + 0.6, 0.32, SHOE[2] + 1.25], look: [SHOE[0] - 1.6, 0.2, SHOE[2] - 0.35], fov: 42, roll: -0.03 }) },   // low along the row of pairs, the kids behind
+  { f: T.got - 6, dur: 26, s: (f) => dolly([GX + 0.9, 1.35, 7.3], [GX + 0.2, 1.0, 0], pushK(f, T.got + 20, 0.003), { fov: 44, roll: 0.02 }) },
+  // "Plimsolls.": a kid jumps; tilt up to the portrait on the wall
+  { f: T.plimsolls - 2, dur: 18, s: () => ({ pos: [GX + 0.15, 4.55, -3.9], look: [GX, 5.3, -7.94], fov: 42, roll: 0 }) },
 ];
 const run = (f: number) => {
   let cur = full(KEYS[0].s(f));
@@ -238,7 +258,7 @@ const run = (f: number) => {
 const KICKS: [number, number][] = [[T.villains, 1.1], [T.parliament, 0.4], [T.bottom + 1, 0.6], [T.insure + 9, 1.0],
   [T.cram, 0.8], [T.withC, 0.8], [T.cargo, 1.0], [T.sinks, 0.7], [T.richer, 0.9], [T.stays + 3, 1.0], [T.paint, 0.3], [T.laughW, 0.6], [T.my, 0.5],
   [T.dropped + 4, 0.7], [T.snapW, 0.9], [T.foot, 1.3], [T.table, 1.3], [T.fistW, 0.6], [T.quoteI, 0.6], [T.villains2, 1.2], [T.back, 0.5], [T.refuses, 0.6],
-  [T.every, 0.5], [T.jokes, 0.4], [T.bite, 1.3], [T.mps, 0.8]];
+  [T.every, 0.5], [T.jokes, 0.4], [T.bite, 1.3], [T.mps, 0.8], [T.cavesW, 1.1], [T.plimsolls + 8, 0.6]];
 export const kickAt = (f: number) => {
   let a = 0;
   for (const [f0, g] of KICKS) { const n = f - f0; if (n >= 0 && n < 7) a += g * (n % 2 ? -1 : 1) * (1 - n / 7) ** 1.5; }
@@ -254,7 +274,7 @@ export const camAt = (f: number): Cam => {
 };
 
 // ---------------- light follows the camera: inside the chamber, out over the river, under the water ----------------
-export type Place = "chamber" | "river" | "under" | "dock" | "storm" | "night" | "dawn" | "club" | "press" | "square";
+export type Place = "chamber" | "river" | "under" | "dock" | "storm" | "night" | "dawn" | "club" | "press" | "square" | "harbour" | "gym";
 export const placeAt = (f: number): Place => {
   const c = run(f);
   if (f < CUT.dock) {
@@ -270,13 +290,15 @@ export const placeAt = (f: number): Place => {
   if (f < CUT.papers) return "chamber";
   if (f < CUT.square) return "press";
   if (f < CUT.caves) return "square";
-  return "chamber";
+  if (f < CUT.year) return "chamber";
+  if (f < CUT.shoes) return "harbour";
+  return "gym";
 };
-export const LIGHT_OF: Record<Place, LightName> = { chamber: "candle", river: "dusk", under: "under", dock: "fog", storm: "storm", night: "night", dawn: "dawn", club: "club", press: "press", square: "lantern" };
+export const LIGHT_OF: Record<Place, LightName> = { chamber: "candle", river: "dusk", under: "under", dock: "fog", storm: "storm", night: "night", dawn: "dawn", club: "club", press: "press", square: "lantern", harbour: "sunrise", gym: "gym" };
 /** sun direction per place, world space (fixed: the camera moves continuously through each place) */
 export const SUN_OF: Record<Place, V3> = {
   chamber: [0.55, 0.8, 0.25], river: [-0.6, 0.24, -0.76], under: [-0.15, 0.97, 0.1],
-  dock: [0.35, 0.75, -0.56], storm: [0.3, 0.8, 0.5], night: [0.3, 0.6, 0.75], dawn: [0.7, 0.3, 0.65], club: [-0.75, 0.45, 0.4], press: [0.35, 0.8, 0.5], square: [-0.75, 0.22, 0.62],
+  dock: [0.35, 0.75, -0.56], storm: [0.3, 0.8, 0.5], night: [0.3, 0.6, 0.75], dawn: [0.7, 0.3, 0.65], club: [-0.75, 0.45, 0.4], press: [0.35, 0.8, 0.5], square: [-0.75, 0.22, 0.62], harbour: [0.55, 0.28, 0.78], gym: [0.25, 0.85, 0.48],
 };
 /** lightning: frames of the strikes (the cuts in and out of the storm hide under the first one) */
 export const STRIKES = [CUT.storm1, CUT.storm1 + 10, CUT.night, T.richer, CUT.storm2, T.cships - 3];
@@ -323,6 +345,13 @@ export const DOF: Dof[] = [
   { f: CUT.papers + 6, dur: 12, cInf: 6, focus: () => [PRX + 0.2, 1.3, 0.2] },
   { f: CUT.square, cInf: 12, focus: () => [QX + 0.32, 2.4, 0] },
   { f: CUT.square + 4, dur: 16, cInf: 8, focus: () => [QX, 2.0, 0] },
+  { f: CUT.caves, cInf: 10, focus: () => [0.4, 1.0, 0.5] },
+  { f: CUT.year, cInf: 2 },
+  { f: T.wear - 4, dur: 12, cInf: 10, focus: () => [MARK[0], DW + 0.95, MARK[2]] },
+  { f: CUT.shoes, cInf: 14, focus: () => [SHOE[0] + 0.02, 0.02, SHOE[2]] },
+  { f: T.looked - 4, dur: 16, cInf: 10, focus: () => [SHOE[0] - 0.4, 0.05, SHOE[2]] },
+  { f: T.got - 6, dur: 14, cInf: 8, focus: () => [GX, 1.0, 0] },
+  { f: T.plimsolls - 2, dur: 12, cInf: 7, focus: () => [GX, 5.3, -7.94] },
 ];
 export const dofAt = (f: number) => {
   let cur = { cInf: DOF[0].cInf, focus: DOF[0].focus };

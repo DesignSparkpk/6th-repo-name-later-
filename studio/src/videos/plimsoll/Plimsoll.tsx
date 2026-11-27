@@ -192,6 +192,13 @@ const PaperSpin: React.FC = () => {
     </AbsoluteFill>
   );
 };
+/** "A year later": a warm sun glare blooms over the cut into the sunrise harbour */
+const Glare: React.FC = () => {
+  const f = useCurrentFrame(), n = f - CUT.year;
+  if (n < -5 || n > 7) return null;
+  const a = n < 0 ? (n + 5) / 5 : 1 - n / 7;
+  return <AbsoluteFill style={{ background: "radial-gradient(circle at 60% 35%, #fff6d8 0%, #ffd890 35%, rgba(255,190,120,0.6) 70%)", opacity: a }} />;
+};
 /** lightning: a white flash on the cuts in and out of the storm */
 const Flash: React.FC = () => {
   const f = useCurrentFrame();
@@ -209,7 +216,7 @@ const useFont = () => {
 };
 
 /** whip pans: horizontal motion blur on the picture around a cut (peak on the cut frame) */
-const WHIPS = [CUT.club];
+const WHIPS = [CUT.club, CUT.caves];
 const whipAt = (f: number) => { let a = 0; for (const c0 of WHIPS) { const n = Math.abs(f - c0); if (n <= 5) a = Math.max(a, 1 - n / 6); } return a; };
 
 export const PlimsollShort: React.FC = () => {
@@ -232,6 +239,7 @@ export const PlimsollShort: React.FC = () => {
       <CloudWipe />
       <PaperWipe />
       <PaperSpin />
+      <Glare />
       <Caption />
     </AbsoluteFill>
   );

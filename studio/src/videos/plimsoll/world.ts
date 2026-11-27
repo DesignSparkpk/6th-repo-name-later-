@@ -11,6 +11,7 @@ import { buildSets, Sets } from "./sets";
 import { buildSets2, Sets2, swell } from "./sets2";
 import { buildClub, Sets3 } from "./sets3";
 import { buildSets4, Sets4 } from "./sets4";
+import { buildSets5, Sets5 } from "./sets5";
 import { stage } from "./cast";
 import { FPS, camAt, placeAt, LIGHT_OF, SUN_OF, T, WIN, smooth, DX, DW, DSHIP, SX, DROPS, shipSink, strikeAt, CUT, dawnSink, PRX } from "./story";
 
@@ -23,7 +24,7 @@ export class World {
   private sky: THREE.Mesh; private skyMat: THREE.ShaderMaterial;
   private fog = new THREE.Fog("#bccbec", 25, 420);
   private clouds: THREE.Mesh[] = [];
-  private S: Sets; private S2: Sets2; private S3: Sets3; private S4: Sets4;
+  private S: Sets; private S2: Sets2; private S3: Sets3; private S4: Sets4; private S5: Sets5;
   private frustum = new THREE.Frustum(); private m4 = new THREE.Matrix4(); private v = new THREE.Vector3(); private sph = new THREE.Sphere();
 
   constructor() {
@@ -51,6 +52,7 @@ export class World {
     this.S2 = buildSets2(R);
     this.S3 = buildClub(R);
     this.S4 = buildSets4(R);
+    this.S5 = buildSets5(R);
   }
 
   private actor(i: number) { while (this.actors.length <= i) this.actors.push(new Actor(this.root)); return this.actors[i]; }
@@ -141,8 +143,14 @@ export class World {
       S2.lantern.visible = f < T.cships;
     }
     // dawn: the sound ship gets its mark stroke by stroke, then a load pushes the mark under the water
-    const dawn = place === "dawn";
-    S2.dawnShip.visible = dawn;
+    const dawn = place === "dawn", harbour = place === "harbour";
+    S2.dawnShip.visible = dawn || harbour;
+    this.S5.harbourShips.forEach((g) => { g.visible = harbour; });
+    if (harbour) { // a year later: the same berth, the mark long since painted, the ship riding proud
+      S2.dockShip.visible = false; S2.dawnShip.position.y = DW + 1.45 + 0.04 * Math.sin(t * 1.3);
+      (S2.markDawn.material as THREE.MeshBasicMaterial).map = S2.markTex[16]; S2.markDawn.visible = true;
+      S2.dawnCrates.forEach((c3) => { c3.visible = false; });
+    }
     if (dawn) {
       S2.dockShip.visible = false;
       S2.dawnShip.position.y = dawnSink(f) + 0.04 * Math.sin(t * 1.3);

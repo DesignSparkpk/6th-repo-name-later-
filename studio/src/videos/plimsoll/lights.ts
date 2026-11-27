@@ -12,7 +12,7 @@ export type LightPreset = {
   sunCol: string; sunI: number; sky: string; ground: string; hemiI: number;         // three lights (unpatched mats only)
   bias: number; normalBias: number;
 };
-export type LightName = "day" | "golden" | "overcast" | "desert" | "candle" | "dusk" | "under" | "fog" | "storm" | "night" | "dawn" | "club" | "press" | "lantern";
+export type LightName = "day" | "golden" | "overcast" | "desert" | "candle" | "dusk" | "under" | "fog" | "storm" | "night" | "dawn" | "club" | "press" | "lantern" | "sunrise" | "gym";
 export const LIGHTS: Record<LightName, LightPreset> = {
   day: {
     az: 75, el: 48,
@@ -156,6 +156,27 @@ export const LIGHTS: Record<LightName, LightPreset> = {
     bias: -0.0005, normalBias: 0.025,
   },
 
+  // a year later: golden sunrise over the harbour
+  sunrise: {
+    az: 50, el: 12,
+    lit: [1.62, 1.12, 0.64], shade: [0.2, 0.17, 0.35], lift: [0.05, 0.05, 0.12], lambert: 0.35, sideK: 0.82, term: 0.1,
+    charTint: [1.0, 0.88, 0.74], charShade: 0.86, charGrad: 0.1, bodyGrad: 0.24, sideTint: [0.88, 0.82, 0.94],
+    blob: [0.7, 0.66, 0.82], actorShadow: true,
+    top: "#8a88b8", hor: "#ffd890", skyCurve: [0.05, 0.6, 1.0], fog: "#f2c69c", fogNear: 20, fogFar: 230, sunDisc: "#ffe2a8",
+    sunCol: "#ffcf8a", sunI: 3.8, sky: "#ffe0b8", ground: "#6a5a60", hemiI: 0.7,
+    bias: -0.0005, normalBias: 0.025,
+  },
+  // the school gym today: bright daylight from the high windows, warm wood
+  gym: {
+    az: 30, el: 55,
+    lit: [1.46, 1.38, 1.24], shade: [0.46, 0.43, 0.5], lift: [0.08, 0.08, 0.1], lambert: 0.3, sideK: 0.88, term: 0.25,
+    charTint: [1.0, 0.98, 0.95], charShade: 0.9, charGrad: 0.06, bodyGrad: 0.16, sideTint: [0.94, 0.94, 0.98],
+    blob: [0.66, 0.62, 0.62], actorShadow: true,
+    top: "#cfe6f5", hor: "#f4fbff", skyCurve: [0.0, 0.5, 0.6], fog: "#e8e2d4", fogNear: 20, fogFar: 120, sunDisc: "#000000",
+    sunCol: "#fff6e6", sunI: 2.6, sky: "#f4f8ff", ground: "#b89a70", hemiI: 0.9,
+    bias: -0.0003, normalBias: 0.015,
+  },
+
 };
 
 /** world-only look per light (sky stops by elevation in degrees, river colours, cloud palette). All colours are
@@ -268,5 +289,19 @@ export const LOOK: Record<LightName, WorldLook> = {
     cloud: { lit: "#ffb090", mid: "#d07890", shade: "#7a5a9a" },
     bounce: [0.04, 0.02, 0.02],
     sat: 1.12,
+  },
+  sunrise: {
+    sky: { c: ["#ffd890", "#ffbf80", "#f2a080", "#c890a0", "#8a88b8"], e: [0, 4, 10, 20, 40] },
+    water: { near: "#5a6f8a", mid: "#7a86a8", far: "#f2c09a", crest: "#ffe2c0", trough: "#3a4a68", glint: "#fff0c8", shade: [0.5, 0.5, 0.75] },
+    cloud: { lit: "#ffe0b8", mid: "#f6b090", shade: "#b098c0" },
+    bounce: [0.05, 0.03, 0.0],
+    sat: 1.12,
+  },
+  gym: {
+    sky: { c: ["#f4fbff", "#e8f4fc", "#dcecf8", "#d0e4f4", "#c4dcf0"], e: [0, 4, 10, 20, 40] },
+    water: { near: "#e8e2d4", mid: "#e8e2d4", far: "#e8e2d4", crest: "#ffffff", trough: "#c8c2b4", glint: "#ffffff", shade: [0.7, 0.7, 0.75] },
+    cloud: { lit: "#ffffff", mid: "#f0f0f0", shade: "#e0e0e8" },
+    bounce: [0.03, 0.02, 0.0],
+    sat: 1.08,
   },
 };

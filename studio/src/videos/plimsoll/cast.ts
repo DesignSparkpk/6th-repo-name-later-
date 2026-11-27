@@ -3,7 +3,7 @@
 import * as THREE from "three";
 import { Pen, bodyFront, bodySide, SKIN, INK, fxBurst, fxRing, fxSplash, fxShadow, fxContact, fxPuff, Outfit, FrontOpts, SideOpts } from "./toon";
 import type { Place, FxPlace, Stage, CamInfo } from "../bridge/cast";
-import { FPS, PLIM, WATER, HOARD, BED, COFFIN, T, talking, camAt, clamp01, smooth, OWNER, DESK, DSHIP, DX, SX, HULLPT, paperAt, shipSink, CUT, STRIKES, plimWalk, PL_STOP, MARK, HARB, dawnSink, DW, CLUB_CHAIRS, ownerWalk, OWNER_SEAT, PM, BIN, SPEAKER, WIFE, REPORTERS, PRX, QX, ORATOR } from "./story";
+import { FPS, PLIM, WATER, HOARD, BED, COFFIN, T, talking, camAt, clamp01, smooth, OWNER, DESK, DSHIP, DX, SX, HULLPT, paperAt, shipSink, CUT, STRIKES, plimWalk, PL_STOP, MARK, HARB, dawnSink, DW, CLUB_CHAIRS, ownerWalk, OWNER_SEAT, PM, BIN, SPEAKER, WIFE, REPORTERS, PRX, QX, ORATOR, GX, SHOE, PL_OLD } from "./story";
 import type { Place as Place3 } from "./story";
 
 // ---------------- cast ----------------
@@ -37,6 +37,9 @@ const TOWN = (v: number): Outfit => {
   if (k === 3) return { jacket: "#f2efe8", style: "vest", trim: ["#5a3a22", "#2f4f3a", "#3a2f4a"][v % 3], pants: "#3a3a44", boots: "#2a2a30", hat: "cap", cap: ["#4a3a2a", "#2c3a55", "#3a3a44"][v % 3], beard: v % 2 ? "#5a4636" : undefined, skin: SKIN };
   return { jacket: "#e08a3a", pants: "#3a5a8a", boots: "#2a2a30", hat: "cap", cap: "#c0302a", build: "kid", skin: SKIN };
 };
+const PE_KID = (v: number): Outfit => ({ jacket: "#f4f4f0", style: "tee", trim: "#2c4f86", pants: "#26324f", boots: "#f2efe8", hat: "hair", hair: ["#3a2c22", "#c9a35a", "#1c1c22", "#a0522d", "#5a3b2a", "#2a201a"][v % 6], build: "kid", skin: SKIN });
+const TEACHER_O: Outfit = { jacket: "#7a1f2b", style: "zip", trim: "#f2efe8", pants: "#7a1f2b", boots: "#f2efe8", hat: "hair", hair: "#3a2c22", moustache: "#3a2c22", skin: SKIN };
+const PLIM_OLD_O: Outfit = { ...PLIMSOLL, beard: "#b8b0a4", moustache: "#a8a094", hair: "#c8c0b4" };
 const HARBOUR_O: Outfit = { jacket: "#22304a", pants: "#22304a", boots: "#1b1b20", hat: "cap", cap: "#22304a", style: "collar", trim: "#c9a24e", moustache: "#5a4636",
   buttons: "#e2b84a", build: "stout", skin: SKIN };
 const SAILOR = (v: number): Outfit => ({ jacket: "#f2efe8", style: "stripes", trim: "#2c4f86", pants: ["#2b3a55", "#3a3a44", "#4a3b30"][v % 3], boots: "#3a2c22",
@@ -165,6 +168,19 @@ const folderFly = (p: Pen) => {
 };
 const steam = (p: Pen, u: number) => { for (let i = 0; i < 3; i++) { const t2 = clamp01(u * 1.3 - i * 0.15); if (t2 <= 0) continue; p.ell(64 + 10 * i, 220 - 170 * t2 - i * 20, 26 + 30 * t2, 22 + 26 * t2, `rgba(245,245,245,${0.9 * (1 - t2)})`, 0); } };
 const hatFly = (p: Pen) => { p.poly([[40, 30], [120, 30], [124, 150], [36, 150]], "#2e2a36", 7); p.ell(80, 150, 70, 16, "#1d1b22", 7); p.stroke([[38, 124], [122, 124]], 12, "#5a2a4a"); };
+const actBlank = (p: Pen) => { // the act before the stamp
+  p.poly([[20, 30], [480, 14], [492, 330], [30, 350]], "#efe2bf", 8);
+  p.g.save(); p.g.fillStyle = "#4a3a2a"; p.g.font = "bold 40px Georgia, serif"; p.g.textAlign = "center"; p.g.fillText("UNSEAWORTHY SHIPS", 255, 86);
+  for (let i = 0; i < 6; i++) p.g.fillRect(70, 120 + i * 30, 360 - (i % 2) * 90, 6); p.g.restore();
+};
+const actStamped = (p: Pen) => { // the emergency act on the table, stamped
+  p.poly([[20, 30], [480, 14], [492, 330], [30, 350]], "#efe2bf", 8);
+  p.g.save(); p.g.fillStyle = "#4a3a2a"; p.g.font = "bold 40px Georgia, serif"; p.g.textAlign = "center"; p.g.fillText("UNSEAWORTHY SHIPS", 255, 86);
+  for (let i = 0; i < 4; i++) p.g.fillRect(70, 120 + i * 30, 360 - (i % 2) * 90, 6);
+  p.g.translate(260, 268); p.g.rotate(-0.12); p.g.strokeStyle = "#c0202a"; p.g.lineWidth = 9; p.g.strokeRect(-200, -52, 400, 96);
+  p.g.fillStyle = "#c0202a"; p.g.font = "bold 54px Georgia, serif"; p.g.fillText("EMERGENCY", 0, -4); p.g.font = "bold 36px Georgia, serif"; p.g.fillText("ACT", 0, 34); p.g.restore();
+};
+const squeak = (p: Pen, u: number) => { for (const [a, l] of [[-0.9, 70], [-0.35, 90], [0.35, 90], [0.9, 70]]) { const c = 128, r0 = 40 + 30 * u; p.stroke([[c + Math.sin(a) * r0, c - Math.cos(a) * r0 * 0.6], [c + Math.sin(a) * (r0 + l), c - Math.cos(a) * (r0 + l) * 0.6]], 7, "#2a2430"); } };
 const capFly = (p: Pen, col: string) => { p.ell(64, 70, 50, 34, col, 7); p.ell(64, 96, 58, 12, col, 6); };
 const rainStreak = (p: Pen) => { p.g.globalAlpha = 0.85; p.stroke([[16, 8], [8, 248]], 7, "#dfe8f6"); p.g.globalAlpha = 1; };
 const gull = (p: Pen, u: number) => { const w = 30 * Math.sin(u * Math.PI * 2); p.stroke([[10, 60 + w], [60, 50], [110, 60 + w]], 9, "#2a2430"); };
@@ -260,6 +276,44 @@ export const stage = (place: Place3, f: number, cam: CamInfo): Stage => {
         fxAt(out, "paperFly", 128, 160, paperFly, WIFE[0] + (tx - WIFE[0]) * u, 5.55 + 0.4 * Math.sin(Math.PI * u), WIFE[2] + (tz - WIFE[2]) * u, 0.2, 0.25, { rot: u * 5 });
       }
     }
+  }
+  if (place === "chamber" && f >= CUT.caves && f < CUT.year) {
+    // "Parliament caves": the PM and a minister stamp the emergency act; the owners slump; Plimsoll, arms folded, looks on
+    const r = cam.right;
+    [[PM, PM_O, 0], [[1.3, 0, 1.35] as [number, number, number], MP(1), 4]].forEach(([pos, o, ph], k) => {
+      const [x, y, z] = pos as [number, number, number];
+      const sw = smooth(((f - T.caves - (ph as number)) % 14) / 4) * (f < CUT.year ? 1 : 0);
+      P({ i: 140 + k, o: o as Outfit, okey: "stamper" + k }, x, y, z, { mode: "stand", expr: k ? "nervous" : "stern", prop: "stamp", swing: f >= T.cavesW - 3 ? smooth((f - (T.cavesW - 3)) / 3) : sw, facing: k ? 1 : -1 });
+    });
+    for (let k = 0; k < 3; k++) fxAt(out, k === 1 && f >= T.cavesW ? "actStamped" : "actBlank", 512, 360, k === 1 && f >= T.cavesW ? actStamped : actBlank, 0.25 + (k - 1) * 0.42, 0.985, 0.45 + (k === 1 ? 0 : 0.35), 0.44, 0.31, { flat: true, rot: 0.1 * (k - 1) });
+    if (f >= T.cavesW && f < T.cavesW + 9) { const v = (f - T.cavesW) / 9; fxAt(out, `actHit${q(v, 9)}`, 500, 500, (p) => fxBurst(p, v, "#fff3d0", 8, 80, 220), 0.25, 1.05, 0.45, 0.45, 0.45); }
+    if (f >= T.cavesW - 8 && f < T.cavesW + 12) { // the same hand-and-stamp slam as at the insurance office: this time it stamps the act
+      const down = smooth((f - (T.cavesW - 6)) / 6), up = smooth((f - (T.cavesW + 6)) / 5), h = 1.06 + 0.55 * (1 - down) + 0.6 * up;
+      fxAt(out, `stampHand${down > 0.9 && up < 0.1 ? 1 : 0}`, 300, 300, (p) => stampHand(p, down > 0.9 && up < 0.1 ? 1 : 0), 0.27, h, 0.47, 0.34, 0.34);
+    }
+    [[2.21, 0.3, -2.0, OWNER_O], [3.21, 0.7, -1.2, OWNER3_O], [3.21, 0.7, 1.6, OWNER2_O], [2.21, 0.3, 2.4, OWNER2_O]].forEach(([x, y, z, o], k) =>
+      P({ i: 80 + k, o: o as Outfit, okey: "ownerOpp" + k }, x as number, y as number, z as number, { mode: "sit", expr: f >= T.cavesW ? "pained" : "nervous", tilt: f >= T.cavesW ? 9 : 0, look: -0.5 }));
+    P({ i: 1, o: PLIMSOLL, okey: "plim" }, PLIM[0], PLIM[1], PLIM[2], { mode: "stand", expr: "smug", fold: true, facing: 1 });
+    void r;
+  }
+  if (place === "harbour") {
+    // a year on: Plimsoll on the quay, beard gone grey, smiling at a harbour full of marked hulls; sailors cheer from the decks
+    P({ i: 1, o: PLIM_OLD_O, okey: "plimOld" }, PL_OLD[0], 0, PL_OLD[2], { mode: "stand", expr: "smile_closed", facing: 1, wave: f >= T.wear ? q(0.5 + 0.5 * Math.sin(f * 0.35), 10) : undefined });
+    blob(out, PL_OLD[0], 0, PL_OLD[2]);
+    [[DSHIP[0] - 2.5, 3.3, 0], [DSHIP[0] + 1.5, 2.8, 1], [DSHIP[0] + 18, 3.5, 2], [DSHIP[0] - 16, 3.0, 3]].forEach(([x, z, k]) =>
+      P({ i: 40 + k, o: SAILOR(k), okey: "sailorH" + k }, x, DW + 1.5, z, { mode: "stand", expr: "laugh", wave: q(0.5 + 0.5 * Math.sin(f * 0.45 + k), 10) }));
+  }
+  if (place === "gym") {
+    // kids in PE kit lined up in their plimsolls, the teacher with his whistle; one kid jumps on "Plimsolls."
+    for (let k = 0; k < 6; k++) {
+      const x = GX - 2.6 + k * 1.05, jump = k === 2 && f >= T.plimsolls - 2 && f < T.plimsolls + 16;
+      const ju = jump ? (f - T.plimsolls + 2) / 18 : 0, y = jump ? 0.8 * Math.sin(Math.PI * ju) : 0;
+      P({ i: 150 + k, o: PE_KID(k), okey: "kid" + k }, x, y, -0.3 + (k % 2) * 0.25, { mode: "stand", expr: jump ? "laugh" : k % 3 ? "grin" : "smile_closed", wave: jump ? 0.9 : undefined });
+      blob(out, x, 0, -0.3 + (k % 2) * 0.25, 0.8);
+      if (k === 2 && f >= T.plimsolls + 14 && f < T.plimsolls + 24) { const v = (f - T.plimsolls - 14) / 10; fxAt(out, `squeak${q(v, 10)}`, 256, 256, (p) => squeak(p, v), x, 0.25, -0.05, 0.6, 0.6); }
+    }
+    P({ i: 160, o: TEACHER_O, okey: "teacher" }, GX + 3.9, 0, 0.4, { mode: "stand", expr: f >= T.got ? "smug" : "neutral", prop: f >= T.got - 6 && f < T.name + 10 ? "whistle" : null, facing: -1 });
+    void SHOE;
   }
   if (place === "press") {
     P({ i: 110, o: PRESSMAN_O, okey: "pressman" }, PRX - 2.1, 0, 1.4, { mode: "stand", expr: f >= T.every ? "grin" : "smug", prop: "copies", facing: 1 });
