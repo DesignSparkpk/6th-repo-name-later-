@@ -1,0 +1,167 @@
+[
+ {
+  "key": "hook",
+  "text": "His boss fired him with five words:",
+  "speed": 1.18,
+  "gap": 0.12
+ },
+ {
+  "key": "quote",
+  "text": "\"I just don't like you.\"",
+  "voice": "am_eric",
+  "speed": 0.95,
+  "gain": -1,
+  "gap": 0.28
+ },
+ {
+  "key": "walked",
+  "text": "So he walked into a company losing over a billion dollars...",
+  "speed": 1.24,
+  "gain": 1,
+  "gap": 0.08
+ },
+ {
+  "key": "turned",
+  "text": "and turned it around.",
+  "speed": 1.04,
+  "gain": 2.5,
+  "gap": 0.32
+ },
+ {
+  "key": "yousee",
+  "text": "You see, this was the man behind Ford's Mustang.",
+  "speed": 1.2,
+  "gap": 0.08
+ },
+ {
+  "key": "fired",
+  "text": "Fired anyway.",
+  "speed": 1.08,
+  "gain": 3,
+  "gap": 0.22
+ },
+ {
+  "key": "dying",
+  "text": "His new company, Chrysler, was dying.",
+  "speed": 1.15,
+  "gap": 0.16
+ },
+ {
+  "key": "salary",
+  "text": "So he cut his own salary...",
+  "speed": 1.18,
+  "gap": 0.18
+ },
+ {
+  "key": "dollar",
+  "text": "to one dollar.",
+  "speed": 0.96,
+  "gain": 2,
+  "gap": 0.32
+ },
+ {
+  "key": "worse",
+  "text": "And it gets worse:",
+  "speed": 1.12,
+  "gain": 3,
+  "gap": 0.06
+ },
+ {
+  "key": "beg",
+  "text": "to survive, he had to beg Congress for $1.5 billion.",
+  "say": "to survive, he had to beg Congress for one point five billion dollars.",
+  "speed": 1.24,
+  "gain": 1,
+  "gap": 0.1
+ },
+ {
+  "key": "critics",
+  "text": "Critics said:",
+  "speed": 1.2,
+  "gap": 0.05
+ },
+ {
+  "key": "letdie",
+  "text": "\"Let it die.\"",
+  "voice": "am_eric",
+  "speed": 0.92,
+  "gap": 0.32
+ },
+ {
+  "key": "yes",
+  "text": "They said yes...",
+  "speed": 1.1,
+  "gain": 1,
+  "gap": 0.24
+ },
+ {
+  "key": "catch",
+  "text": "with a catch:",
+  "speed": 1.08,
+  "gain": 2,
+  "gap": 0.08
+ },
+ {
+  "key": "find",
+  "text": "\"Find two billion more on your own.\"",
+  "voice": "am_eric",
+  "speed": 1.02,
+  "gap": 0.28
+ },
+ {
+  "key": "found",
+  "text": "He found it.",
+  "speed": 1.08,
+  "gain": 3,
+  "gap": 0.16
+ },
+ {
+  "key": "paid",
+  "text": "By 1983, every cent was paid back...",
+  "say": "By nineteen eighty-three, every cent was paid back...",
+  "speed": 1.25,
+  "gap": 0.14
+ },
+ {
+  "key": "seven",
+  "text": "seven years early.",
+  "speed": 0.98,
+  "gain": 2.5,
+  "gap": 0.28
+ },
+ {
+  "key": "later",
+  "text": "A year later:",
+  "speed": 1.2,
+  "gap": 0.05
+ },
+ {
+  "key": "profit",
+  "text": "$2.4 billion in profit.",
+  "say": "two point four billion in profit.",
+  "speed": 0.98,
+  "gain": 3.5,
+  "gap": 0.36
+ },
+ {
+  "key": "boss",
+  "text": "And his old boss?",
+  "speed": 1.12,
+  "gain": 1,
+  "gap": 0.22
+ },
+ {
+  "key": "like",
+  "text": "He didn't have to like him...",
+  "speed": 1.1,
+  "gain": -1,
+  "gap": 0.14
+ },
+ {
+  "key": "should",
+  "text": "he just shouldn't have fired him.",
+  "speed": 1.0,
+  "gain": 2,
+  "gap": 0.1
+ }
+]
