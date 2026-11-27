@@ -3,7 +3,7 @@
 import * as THREE from "three";
 import { Pen, bodyFront, bodySide, SKIN, INK, fxBurst, fxRing, fxSplash, fxShadow, fxContact, fxPuff, Outfit, FrontOpts, SideOpts } from "./toon";
 import type { Place, FxPlace, Stage, CamInfo } from "../bridge/cast";
-import { FPS, PLIM, WATER, HOARD, BED, COFFIN, T, talking, camAt, clamp01, smooth, OWNER, DESK, DSHIP, DX, SX, HULLPT, paperAt, shipSink, CUT, STRIKES, plimWalk, PL_STOP, MARK, HARB, dawnSink, DW, CLUB_CHAIRS, ownerWalk, OWNER_SEAT, PM, BIN, SPEAKER, WIFE, REPORTERS } from "./story";
+import { FPS, PLIM, WATER, HOARD, BED, COFFIN, T, talking, camAt, clamp01, smooth, OWNER, DESK, DSHIP, DX, SX, HULLPT, paperAt, shipSink, CUT, STRIKES, plimWalk, PL_STOP, MARK, HARB, dawnSink, DW, CLUB_CHAIRS, ownerWalk, OWNER_SEAT, PM, BIN, SPEAKER, WIFE, REPORTERS, PRX, QX, ORATOR } from "./story";
 import type { Place as Place3 } from "./story";
 
 // ---------------- cast ----------------
@@ -27,6 +27,16 @@ const SPEAKER_O: Outfit = { jacket: "#1b1b22", pants: "#1b1b22", boots: "#151518
 const WIFE_O: Outfit = { jacket: "#5a2a4a", pants: "#5a2a4a", boots: "#2a2026", hat: "bonnet", dress: "#7a3a5a", skin: SKIN };
 const REPORTER = (v: number): Outfit => ({ jacket: ["#4a4a52", "#5a4a3a", "#3a4a5a"][v % 3], pants: "#2b2b33", boots: "#1d1d22", hat: "bowler", style: "collar",
   trim: ["#7a1f2b", "#2f4f7a", "#c9a24e"][v % 3], moustache: v % 3 === 1 ? "#3a2c22" : undefined, specs: v % 3 === 2, skin: SKIN });
+const PRESSMAN_O: Outfit = { jacket: "#f2efe8", style: "vest", trim: "#4a3a2a", pants: "#3a3a44", boots: "#2a2a30", hat: "cap", cap: "#3a3a44", moustache: "#3a2c22", skin: SKIN };
+const ORATOR_O: Outfit = { jacket: "#f2efe8", style: "vest", trim: "#6a4a2a", pants: "#3a3a44", boots: "#2a2a30", hat: "cap", cap: "#4a3a2a", chops: "#5a4636", skin: SKIN };
+const TOWN = (v: number): Outfit => {
+  const k = v % 6;
+  if (k === 0) return { jacket: ["#2e2a36", "#3b3f52", "#4a3b30"][v % 3], pants: "#2b2d35", boots: "#1d1d22", hat: "tophat", style: "collar", trim: "#7a1f2b", moustache: v % 2 ? "#3a2c22" : undefined, skin: SKIN };
+  if (k === 1 || k === 4) return { jacket: ["#7a3a5a", "#3a5a7a", "#7a6a3a"][v % 3], pants: "#3a3a44", boots: "#2a2026", hat: "bonnet", dress: ["#b05a6a", "#5a7ab0", "#c9a24e"][v % 3], skin: SKIN };
+  if (k === 2) return SAILOR(v);
+  if (k === 3) return { jacket: "#f2efe8", style: "vest", trim: ["#5a3a22", "#2f4f3a", "#3a2f4a"][v % 3], pants: "#3a3a44", boots: "#2a2a30", hat: "cap", cap: ["#4a3a2a", "#2c3a55", "#3a3a44"][v % 3], beard: v % 2 ? "#5a4636" : undefined, skin: SKIN };
+  return { jacket: "#e08a3a", pants: "#3a5a8a", boots: "#2a2a30", hat: "cap", cap: "#c0302a", build: "kid", skin: SKIN };
+};
 const HARBOUR_O: Outfit = { jacket: "#22304a", pants: "#22304a", boots: "#1b1b20", hat: "cap", cap: "#22304a", style: "collar", trim: "#c9a24e", moustache: "#5a4636",
   buttons: "#e2b84a", build: "stout", skin: SKIN };
 const SAILOR = (v: number): Outfit => ({ jacket: "#f2efe8", style: "stripes", trim: "#2c4f86", pants: ["#2b3a55", "#3a3a44", "#4a3b30"][v % 3], boots: "#3a2c22",
@@ -250,6 +260,30 @@ export const stage = (place: Place3, f: number, cam: CamInfo): Stage => {
         fxAt(out, "paperFly", 128, 160, paperFly, WIFE[0] + (tx - WIFE[0]) * u, 5.55 + 0.4 * Math.sin(Math.PI * u), WIFE[2] + (tz - WIFE[2]) * u, 0.2, 0.25, { rot: u * 5 });
       }
     }
+  }
+  if (place === "press") {
+    P({ i: 110, o: PRESSMAN_O, okey: "pressman" }, PRX - 2.1, 0, 1.4, { mode: "stand", expr: f >= T.every ? "grin" : "smug", prop: "copies", facing: 1 });
+    blob(out, PRX - 2.1, 0, 1.4);
+  }
+  if (place === "square") {
+    const r = cam.right, talk = f >= T.ifMr - LEAD && talking(f + LEAD);
+    const chomp = f >= T.bite - 4 && f < T.bite + 7;
+    const oexpr = chomp ? (f < T.bite ? "shock" : "angry") : talk ? (f % 8 < 4 ? "yell" : "laugh") : f >= T.jokes ? "laugh" : "grin";
+    P({ i: 120, o: ORATOR_O, okey: "orator" }, ORATOR[0], ORATOR[1], ORATOR[2], { mode: "stand", expr: oexpr, prop: "newspaper", swing: q(((f / FPS) * 1.4) % 1, 16), tilt: chomp ? 8 : 0, facing: 1 });
+    // the crowd in rings round the crate, keeping the line from the lens to the orator clear
+    const roar = f >= T.jokes - LEAD, big = f >= T.bite;
+    for (let k = 0; k < 30; k++) {
+      const ring = k < 10 ? 2.4 : k < 20 ? 4.1 : 6.0, a = (k % 10) / 10 * Math.PI * 2 + (k >= 10 ? 0.3 : 0) + (k >= 20 ? 0.15 : 0);
+      const x = QX + Math.cos(a) * ring * 1.25, z = Math.sin(a) * ring * 0.9;
+      if (Math.abs(x - QX) < 1.25 && z > 0.5) continue;
+      P({ i: 130 + k, o: TOWN(k), okey: "town" + k }, x, 0, z, { mode: "stand", expr: roar ? (k % 3 ? "laugh" : "grin") : k % 2 ? "grin" : "neutral",
+        wave: big && k % 2 ? q(0.5 + 0.5 * Math.sin(f * 0.5 + k), 10) : undefined, tilt: roar ? (k % 3 - 1) * 3 : 0 });
+      if (f >= T.mps && f < T.mps + 30 && k % 3 === 0 && TOWN(k).hat !== "bonnet") { // hats in the air on "MPs!"
+        const u = (f - T.mps - (k % 4)) / 26;
+        if (u > 0 && u < 1) fxAt(out, TOWN(k).hat === "tophat" ? "hatFly" : `cap${k}`, 160, 180, TOWN(k).hat === "tophat" ? hatFly : (p) => capFly(p, TOWN(k).cap ?? "#4a3a2a"), x + r.x * 0.2, 2.1 + 3.4 * u - 3 * u * u, z, 0.38, 0.42, { rot: u * 7 + k });
+      }
+    }
+    if (chomp && f >= T.bite) { const v = (f - T.bite) / 7; fxAt(out, `chomp${q(v, 7)}`, 500, 500, (p) => fxBurst(p, v, "#fff3d0", 8, 90, 230), ORATOR[0] + r.x * 0.5, ORATOR[1] + 1.55, ORATOR[2] + 0.3, 0.7, 0.7); }
   }
   if (place === "chamber" && f < CUT.dock) {
     // Plimsoll on his feet: fist up and shaking, mouth working with the words; "villains" is the loudest

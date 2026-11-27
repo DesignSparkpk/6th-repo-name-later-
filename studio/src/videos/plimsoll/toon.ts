@@ -972,7 +972,7 @@ export const fxBurst = (p: Pen, t: number, col = "#fff3b0", rays = 10, r0 = 40, 
     p.poly([[c + r0 * 0.5 * Math.cos(a + 0.18), c + r0 * 0.5 * Math.sin(a + 0.18)], [c + ra * Math.cos(a), c + ra * Math.sin(a)],
       [c + r0 * 0.5 * Math.cos(a - 0.18), c + r0 * 0.5 * Math.sin(a - 0.18)]], col, Math.max(3, 8 * (1 - t)));
   }
-  if (t < 0.5) p.ell(c, c, r0 * (1.4 - t), r0 * (1.4 - t), WHITE, 8);
+  if (t < 0.35) p.ell(c, c, r0 * 0.42 * (1 - t), r0 * 0.42 * (1 - t), WHITE, 6); // a small flash at the very start only
 };
 
 /** water splash crown on an 800 x 800 canvas; t in 0..1 */

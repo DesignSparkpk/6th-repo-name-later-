@@ -10,8 +10,9 @@ import { LIGHTS, LOOK } from "./lights";
 import { buildSets, Sets } from "./sets";
 import { buildSets2, Sets2, swell } from "./sets2";
 import { buildClub, Sets3 } from "./sets3";
+import { buildSets4, Sets4 } from "./sets4";
 import { stage } from "./cast";
-import { FPS, camAt, placeAt, LIGHT_OF, SUN_OF, T, WIN, smooth, DX, DW, DSHIP, SX, DROPS, shipSink, strikeAt, CUT, dawnSink } from "./story";
+import { FPS, camAt, placeAt, LIGHT_OF, SUN_OF, T, WIN, smooth, DX, DW, DSHIP, SX, DROPS, shipSink, strikeAt, CUT, dawnSink, PRX } from "./story";
 
 export class World {
   root = new THREE.Group();
@@ -22,7 +23,7 @@ export class World {
   private sky: THREE.Mesh; private skyMat: THREE.ShaderMaterial;
   private fog = new THREE.Fog("#bccbec", 25, 420);
   private clouds: THREE.Mesh[] = [];
-  private S: Sets; private S2: Sets2; private S3: Sets3;
+  private S: Sets; private S2: Sets2; private S3: Sets3; private S4: Sets4;
   private frustum = new THREE.Frustum(); private m4 = new THREE.Matrix4(); private v = new THREE.Vector3(); private sph = new THREE.Sphere();
 
   constructor() {
@@ -49,6 +50,7 @@ export class World {
     this.S = buildSets(R);
     this.S2 = buildSets2(R);
     this.S3 = buildClub(R);
+    this.S4 = buildSets4(R);
   }
 
   private actor(i: number) { while (this.actors.length <= i) this.actors.push(new Actor(this.root)); return this.actors[i]; }
@@ -152,6 +154,20 @@ export class World {
         c3.position.y = home + 7 * Math.max(0, 1 - Math.max(0, u + 1.2) / 1.2) ** 2;
       });
     }
+    // the press: rollers and flywheel turning, printed sheets streaming out (and at the lens on "every word")
+    const S4 = this.S4;
+    S4.rollers.forEach((g, k) => { g.rotation.x = (k % 2 ? -1 : 1) * t * 9; });
+    S4.flywheel.rotation.x = t * 5;
+    S4.sheets.forEach((m, k) => {
+      m.visible = place === "press";
+      if (!m.visible) return;
+      const age = ((f - CUT.papers) / FPS * 1.6 + k / 10) % 1, atLens = f >= T.every - 4 && k < 3;
+      if (atLens) { // three sheets fly straight at the camera
+        const u = Math.min(1, (f - (T.every - 4) - k * 3) / 10); m.visible = u > 0;
+        const c2 = camAt(f); m.position.set(PRX + (c2.pos[0] - PRX) * u * 0.92, 1.1 + (c2.pos[1] - 1.1) * u * 0.92, 0.2 + (c2.pos[2] - 0.2) * u * 0.92);
+        m.lookAt(c2.pos[0], c2.pos[1], c2.pos[2]); m.rotateZ(u * 2 + k);
+      } else { m.position.set(PRX + (k % 3 - 1) * 0.5, 0.9 - 0.1 * age, -0.95 - 1.3 * age); m.rotation.set(-Math.PI / 2 + 0.3 * (1 - age), 0, 0); }
+    });
     this.S3.fire.forEach((m, k) => { m.scale.set(1, 0.8 + 0.35 * Math.abs(Math.sin(t * (7 + k * 2.3) + k)), 1); });
     void DX; void DW;
     // ---- cast + effects ----

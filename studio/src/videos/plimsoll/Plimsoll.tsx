@@ -143,6 +143,55 @@ const CloudWipe: React.FC = () => {
     </AbsoluteFill>
   );
 };
+/** a reporter's copy flies at the lens and fills the frame (hides the cut into the press) */
+const PaperWipe: React.FC = () => {
+  const f = useCurrentFrame(), k = f - (CUT.papers - 8);
+  if (k < 0 || k > 13) return null;
+  const u = k / 13, sc = u < 0.55 ? 0.15 + 1.9 * (u / 0.55) ** 2 : 2.05, op = u < 0.75 ? 1 : 1 - (u - 0.75) / 0.25;
+  return (
+    <AbsoluteFill style={{ opacity: op }}>
+      <svg width="1080" height="1920" viewBox="0 0 1080 1920">
+        <g transform={`translate(540 960) rotate(${-25 + 30 * u}) scale(${sc})`}>
+          <rect x="-520" y="-700" width="1040" height="1400" fill="#f4efe2" stroke="#2a2430" strokeWidth="10" />
+          {Array.from({ length: 14 }, (_, i) => <rect key={i} x={-440 + (i % 2) * 460} y={-560 + Math.floor(i / 2) * 170} width="400" height="90" fill="#8a8a9a" />)}
+        </g>
+      </svg>
+    </AbsoluteFill>
+  );
+};
+/** the newspaper spins in and lands on the headline; then it shrinks into the orator's hand (hides the cut into the square) */
+const PaperSpin: React.FC = () => {
+  const f = useCurrentFrame(), a0 = CUT.square - 16, k = f - a0;
+  if (k < 0 || k > 26) return null;
+  const spin = Math.min(1, k / 14), out = Math.max(0, (k - 20) / 6);
+  const sc = 0.05 + 0.95 * (1 - (1 - spin) ** 3) - 0.75 * out, rot = 720 * (1 - (1 - spin) ** 3) + 4;
+  return (
+    <AbsoluteFill style={{ opacity: 1 - out }}>
+      <svg width="1080" height="1920" viewBox="0 0 1080 1920">
+        <rect x="0" y="0" width="1080" height="1920" fill="#120c08" opacity={0.6 * (1 - out)} />
+        <g transform={`translate(540 900) rotate(${rot}) scale(${sc})`}>
+          <rect x="-470" y="-640" width="940" height="1280" fill="#efe9d8" stroke="#2a2430" strokeWidth="10" />
+          <text x="0" y="-540" textAnchor="middle" fontFamily="Georgia, serif" fontWeight="bold" fontSize="64" fill="#2a2430">THE DAILY NEWS</text>
+          <rect x="-420" y="-505" width="840" height="8" fill="#2a2430" />
+          <text x="0" y="-390" textAnchor="middle" fontFamily="Georgia, serif" fontWeight="bold" fontSize="118" fill="#1a1420">PLIMSOLL&apos;S</text>
+          <text x="0" y="-260" textAnchor="middle" fontFamily="Georgia, serif" fontWeight="bold" fontSize="118" fill="#1a1420">PROTEST!</text>
+          <text x="0" y="-175" textAnchor="middle" fontFamily="Georgia, serif" fontStyle="italic" fontSize="52" fill="#7a1f2b">&quot;Villains!&quot; - M.P. defies the House</text>
+          <g transform="translate(-200 120)">
+            <rect x="-170" y="-200" width="340" height="400" fill="#d9d2c0" stroke="#2a2430" strokeWidth="6" />
+            <circle cx="0" cy="-40" r="110" fill="#f4efe2" stroke="#2a2430" strokeWidth="8" />
+            <path d="M -105 -20 Q -110 150 0 170 Q 110 150 105 -20 Q 60 40 0 40 Q -60 40 -105 -20 Z" fill="#6e5e50" stroke="#2a2430" strokeWidth="6" />
+            <path d="M -95 -80 Q 0 -190 95 -80 L 80 -110 Q 0 -170 -80 -110 Z" fill="#6e5e50" />
+            <path d="M -60 -55 L -20 -45 M 20 -45 L 60 -55" stroke="#2a2430" strokeWidth="10" />
+            <circle cx="-38" cy="-25" r="9" fill="#2a2430" /><circle cx="38" cy="-25" r="9" fill="#2a2430" />
+            <ellipse cx="0" cy="45" rx="34" ry="22" fill="#7a1f2b" stroke="#2a2430" strokeWidth="5" />
+          </g>
+          {Array.from({ length: 12 }, (_, i) => <rect key={i} x={30 + (i % 2) * 220} y={-60 + Math.floor(i / 2) * 70} width={180 - (i % 3) * 20} height="22" fill="#8a8a9a" />)}
+          {Array.from({ length: 6 }, (_, i) => <rect key={"b" + i} x={-420 + (i % 3) * 290} y={400 + Math.floor(i / 3) * 90} width="250" height="26" fill="#8a8a9a" />)}
+        </g>
+      </svg>
+    </AbsoluteFill>
+  );
+};
 /** lightning: a white flash on the cuts in and out of the storm */
 const Flash: React.FC = () => {
   const f = useCurrentFrame();
@@ -181,6 +230,8 @@ export const PlimsollShort: React.FC = () => {
       <BubbleWipe />
       <Flash />
       <CloudWipe />
+      <PaperWipe />
+      <PaperSpin />
       <Caption />
     </AbsoluteFill>
   );
