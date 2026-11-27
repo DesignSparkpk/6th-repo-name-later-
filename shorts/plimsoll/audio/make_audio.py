@@ -173,26 +173,25 @@ for k in range(16): put(v, snare(), t - 0.75 + k * 0.047, 0.12 + 0.03 * k)      
 put(v, brass([50, 62, 66, 69, 74, 78], 1.6), t, 1.2); put(v, timp(38, 1.6), t, 1.0); put(v, cymbal(2.0), t, 0.8)
 for k, m in enumerate((86, 90, 93, 98)): put(v, glock(m, 1.2), t + 0.04 * k, 0.45)
 music += v
-music += reverb(music, 1.0) * 0.22
+music += reverb(music, 1.0) * 0.15
 
 # ================= SFX and ambience =================
 sfx = np.zeros(N); amb = np.zeros(N)
 def bed(clip, f0, f1, g=1.0, a=0.15, r=0.25):  # an ambience bed between two frames
     d = S(f1) - S(f0); put(amb, clip(d) * fade(d, a, r), S(f0), g)
 # ---- hook: chamber hubbub, the shout, crane through the window, river, plunge, gold ----
-bed(murmur, 0, CRANE + 9, 0.5)
 put(sfx, impact(0.9), S(T["villains"]) - 0.03, 0.8); put(sfx, gasp(), S(T["villains"]) + 0.05, 0.9)
 put(sfx, whoosh(0.75, True), S(CRANE) - 0.05, 0.9); put(sfx, creak(0.5), S(WINDOW) + 0.1, 0.7); put(sfx, whoosh(0.9, False), S(T["ships"]) + 0.15, 0.7)
-bed(lap, WINDOW + 9, DIVE, 0.8, 0.3, 0.1); put(amb, creakwood(1.2), S(T["ships"]) + 0.3, 0.6)
+bed(lap, WINDOW + 9, DIVE, 0.6, 0.3, 0.1); put(amb, creakwood(1.2), S(T["ships"]) + 0.3, 0.6)
 for k, dt in enumerate([0.2, 0.9, 1.4]): put(sfx, gull(0.5 + 0.1 * k), S(WINDOW) + dt, 0.8)
 put(sfx, splash(), S(DIVE) - 0.02, 1.0)
 for k in range(14): put(sfx, plop(rng.uniform(450, 1100)), S(DIVE) + 0.15 + k * rng.uniform(0.04, 0.1), 0.5)
-bed(lambda d: lp1(noise(d), 220) * 0.6, DIVE, c["dock"], 0.9, 0.15, 0.2)
+bed(lambda d: blp(noise(d), 160) * 0.9, DIVE, c["dock"], 0.9, 0.15, 0.2)
 put(sfx, twinkle(1.5), S(T["sea"]) - 0.1, 0.9); put(sfx, impact(0.5), S(T["sea"]) - 0.05, 0.35)
 # ---- bubble wipe up to the foggy dock ----
 for k in range(9): put(sfx, plop(500 + 110 * k), S(c["dock"] - 7) + k * 0.045, 0.55)
 put(sfx, whoosh(0.5, True), S(c["dock"] - 7), 0.7); put(sfx, splash(0.6) * 0.5, S(c["dock"]), 0.6)
-bed(lap, c["dock"], c["storm1"], 0.55)
+bed(lap, c["dock"], c["dock"] + 80, 0.5, 0.15, 1.4)  # sets the scene, then gives way to the music
 put(amb, foghorn(2.4), S(c["dock"] + 10), 0.38); put(amb, foghorn(1.8), S(T["rotting"] + 6), 0.2)
 put(amb, bell(1250, 1.6), S(c["dock"] + 48), 0.12)
 for k in range(6): put(sfx, gull(rng.uniform(0.45, 0.65)), S(c["dock"]) + 0.6 + k * 1.35 + rng.uniform(0, 0.4), 0.45)
@@ -214,7 +213,7 @@ for s0, g in ((c["storm1"], 1.0), (c["storm1"] + 10, 0.55), (c["night"], 0.9), (
     put(sfx, thunder(3.0), S(s0), g)
 for f0, f1 in ((c["storm1"], c["night"]), (c["storm2"], c["dawn"] - 4)):
     bed(waves, f0, f1, 0.3, 0.02, 0.2); bed(wind, f0, f1, 0.2, 0.02, 0.2); bed(lambda d: rain(d, 600), f0, f1, 0.3, 0.02, 0.2)
-bed(lambda d: rain(d, 900), c["night"], c["storm2"], 0.5, 0.02, 0.05); bed(lambda d: lp1(noise(d), 4000) * 0.05, c["night"], c["storm2"], 0.6, 0.02, 0.05)
+bed(lambda d: rain(d, 900), c["night"], c["storm2"], 0.35, 0.02, 0.05)
 put(sfx, creakwood(1.5, 45), S(T["sinks"]) - 0.1, 1.0); put(sfx, splash(1.4), S(T["sinks"]) + 0.15, 0.8)
 for k in range(10): put(sfx, plop(rng.uniform(300, 700)), S(T["sinks"]) + 0.4 + k * 0.06, 0.4)
 put(sfx, slide(0.27, False), S(T["richer"] - 8), 0.8); put(sfx, thud(1.3, 60), S(T["richer"]), 1.0)
@@ -223,7 +222,7 @@ put(sfx, fft_(), S(T["cships"]), 0.9)
 # ---- cloud wipe into dawn ----
 put(sfx, whoosh(0.8, True, 400, 5000), S(c["dawn"] - 8), 0.7)
 for k, m in enumerate((86, 90, 93)): put(sfx, glock(m, 1.0), S(c["dawn"] - 2) + k * 0.06, 0.3)
-bed(lap, c["dawn"], c["club"], 0.6)
+bed(lap, c["dawn"], c["dawn"] + 80, 0.45, 0.15, 1.4)
 for k in range(14): put(amb, chirp(), S(c["dawn"]) + 0.2 + k * 0.5 + rng.uniform(0, 0.25), 0.7)
 for k in range(2): put(sfx, gull(0.6), S(c["dawn"]) + 1.0 + k * 2.6, 0.35)
 for n in range(1, 7):  # Plimsoll's boots down the quay, the paint pot clinking
@@ -239,7 +238,7 @@ put(sfx, crowd(1.5, 5, "cheer"), S(T["home"]) - 0.05, 0.8)
 for k in range(3): put(sfx, whoosh(0.3, True, 500, 3500), S(T["home"] + k * 2), 0.25)
 # ---- whip into the club ----
 put(sfx, whoosh(0.32, True, 500, 6000), S(c["club"] - 5), 0.9)
-bed(crackle, c["club"], T["plenty"] - 11, 0.8); bed(lambda d: murmur(d, 0.9), c["club"], T["worse"], 0.25)
+bed(crackle, c["club"], T["plenty"] - 11, 0.6)
 put(sfx, crowd(1.7, 3, "laugh"), S(T["laughW"] - 6), 0.75)
 put(sfx, ping(), S(T["laughW"] - 2), 0.8); put(sfx, slide(0.4, True), S(T["laughW"] - 2), 0.5); put(sfx, ping(2600), S(T["laughW"] + 20), 0.5)
 put(sfx, pop(), S(T["laughW"] + 2), 0.7); put(sfx, whoosh(0.35, True, 500, 3000), S(T["laughW"] + 2), 0.3)
@@ -247,7 +246,6 @@ put(sfx, crowd(0.7, 3, "laugh"), S(T["my"]) + 0.25, 0.6)
 put(sfx, creak(0.3), S(T["worse"] + 4), 0.6)
 for f0 in (T["worse"] + 7, T["worse"] + 14, T["worse"] + 21): put(sfx, step(1.2), S(f0), 0.8)
 put(sfx, creak(0.9), S(T["worse"] + 12), 0.45)
-bed(murmur, T["plenty"] - 11, c["papers"] - 8, 0.4)
 for k in range(7): put(sfx, pop(), S(T["plenty"] + 4 + k * 3), 0.35)
 put(sfx, crowd(0.8, 3, "laugh"), S(T["plenty"] + 8), 0.35)
 # ---- the Commons climax ----
@@ -273,14 +271,12 @@ put(sfx, hiss(0.6), S(c["papers"] + 6), 0.7)
 for k in range(3): put(sfx, whoosh(0.3, True, 500, 5000), S(T["every"] - 4 + k * 3), 0.45); put(sfx, flick(), S(T["every"] + 3 + k * 3), 0.4)
 put(sfx, spin(0.5), S(c["square"] - 16), 0.9); put(sfx, slap(), S(c["square"] - 2), 0.6); put(sfx, whoosh(0.25, False, 300, 2500), S(c["square"] + 4), 0.3)
 # ---- the square at dusk: the crowd, the joke, the chomp, the roar ----
-bed(lambda d: murmur(d, 1.1), c["square"], c["caves"], 0.5)
 put(sfx, crowd(2.0, 10, "laugh"), S(T["jokes"] - 3), 0.4)
 put(sfx, chomp(), S(T["bite"]), 1.0); put(sfx, crowd(1.6, 12, "laugh"), S(T["bite"]) + 0.08, 0.8)
 put(sfx, crowd(1.5, 12, "cheer"), S(T["mps"]), 0.8)
 for k in range(4): put(sfx, whoosh(0.35, True, 500, 3500), S(T["mps"] + k * 2), 0.3)
 # ---- whip into the Commons: Parliament caves ----
 put(sfx, whoosh(0.32, True, 500, 6000), S(c["caves"] - 5), 0.9)
-bed(murmur, c["caves"], c["year"], 0.35)
 for ph in (0, 4):
     for n in range(3):
         f0 = c["caves"] + ph + 14 * n + 4
@@ -289,17 +285,16 @@ put(sfx, woodstamp(1.4), S(T["cavesW"]), 1.0); put(sfx, impact(1.0), S(T["cavesW
 # ---- sun glare into the harbour, a year later ----
 put(sfx, riser(0.6), S(c["year"]) - 0.6, 0.7)
 for k, m in enumerate((86, 90, 93, 98)): put(sfx, glock(m, 1.4), S(c["year"] - 2) + k * 0.05, 0.3)
-bed(lap, c["year"], c["shoes"], 0.6)
+bed(lap, c["year"], c["year"] + 45, 0.45, 0.15, 1.0)
 for k in range(3): put(sfx, gull(0.6), S(c["year"]) + 0.4 + k * 0.7, 0.4)
 put(amb, bell(1250, 1.6), S(c["year"] + 14), 0.15); put(amb, bell(1250, 1.6), S(c["year"] + 22), 0.12)
 put(sfx, crowd(1.8, 6, "cheer"), S(c["year"] + 4), 0.45)
 # ---- match cut into the gym ----
 put(sfx, rsqueak(0.2), S(c["shoes"]), 0.8)
-bed(lambda d: lp1(noise(d), 250) * 0.15 + murmur(d, 1.6) * 0.25, c["shoes"], TOTAL + 10, 0.6, 0.05, 0.3)
 put(sfx, rsqueak(0.14), S(T["gym"] + 6), 0.4)
 put(sfx, whistle(0.55), S(T["got"] - 4), 0.8)
 put(sfx, whoosh(0.3, True, 500, 3500), S(T["plimsolls"] - 2), 0.4); put(sfx, rsqueak(0.2), S(T["plimsolls"] + 14), 0.9)
-sfx += reverb(sfx, 0.8) * 0.1
+sfx += reverb(sfx, 0.8) * 0.08
 
 # ================= write stems and mix =================
 def f32wav(path, x):
@@ -311,8 +306,10 @@ spans = [("hook", 0, c["dock"]), ("dock", c["dock"], c["storm1"]), ("storm", c["
          ("club", c["club"], c["snaps"]), ("tension", c["snaps"], T["snapW"]), ("drive", T["snapW"], T["wife"]), ("gallery", T["wife"], c["papers"]),
          ("press", c["papers"], c["square"]), ("square", c["square"], c["caves"]), ("caves", c["caves"], c["year"]), ("harbour", c["year"], c["shoes"]),
          ("gym", c["shoes"], TOTAL)]
+storm = slice(int(S(c["storm1"]) * SR), int(S(c["dawn"] - 8) * SR))
 for name, tr in (("sfx", sfx), ("music", music), ("amb", amb)):
-    tr *= 0.9 / np.abs(tr[hook]).max()
+    if name == "amb": tr *= 10 ** (-19 / 20) / np.sqrt(np.mean(tr[storm] ** 2))
+    else: tr *= 0.9 / np.abs(tr[hook]).max()
     rms = lambda a, b: 20 * np.log10(np.sqrt(np.mean(tr[int(S(a) * SR):int(S(b) * SR)] ** 2)) + 1e-9)
     print(f"{name:5s} peak {np.abs(tr).max():.2f} |", " ".join(f"{n} {rms(a, b):.0f}" for n, a, b in spans))
     f32wav(f"audio/{name}.wav", tr)

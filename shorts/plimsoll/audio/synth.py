@@ -1,7 +1,7 @@
 """Synth kit for the Plimsoll short: instruments for the score and every sound effect, all generated (no samples).
 Mono float64 arrays at SR. Filters run through scipy's lfilter so the whole film renders in seconds."""
 import numpy as np
-from scipy.signal import lfilter, iirpeak
+from scipy.signal import lfilter, iirpeak, butter, sosfilt
 
 SR = 48000
 rng = np.random.default_rng(7)
@@ -14,6 +14,8 @@ def lp1(x, c): a = np.exp(-2 * np.pi * c / SR); return lfilter([1 - a], [1, -a],
 def hp1(x, c): return x - lp1(x, c)
 def lp2(x, c): return lp1(lp1(x, c), c)
 def bp(x, lo, hi): return lp2(hp1(hp1(x, lo), lo), hi)
+def blp(x, c, order=4): return sosfilt(butter(order, c, 'low', fs=SR, output='sos'), x)  # steep: no hiss above the cutoff
+def bbp(x, lo, hi, order=4): return sosfilt(butter(order, [lo, hi], 'band', fs=SR, output='sos'), x)
 def lpv(x, c, blk=64):  # one-pole low-pass with a time-varying cutoff (block-wise)
     c = np.broadcast_to(np.asarray(c, float), np.shape(x)); y = np.empty(len(x)); z = np.zeros(1)
     for i in range(0, len(x), blk):
@@ -41,10 +43,12 @@ def allpass(x, D, g):
     for i in range(0, len(x), D):
         n = min(D, len(x) - i); y[i + D:i + D + n] = -g * x[i:i + n] + xp[i:i + n] + g * y[i:i + n]
     return y[D:]
-def reverb(x, size=1.0, fb=0.79, damp=4500):
+def reverb(x, size=1.0, fb=0.80, damp=4000):
     src = lp1(x, damp)
-    ys = sum(comb(src, int(D * size), fb - 0.01 * k) for k, D in enumerate((1687, 1601, 2053, 2251)))
-    return allpass(allpass(ys / 4, 556, 0.5), 225, 0.5)
+    ys = sum(comb(src, int(D * size), fb - 0.006 * k) for k, D in enumerate((1694, 1760, 1623, 1548, 1390, 1476, 1293, 1215)))
+    y = ys / 8
+    for D in (606, 480, 371, 244): y = allpass(y, D, 0.5)
+    return lp1(y, 6000)
 
 
 # ---------------- instruments ----------------
@@ -137,7 +141,7 @@ def gasp(d=0.9, low=1.0):  # a room going "ooh!": breathy noise swell through tw
 def murmur(d, shift=1.0):  # crowd hubbub bed: babble-like modulated noise bands
     x = tt(d); out = np.zeros(len(x))
     for k in range(6):
-        band = lp1(noise(d), (500 + 140 * k) * shift) - lp1(noise(d), (260 + 120 * k) * shift)
+        band = bbp(noise(d), (260 + 120 * k) * shift, (500 + 140 * k) * shift, 2)
         out += band * (0.5 + 0.5 * np.sin(2 * np.pi * (3.1 + 1.7 * k) * x + k)) ** 2
     return out * 0.5
 def splash(d=1.2):
@@ -157,8 +161,8 @@ def twinkle(d=1.4):  # gold sparkle: bright bell partials, re-struck
 def gull(d=0.55):
     x = tt(d); f = 1300 + 700 * np.sin(np.pi * x / d) ** 2 - 400 * x / d; ph = sweep(f)
     return lp1(np.sin(ph) + 0.3 * np.sin(2 * ph), 3000) * fade(d, 0.04, 0.2) * (0.7 + 0.3 * np.sin(2 * np.pi * 14 * x)) * 0.12
-def lap(d):  # water lapping against a hull
-    x = tt(d); return lp1(noise(d), 700) * (0.4 + 0.6 * np.sin(2 * np.pi * 0.9 * x) ** 4) * 0.35
+def lap(d):  # water lapping against a hull: a low slosh, steeply filtered so it never hisses
+    x = tt(d); return blp(noise(d), 380) * (0.3 + 0.7 * np.sin(2 * np.pi * 0.9 * x) ** 4) * 0.5
 def creakwood(d=1.2, f0=70):
     x = tt(d); f = f0 + 25 * np.sin(2 * np.pi * 1.3 * x)
     saw = 2 * ((np.cumsum(f) / SR) % 1) - 1
@@ -169,16 +173,16 @@ def thunder(d=3.0):
     rumble = lp2(noise(d), 180) * (0.4 + 1.2 * re_) * np.exp(-x * 1.1) * 3.0
     return (crack + rumble + lp1(noise(d), 700) * np.exp(-x * 5) * 0.8) * np.minimum(1, x / 0.003) * 0.6
 def rain(d, dens=500):
-    x = tt(d); y = bp(noise(d), 2500, 9000) * 0.18
+    x = tt(d); y = bbp(noise(d), 2500, 7000) * 0.1
     click = hp1(noise(0.004), 3000) * np.exp(-tt(0.004) * 900)
     for i0 in rng.integers(0, max(1, len(x) - 200), int(dens * d)): y[i0:i0 + len(click)] += click[:len(y) - i0] * rng.uniform(0.1, 0.5)
     return y
 def waves(d):
     x = tt(d); sw = (0.5 + 0.5 * np.sin(2 * np.pi * 0.23 * x + 1.0)) ** 2
-    return lp2(noise(d), 350) * (0.4 + sw) * 1.6 + bp(noise(d), 1200, 5000) * sw * 0.25
+    return blp(noise(d), 350) * (0.4 + sw) * 1.6 + bbp(noise(d), 1200, 4000) * sw * 0.15
 def wind(d):
     x = tt(d); c = 500 + 300 * np.sin(2 * np.pi * 0.3 * x) + 200 * np.sin(2 * np.pi * 0.71 * x)
-    return lpv(noise(d), c) * (0.6 + 0.4 * np.sin(2 * np.pi * 0.17 * x)) * 0.7
+    return blp(lpv(noise(d), c), 1000) * (0.6 + 0.4 * np.sin(2 * np.pi * 0.17 * x)) * 0.8
 def foghorn(d=2.2):
     x = tt(d); y = np.zeros(len(x))
     for f in (98.0, 98.7, 147.0):
@@ -299,8 +303,8 @@ def whistle(d=0.6):  # a pea whistle trill
     x = tt(d); ph = sweep(2900 * (1 + 0.01 * np.sin(2 * np.pi * 28 * x)))
     am = 0.6 + 0.4 * np.sin(2 * np.pi * 28 * x) ** 2
     return ((np.sin(ph) + 0.15 * np.sin(2 * ph)) * am + hp1(noise(d), 3000) * 0.08) * fade(d, 0.02, 0.06) * 0.14
-def crackle(d):  # a log fire
-    y = lp1(noise(d), 300) * 0.05
+def crackle(d):  # a log fire: just the pops and snaps (no noise floor)
+    y = np.zeros(max(1, int(d * SR)))
     click = hp1(noise(0.006), 1500) * np.exp(-tt(0.006) * 600)
     for i0 in rng.integers(0, max(1, len(y) - 400), int(18 * d)): y[i0:i0 + len(click)] += click[:len(y) - i0] * rng.uniform(0.1, 0.6)
     return y
