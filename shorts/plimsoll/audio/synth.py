@@ -123,10 +123,21 @@ def bell(f0, d=3.5):
 
 
 # ---------------- sound effects ----------------
+def sat(x, drive=2.0):  # soft saturation: the low thump grows harmonics a phone speaker can play
+    return np.tanh(drive * x) / np.tanh(drive)
+def crack(d=0.06, lo=1500, hi=7000, k=90):  # the bright transient on top of a hit
+    x = tt(d); return bbp(noise(d), lo, hi, 2) * np.exp(-x * k)
+def knock(freqs, decays, amps, d=0.4):  # resonant body modes (wood, desk, crate)
+    x = tt(d); y = sum(a * np.sin(2 * np.pi * f * x + rng.uniform(0, 6.28)) * np.exp(-x * k) for f, k, a in zip(freqs, decays, amps))
+    return y * np.minimum(1, x / 0.0008)
+def norm(y, g): return y / (np.abs(y).max() + 1e-9) * g
+
 def impact(big=1.0):
     d = 0.9; x = tt(d)
     sub = np.sin(sweep(70 * np.exp(-x * 2.2) + 32)) * np.exp(-x * 4)
-    return (sub * 0.9 + lp1(noise(d), 1200) * np.exp(-x * 12) * 1.6 + noise(d) * np.exp(-x * 400) * 0.4) * big
+    punch = np.sin(sweep(190 * np.exp(-x * 9) + 70)) * np.exp(-x * 11)
+    y = sub * 0.8 + punch * 0.9 + lp1(noise(d), 1200) * np.exp(-x * 12) * 1.3 + bbp(noise(d), 1500, 7000, 2) * np.exp(-x * 60) * 0.6
+    return norm(sat(y, 1.8), big)
 def whoosh(d=0.7, up=True, lo=300, hi=4100):
     x = tt(d); c = lo + (hi - lo) * (x / d if up else 1 - x / d) ** 1.5
     return lpv(noise(d), c) * np.sin(np.pi * x / d) ** 1.4 * 0.9
@@ -189,10 +200,12 @@ def foghorn(d=2.2):
         ph = 2 * np.pi * f * x
         for k in range(1, 12): y += np.sin(k * ph) / k * (0.6 if f > 120 else 1.0)
     return lp1(y, 700) * np.minimum(1, x / 0.18) * np.clip((d - x) / 0.5, 0, 1) * 0.18
-def woodstamp(g=1.0):  # the rubber stamp coming down: click, wood body, a low thump
-    d = 0.5; x = tt(d)
-    body = np.sin(2 * np.pi * 170 * x) * np.exp(-x * 35) + 0.5 * np.sin(2 * np.pi * 420 * x) * np.exp(-x * 60)
-    return (hp1(noise(d), 2000) * np.exp(-x * 300) * 0.8 + body * 1.2 + impact(0.5)[:len(x)] * 0.5) * 0.7 * g
+def woodstamp(g=1.0):  # a rubber stamp slammed down: a sharp clack, the desk's wood knock, a punch underneath
+    d = 0.5; y = np.zeros(int(d * SR))
+    put(y, crack(0.03, 1500, 7000, 120), 0, 1.0)
+    put(y, knock((420, 760, 1350), (30, 45, 60), (1.0, 0.6, 0.35), 0.4), 0, 0.9)
+    put(y, impact(0.5)[:len(y)], 0, 0.6)
+    return norm(sat(y * 1.5, 2.2), 0.9 * g)
 def paper(d=0.6, rate=28, lo=900, hi=6000):  # paper flutter: a rattle of short noise flicks
     y = np.zeros(int(d * SR))
     for _ in range(int(rate * d)):
@@ -204,10 +217,19 @@ def flick():  # one sheet flicked across
 def squeak(f0=2800, d=0.13):  # a rat
     x = tt(d); ph = sweep(f0 + 500 * np.sin(2 * np.pi * 22 * x) + 300 * x / d)
     return (np.sin(ph) + 0.3 * np.sin(2 * ph)) * np.sin(np.pi * x / d) ** 0.7 * 0.25
-def thud(g=1.0, f=75):  # a crate landing on a deck
+def thud(g=1.0, f=75):  # something heavy landing (bag, body): low thump with a mid knock so it reads on phones
     d = 0.45; x = tt(d); ph = sweep(f * (1 + 0.6 * np.exp(-x * 25)))
     y = np.sin(ph) * np.exp(-x * 12) * 1.2 + lp1(noise(d), 600) * np.exp(-x * 30) * 1.5 + np.sin(2 * np.pi * 190 * x) * np.exp(-x * 45) * 0.6
-    return y * np.minimum(1, x / 0.001) * 0.6 * g
+    y += knock((260, 470), (35, 50), (0.8, 0.4), d) + crack(d, 800, 3500, 70) * 0.5
+    return norm(sat(y * np.minimum(1, x / 0.001), 2.0), 0.9 * g)
+def crate(g=1.0, heavy=True):
+    """a wooden cargo crate slammed onto a deck: thump, the crate's hollow body knock, a splintery crack and a loose-plank rattle"""
+    d = 0.5; y = np.zeros(int(d * SR)); f0 = rng.uniform(0.9, 1.1)
+    x = tt(d); y += np.sin(sweep((65 if heavy else 85) * (1 + 0.6 * np.exp(-x * 25)))) * np.exp(-x * 13) * 1.1
+    y += knock((300 * f0, 540 * f0, 960 * f0), (22, 34, 48), (1.0, 0.7, 0.4), d) * 0.9
+    put(y, crack(0.05, 1200, 6000, 70), 0, 0.8)
+    for k in range(3): put(y, crack(0.02, 2000, 6000, 160), 0.035 + k * 0.025 + rng.uniform(0, 0.01), 0.25)
+    return norm(sat(y * 1.3, 2.0), 0.9 * g)
 def coin():
     d = 0.5; x = tt(d); y = np.zeros(len(x))
     for f, a_, k_ in ((3150, 1, 9), (4230, 0.7, 12), (5870, 0.5, 15), (7400, 0.35, 20)):
@@ -263,7 +285,8 @@ def pop():  # a cork / a hat popping off
 def binthud():
     d = 0.4; x = tt(d); y = lp1(noise(d), 700) * np.exp(-x * 28) * 1.3 + np.sin(2 * np.pi * 120 * x) * np.exp(-x * 25) * 0.5
     for k in range(9): put(y, hp1(rng.standard_normal(480), 1500) * np.hanning(480) * 0.3, 0.02 + k * 0.015)  # wicker rattle
-    return y * 0.6
+    y += knock((380, 690), (40, 55), (0.6, 0.3), d)
+    return norm(sat(y, 1.8), 0.8)
 def kettle(d=1.4):  # steam from the ears: a whistle rising to a shriek, with hiss
     x = tt(d); f = (1900 + 1500 * (x / d) ** 1.2) * (1 + 0.012 * np.sin(2 * np.pi * 7 * x))
     tone = np.sin(sweep(f)) * np.minimum(1, x / 0.25) * (0.4 + 0.6 * x / d)

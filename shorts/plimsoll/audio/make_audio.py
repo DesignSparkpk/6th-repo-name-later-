@@ -22,7 +22,7 @@ def wf(line, word=None, nth=0):  # start frame of a word, exactly as story.ts wf
 
 T = {k: wf(*v) for k, v in dict(
     parliament=("hook", "parliament"), villains=("hook", "villains"), ships=("hook", "ships"), bottom=("hook", "bottom"), sea=("hook", "sea"),
-    yousee=("yousee",), nasty=("yousee", "nasty"), insure=("trick", "over"), rotting=("trick", "rotting"), old=("trick", "old"),
+    yousee=("yousee",), owners=("yousee", "shipowners"), nasty=("yousee", "nasty"), insure=("trick", "over"), rotting=("trick", "rotting"), old=("trick", "old"),
     cram=("trick", "cram"), withC=("trick", "with"), cargo=("trick", "cargo"), until=("trick", "until"), floating=("trick", "floating"),
     makes=("rich", "makes"), rich=("rich", "rich"), ifSinks=("rich", "if", 1), sinks=("rich", "sinks"), richer=("rich", "richer"),
     coffin=("coffin",), cships=("coffin", "ships"), fix=("fix",), pushes=("fix", "pushes"), simple=("fix", "simple"), paint=("fix", "paint"),
@@ -180,17 +180,17 @@ sfx = np.zeros(N); amb = np.zeros(N)
 def bed(clip, f0, f1, g=1.0, a=0.15, r=0.25):  # an ambience bed between two frames
     d = S(f1) - S(f0); put(amb, clip(d) * fade(d, a, r), S(f0), g)
 # ---- hook: chamber hubbub, the shout, crane through the window, river, plunge, gold ----
-put(sfx, impact(0.9), S(T["villains"]) - 0.03, 0.8); put(sfx, gasp(), S(T["villains"]) + 0.05, 0.9)
+put(sfx, impact(0.9), S(T["villains"]) - 0.03, 1.2); put(sfx, gasp(), S(T["villains"]) + 0.05, 0.7)
 put(sfx, whoosh(0.75, True), S(CRANE) - 0.05, 0.9); put(sfx, creak(0.5), S(WINDOW) + 0.1, 0.7); put(sfx, whoosh(0.9, False), S(T["ships"]) + 0.15, 0.7)
 bed(lap, WINDOW + 9, DIVE, 0.6, 0.3, 0.1); put(amb, creakwood(1.2), S(T["ships"]) + 0.3, 0.6)
 for k, dt in enumerate([0.2, 0.9, 1.4]): put(sfx, gull(0.5 + 0.1 * k), S(WINDOW) + dt, 0.8)
-put(sfx, splash(), S(DIVE) - 0.02, 1.0)
+put(sfx, splash(), S(DIVE) - 0.02, 0.8)
 for k in range(14): put(sfx, plop(rng.uniform(450, 1100)), S(DIVE) + 0.15 + k * rng.uniform(0.04, 0.1), 0.5)
 bed(lambda d: blp(noise(d), 160) * 0.9, DIVE, c["dock"], 0.9, 0.15, 0.2)
 put(sfx, twinkle(1.5), S(T["sea"]) - 0.1, 0.9); put(sfx, impact(0.5), S(T["sea"]) - 0.05, 0.35)
 # ---- bubble wipe up to the foggy dock ----
 for k in range(9): put(sfx, plop(500 + 110 * k), S(c["dock"] - 7) + k * 0.045, 0.55)
-put(sfx, whoosh(0.5, True), S(c["dock"] - 7), 0.7); put(sfx, splash(0.6) * 0.5, S(c["dock"]), 0.6)
+put(sfx, whoosh(0.5, True), S(c["dock"] - 7), 0.7); put(sfx, splash(0.6) * 0.5, S(c["dock"]), 0.5)
 bed(lap, c["dock"], c["dock"] + 80, 0.5, 0.15, 1.4)  # sets the scene, then gives way to the music
 put(amb, foghorn(2.4), S(c["dock"] + 10), 0.38); put(amb, foghorn(1.8), S(T["rotting"] + 6), 0.2)
 put(amb, bell(1250, 1.6), S(c["dock"] + 48), 0.12)
@@ -202,7 +202,7 @@ put(sfx, whoosh(0.5, True), S(T["rotting"] - 3), 0.45); put(sfx, paper(0.7), S(T
 put(sfx, squeak(), S(T["old"]), 0.8); put(sfx, squeak(3200), S(T["old"] + 9), 0.6)
 put(sfx, squeak(3000, 0.2), S(T["floating"] - 4), 0.8); put(sfx, whoosh(0.4, True, 400, 3000), S(T["floating"] - 4), 0.3)
 for k, f0 in enumerate(DROPS):  # crates hitting the deck, the hull groaning lower
-    put(sfx, thud(1.0 if k < 3 else 0.55 + 0.1 * rng.random(), 75 if k < 3 else 90), S(f0), 1.0)
+    put(sfx, crate(0.85 if k < 3 else 0.3 + 0.07 * rng.random(), heavy=k < 3), S(f0), 1.0)
 put(amb, creakwood(1.4, 52), S(T["cargo"] + 4), 0.8); put(sfx, slosh(1.1), S(T["until"]), 0.55)
 put(sfx, paper(0.6, 20, 200, 1500), S(T["makes"] - 2), 0.8); put(sfx, whoosh(0.8, False, 200, 1500), S(T["makes"] - 2), 0.4)
 put(sfx, kaching(), S(T["rich"]) + 0.02, 0.8); put(sfx, twinkle(1.2), S(T["rich"]), 0.6)
@@ -210,11 +210,11 @@ for k in range(28):  # each coin lands in the hat
     put(sfx, coin(), S(T["rich"]) + (k % 14) * 0.045 + (k // 14) * 0.4 + 0.25, 0.7)
 # ---- storm / night / storm ----
 for s0, g in ((c["storm1"], 1.0), (c["storm1"] + 10, 0.55), (c["night"], 0.9), (T["richer"], 0.35), (c["storm2"], 1.0), (T["cships"] - 3, 0.45)):
-    put(sfx, thunder(3.0), S(s0), g)
+    put(sfx, thunder(3.0), S(s0), g * 0.65)
 for f0, f1 in ((c["storm1"], c["night"]), (c["storm2"], c["dawn"] - 4)):
     bed(waves, f0, f1, 0.3, 0.02, 0.2); bed(wind, f0, f1, 0.2, 0.02, 0.2); bed(lambda d: rain(d, 600), f0, f1, 0.3, 0.02, 0.2)
 bed(lambda d: rain(d, 900), c["night"], c["storm2"], 0.35, 0.02, 0.05)
-put(sfx, creakwood(1.5, 45), S(T["sinks"]) - 0.1, 1.0); put(sfx, splash(1.4), S(T["sinks"]) + 0.15, 0.8)
+put(sfx, creakwood(1.5, 45), S(T["sinks"]) - 0.1, 1.0); put(sfx, splash(1.4), S(T["sinks"]) + 0.15, 0.6)
 for k in range(10): put(sfx, plop(rng.uniform(300, 700)), S(T["sinks"]) + 0.4 + k * 0.06, 0.4)
 put(sfx, slide(0.27, False), S(T["richer"] - 8), 0.8); put(sfx, thud(1.3, 60), S(T["richer"]), 1.0)
 for k in range(8): put(sfx, coin(), S(T["richer"]) + 0.03 + k * 0.03, 0.6)
@@ -231,9 +231,9 @@ for n in range(1, 7):  # Plimsoll's boots down the quay, the paint pot clinking
 put(sfx, glock(91, 1.6), S(T["simple"] - 1), 0.55); put(sfx, glock(98, 1.2), S(T["simple"] - 1), 0.2)   # the idea
 put(sfx, wetslap(), S(T["paint"]), 0.6)
 for k in range(8): put(sfx, swish(rng.uniform(0.12, 0.18)), S(T["paint"]) + k * 5 / FPS, 0.7)
-for i in range(10): put(sfx, thud(0.8 if i < 2 else 0.45, 85), S(T["water"] - 4 + i * 2), 0.9)
+for i in range(10): put(sfx, crate(0.65 if i < 2 else 0.32, heavy=i < 2), S(T["water"] - 4 + i * 2), 1.0)
 put(amb, creakwood(1.3, 55), S(T["water"]) + 0.1, 0.7); put(sfx, slosh(1.2), S(T["water"]), 0.8)
-put(sfx, woodstamp(1.3), S(T["stays"] + 3), 1.0); put(sfx, impact(0.7), S(T["stays"] + 3), 0.6)
+put(sfx, woodstamp(1.3), S(T["stays"] + 3), 0.6); put(sfx, impact(0.7), S(T["stays"] + 3), 0.35)
 put(sfx, crowd(1.5, 5, "cheer"), S(T["home"]) - 0.05, 0.8)
 for k in range(3): put(sfx, whoosh(0.3, True, 500, 3500), S(T["home"] + k * 2), 0.25)
 # ---- whip into the club ----
@@ -251,12 +251,12 @@ put(sfx, crowd(0.8, 3, "laugh"), S(T["plenty"] + 8), 0.35)
 # ---- the Commons climax ----
 put(sfx, whoosh(0.3, False, 400, 2500), S(T["dropped"] - 2), 0.4); put(sfx, binthud(), S(T["dropped"] + 6), 1.0)
 put(sfx, kettle(S(T["stamps"] + 10) - S(T["plimSnap"] - 4)), S(T["plimSnap"] - 4), 0.8)
-put(sfx, impact(1.0), S(T["snapW"]), 0.6)
-put(sfx, impact(1.3), S(T["foot"]), 1.0); put(sfx, thud(1.2, 55), S(T["foot"]), 0.8)
-put(sfx, slap(), S(T["table"]), 1.0); put(sfx, impact(0.8), S(T["table"]), 0.6); put(sfx, paper(0.7, 36), S(T["table"]) + 0.03, 0.8)
+put(sfx, impact(1.0), S(T["snapW"]), 0.75)
+put(sfx, impact(1.3), S(T["foot"]), 0.75); put(sfx, thud(1.2, 55), S(T["foot"]), 0.6)
+put(sfx, slap(), S(T["table"]), 1.2); put(sfx, impact(0.8), S(T["table"]), 0.6); put(sfx, paper(0.7, 36), S(T["table"]) + 0.03, 0.8)
 for k in range(4): put(sfx, whoosh(0.16, k % 2 == 0, 400, 2500), S(T["fistW"] + k * 5), 0.4)
 put(sfx, impact(0.5), S(T["quoteI"]), 0.4)
-put(sfx, impact(1.0), S(T["villains2"]), 0.9); put(sfx, gasp(1.0), S(T["villains2"]) + 0.05, 1.0)
+put(sfx, impact(1.0), S(T["villains2"]), 0.9); put(sfx, gasp(1.0), S(T["villains2"]) + 0.05, 0.7)
 put(sfx, pop(), S(T["villains2"] + 1), 0.8); put(sfx, whoosh(0.5, True, 400, 3000), S(T["villains2"] + 2), 0.35)
 put(sfx, impact(0.4), S(T["back"]), 0.4); put(sfx, impact(0.7), S(T["refuses"]), 0.6)
 put(sfx, whoosh(0.7, True, 300, 3000), S(T["wife"]), 0.5)
@@ -269,7 +269,7 @@ for b in beats(S(c["papers"]), S(c["square"] - 16)):
     put(sfx, clank(), b * BEAT, 0.7); put(sfx, chug(), b * BEAT + BEAT / 2, 0.6)
 put(sfx, hiss(0.6), S(c["papers"] + 6), 0.7)
 for k in range(3): put(sfx, whoosh(0.3, True, 500, 5000), S(T["every"] - 4 + k * 3), 0.45); put(sfx, flick(), S(T["every"] + 3 + k * 3), 0.4)
-put(sfx, spin(0.5), S(c["square"] - 16), 0.9); put(sfx, slap(), S(c["square"] - 2), 0.6); put(sfx, whoosh(0.25, False, 300, 2500), S(c["square"] + 4), 0.3)
+put(sfx, spin(0.5), S(c["square"] - 16), 0.9); put(sfx, slap(), S(c["square"] - 2), 0.9); put(sfx, whoosh(0.25, False, 300, 2500), S(c["square"] + 4), 0.3)
 # ---- the square at dusk: the crowd, the joke, the chomp, the roar ----
 put(sfx, crowd(2.0, 10, "laugh"), S(T["jokes"] - 3), 0.4)
 put(sfx, chomp(), S(T["bite"]), 1.0); put(sfx, crowd(1.6, 12, "laugh"), S(T["bite"]) + 0.08, 0.8)
@@ -280,8 +280,8 @@ put(sfx, whoosh(0.32, True, 500, 6000), S(c["caves"] - 5), 0.9)
 for ph in (0, 4):
     for n in range(3):
         f0 = c["caves"] + ph + 14 * n + 4
-        if f0 < T["cavesW"] - 4: put(sfx, woodstamp(0.45), S(f0), 0.7)
-put(sfx, woodstamp(1.4), S(T["cavesW"]), 1.0); put(sfx, impact(1.0), S(T["cavesW"]), 0.8); put(sfx, gasp(1.0, 0.7), S(T["cavesW"]) + 0.1, 0.6)
+        if f0 < T["cavesW"] - 4: put(sfx, woodstamp(0.45), S(f0), 0.8)
+put(sfx, woodstamp(1.4), S(T["cavesW"]), 0.55); put(sfx, impact(1.0), S(T["cavesW"]), 0.3); put(sfx, gasp(1.0, 0.7), S(T["cavesW"]) + 0.1, 0.6)
 # ---- sun glare into the harbour, a year later ----
 put(sfx, riser(0.6), S(c["year"]) - 0.6, 0.7)
 for k, m in enumerate((86, 90, 93, 98)): put(sfx, glock(m, 1.4), S(c["year"] - 2) + k * 0.05, 0.3)
@@ -294,7 +294,41 @@ put(sfx, rsqueak(0.2), S(c["shoes"]), 0.8)
 put(sfx, rsqueak(0.14), S(T["gym"] + 6), 0.4)
 put(sfx, whistle(0.55), S(T["got"] - 4), 0.8)
 put(sfx, whoosh(0.3, True, 500, 3500), S(T["plimsolls"] - 2), 0.4); put(sfx, rsqueak(0.2), S(T["plimsolls"] + 14), 0.9)
+# ---- every fast camera move gets air, every action a hit (moves found from the rendered picture's motion peaks) ----
+for f0, d, up, g in ((180, 0.5, True, 0.45), (238, 0.3, True, 0.5), (297, 0.45, True, 0.45), (326, 0.4, False, 0.4), (368, 0.6, True, 0.45),
+                     (513, 0.5, False, 0.35), (566, 0.5, True, 0.5), (612, 0.3, True, 0.45), (803, 0.4, True, 0.4), (826, 0.5, False, 0.4),
+                     (869, 0.35, True, 0.5), (884, 0.4, False, 0.3), (928, 0.3, True, 0.6), (954, 0.35, False, 0.55), (987, 0.3, True, 0.5),
+                     (1039, 0.3, True, 0.45), (1066, 0.35, True, 0.45), (1147, 0.3, True, 0.55), (1201, 0.3, False, 0.4), (1248, 0.6, True, 0.4),
+                     (1650, 0.5, True, 0.4), (1669, 0.5, False, 0.4), (1726, 0.5, False, 0.4), (1760, 0.45, True, 0.4), (1804, 0.4, True, 0.4)):
+    put(sfx, whoosh(d, up, 400, 5000), S(f0), g)
+put(sfx, impact(0.5), 0.0, 1.4)                                                  # the cold open lands on a hit
+for k, f0 in enumerate((2, 8, 14, 20)): put(sfx, whoosh(0.15, k % 2 == 0, 400, 2500), S(f0), 0.35)  # the fist shaking
+put(sfx, impact(0.35), S(T["parliament"]), 1.0)
+put(sfx, knock((880, 1650), (45, 70), (1.0, 0.4), 0.3), S(T["my"]), 0.5)        # "On MY ship?": a wood-block bonk
+v = np.zeros(N); put(v, tuba(38, 0.25), S(T["owners"]), 0.9)                     # the shipowner reveal: a cheeky stab
+for m in (62, 65, 69): put(v, pluck(m + 12, 0.3, 0.6), S(T["owners"]), 0.35)
+music += v
 sfx += reverb(sfx, 0.8) * 0.08
+sfx = hp1(hp1(sfx, 40), 40)
+
+# ---- calibration: SFX levels judged the way a phone plays them (nothing below ~300 Hz), against the processed narration ----
+from scipy.signal import butter, sosfilt
+VCHAIN = "aresample=48000,highpass=f=80,equalizer=f=3000:t=q:w=1:g=3,acompressor=threshold=0.1:ratio=4:attack=2:release=80:makeup=4"
+phone = lambda x: sosfilt(butter(4, 300, "high", fs=SR, output="sos"), x)
+dbr = lambda x: 20 * np.log10(np.sqrt(np.mean(x ** 2)) + 1e-12)
+vproc = np.frombuffer(subprocess.run(["ffmpeg", "-v", "error", "-i", "voice/voice.wav", "-af", VCHAIN, "-ac", "1", "-f", "f64le", "-"], capture_output=True).stdout, np.float64)
+vph = phone(vproc); VREF = dbr(vph[np.abs(vph) > 1e-3])
+HITS = {"cold open": 0, "villains (hook)": T["villains"], "insurance stamp": T["insure"] + 9, "crate: cram": T["cram"], "crate: cargo": T["cargo"],
+        "crate: time-lapse": T["cargo"] + 10, "money bag": T["richer"], "dawn crate": T["water"] - 4, "STAYS IN PORT board": T["stays"] + 3,
+        "bill in the bin": T["dropped"] + 6, "snaps crash": T["snapW"], "foot stomp": T["foot"], "table slam": T["table"], "villains (climax)": T["villains2"],
+        "newspaper lands": c["square"] - 2, "small stamp": c["caves"] + 4, "act stamp": T["cavesW"], "whoosh: snaps whip": 928, "whoosh: Speaker": 1147}
+def hit_db(tr, f): i = int(S(f) * SR); return dbr(phone(tr[i:i + int(0.15 * SR)]) * 0.85) - VREF
+def sfx_cal(tr):  # the climax "villains" hit sits 2 dB under the narration on a phone (before ducking); the rest keep their relative gains
+    k = 10 ** ((-2.0 - hit_db(tr, T["villains2"])) / 20)
+    for n, f in HITS.items(): print(f"   {n:22s} {hit_db(tr * k, f):+6.1f} dB vs narration (phone)")
+    pk = np.abs(tr * k * 0.85); top = sorted({int(i / SR * FPS) for i in np.argsort(pk)[-4000:]})
+    print("   loudest sfx frames:", [f for j, f in enumerate(top) if j == 0 or f - top[j - 1] > 3][:8], "peak", round(float(pk.max()), 2))
+    return k
 
 # ================= write stems and mix =================
 def f32wav(path, x):
@@ -309,23 +343,35 @@ spans = [("hook", 0, c["dock"]), ("dock", c["dock"], c["storm1"]), ("storm", c["
 storm = slice(int(S(c["storm1"]) * SR), int(S(c["dawn"] - 8) * SR))
 for name, tr in (("sfx", sfx), ("music", music), ("amb", amb)):
     if name == "amb": tr *= 10 ** (-19 / 20) / np.sqrt(np.mean(tr[storm] ** 2))
+    elif name == "sfx": tr *= sfx_cal(tr)
     else: tr *= 0.9 / np.abs(tr[hook]).max()
     rms = lambda a, b: 20 * np.log10(np.sqrt(np.mean(tr[int(S(a) * SR):int(S(b) * SR)] ** 2)) + 1e-9)
     print(f"{name:5s} peak {np.abs(tr).max():.2f} |", " ".join(f"{n} {rms(a, b):.0f}" for n, a, b in spans))
     f32wav(f"audio/{name}.wav", tr)
 
+# the mix bus. The narration ducks the music (deep, slow) and the SFX (light, fast: a hit's attack gets through, its tail dips
+# under the word it lands on). The voice compressor catches its own peaks so the final limiter only shaves transients.
+VCHAIN = "aresample=48000,highpass=f=80,equalizer=f=3000:t=q:w=1:g=3,acompressor=threshold=0.1:ratio=4:attack=2:release=80:makeup=4"
+MIXGRAPH = ("[0:a]" + VCHAIN + ",asplit=3[v][vk][vk2];"
+            "[1:a]volume=0.32[m];[m][vk]sidechaincompress=threshold=0.04:ratio=5:attack=10:release=250[md];"
+            "[2:a]volume=0.85[s0];[s0][vk2]sidechaincompress=threshold=0.25:ratio=2:attack=5:release=150[s];[3:a]volume=0.45[a];"
+            "[v][md][s][a]amix=inputs=4:normalize=0,volume=0.78")
+
 def mix(out="audio/mix.wav"):
-    pre = ("[0:a]aresample=48000,highpass=f=80,equalizer=f=3000:t=q:w=1:g=3,acompressor=threshold=0.1:ratio=3:attack=5:release=80:makeup=4,asplit=2[v][vk];"
-           "[1:a]volume=0.32[m];[m][vk]sidechaincompress=threshold=0.04:ratio=5:attack=10:release=250[md];"
-           "[2:a]volume=0.85[s];[3:a]volume=0.45[a];"
-           "[v][md][s][a]amix=inputs=4:normalize=0,alimiter=limit=0.95")
+    """voice chain + music ducked under the voice + SFX + ambience; one exact gain to -14 LUFS, then a single peak limiter last
+    (the old chain drove the limiter ~2 dB too hard and let loudnorm undo it)"""
+    pre = MIXGRAPH
     ins = ["-i", "voice/voice.wav", "-i", "audio/music.wav", "-i", "audio/sfx.wav", "-i", "audio/amb.wav"]
-    r = subprocess.run(["ffmpeg", "-v", "info", "-y", *ins, "-filter_complex", pre + ",loudnorm=I=-14:TP=-1.5:LRA=9:print_format=json", "-t", str(DUR), "-f", "null", "-"],
-                       capture_output=True, text=True)
-    js = json.loads(r.stderr[r.stderr.rindex("{"): r.stderr.rindex("}") + 1])
-    ln = (f"loudnorm=I=-14:TP=-1.5:LRA=9:measured_I={js['input_i']}:measured_TP={js['input_tp']}:measured_LRA={js['input_lra']}"
-          f":measured_thresh={js['input_thresh']}:offset={js['target_offset']}:linear=true")
-    subprocess.run(["ffmpeg", "-v", "error", "-y", *ins, "-filter_complex", pre + "," + ln + ",afade=t=out:st=" + str(round(DUR - 0.06, 3)) + ":d=0.06",
+    def loud(graph):
+        r = subprocess.run(["ffmpeg", "-v", "info", "-y", *ins, "-filter_complex", graph + ",ebur128=peak=true", "-t", str(DUR), "-f", "null", "-"], capture_output=True, text=True)
+        tail = r.stderr[r.stderr.rindex("Summary:"):]
+        return float(re.search(r"I:\s+(-?[\d.]+) LUFS", tail).group(1)), float(re.search(r"Peak:\s+(-?[\d.]+) dBFS", tail).group(1))
+    lim = ",alimiter=limit=0.8:attack=3:release=60:level=disabled"
+    gain = -14.0 - loud(pre + lim)[0]
+    for _ in range(2):  # the limiter shaves a little loudness off the peaks: settle the gain
+        i_out, tp = loud(pre + f",volume={gain:.2f}dB" + lim); gain += -14.0 - i_out
+    subprocess.run(["ffmpeg", "-v", "error", "-y", *ins, "-filter_complex", pre + f",volume={gain:.2f}dB" + lim + ",afade=t=out:st=" + str(round(DUR - 0.06, 3)) + ":d=0.06",
                     "-t", str(DUR), "-ar", "48000", "-ac", "2", out], check=True)
+    print(f"mix: gain {gain:+.2f} dB -> {loud('[0:a]anull' if False else pre + f',volume={gain:.2f}dB' + lim)[0]:.1f} LUFS")
 mix()
 print("audio done", round(DUR, 2), "s;", {k: round(S(v), 2) for k, v in CUT.items()})
