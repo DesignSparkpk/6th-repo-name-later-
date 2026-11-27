@@ -12,15 +12,17 @@ import { M, cyl, glow } from "./kit";
 import { HUB, EARTH_C, RE } from "./story";
 
 // ---------------- Earth textures (loaded once, before the first frame renders) ----------------
-const EARTH: { day?: THREE.Texture; night?: THREE.Texture; clouds?: THREE.Texture } = {};
+const EARTH: { day?: THREE.Texture; night?: THREE.Texture; clouds?: THREE.Texture; nebula?: THREE.Texture } = {};
+/** the film's last picture (studio/scripts/make_nebula.py), once loaded */
+export const nebulaTexture = () => EARTH.nebula;
 let earthPromise: Promise<void> | null = null;
 export const loadEarth = () => {
   if (earthPromise) return earthPromise;
   const L = new THREE.TextureLoader();
-  const one = (name: "day" | "night" | "clouds", srgb: boolean) => new Promise<void>((res) => L.load(staticFile(`assets/earth/${name}.jpg`), (t) => {
+  const one = (name: "day" | "night" | "clouds" | "nebula", srgb: boolean) => new Promise<void>((res) => L.load(staticFile(name === "nebula" ? "assets/hubble/nebula.jpg" : `assets/earth/${name}.jpg`), (t) => {
     t.colorSpace = srgb ? THREE.SRGBColorSpace : THREE.NoColorSpace; t.anisotropy = 8; t.wrapS = THREE.RepeatWrapping; EARTH[name] = t; res();
   }, undefined, () => res()));
-  earthPromise = Promise.all([one("day", true), one("night", true), one("clouds", false)]).then(() => undefined);
+  earthPromise = Promise.all([one("day", true), one("night", true), one("clouds", false), one("nebula", true)]).then(() => undefined);
   return earthPromise;
 };
 

@@ -8,6 +8,7 @@ import { ctex, rep } from "../bridge/paint";
 import { NOINK } from "../bridge/ink";
 import { cyl, hdr, glow, basic } from "./kit";
 import { PRS, NEB } from "./story";
+import { nebulaTexture } from "./setsSpace";
 
 const curtain = () => ctex("pressCurtain", 512, 512, (g, r) => {
   g.fillStyle = "#16306a"; g.fillRect(0, 0, 512, 512);
@@ -72,7 +73,7 @@ export const buildPress = (R: THREE.Object3D): PressSet => {
   const spot = glow("#fff4e0", 4.5, 0.3); spot.position.set(0, 2.0, -1.4); root.add(spot);
   const flash = [0, 1, 2, 3].map((k) => { const s = glow("#ffffff", 2.0, 5); s.position.set(-1.6 + k * 1.05, 1.75 + (k % 2) * 0.35, 3.2 - (k % 2) * 0.5); s.visible = false; root.add(s); return s; });
   // the final picture, far away on its own
-  const neb = new THREE.Mesh(new THREE.PlaneGeometry(10.8, 19.2), basic("nebula", () => ({ map: nebulaTex(), color: hdr("#ffffff", 1.2), fog: false })));
+  const neb = new THREE.Mesh(new THREE.PlaneGeometry(10.8, 19.2), new THREE.MeshBasicMaterial({ map: nebulaTexture() ?? nebulaTex(), color: hdr("#ffffff", 1.08), fog: false }));
   neb.position.set(...NEB); neb.layers.set(NOINK); R.add(neb);
   return { flash };
 };
