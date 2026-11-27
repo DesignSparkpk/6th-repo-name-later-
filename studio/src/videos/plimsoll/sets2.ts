@@ -39,7 +39,16 @@ export type Sets2 = {
   dockShip: THREE.Group; dockSails: THREE.Group; craneJib: THREE.Group; craneLoad: THREE.Object3D; deckCrates: THREE.Object3D[];
   dockWater: THREE.Mesh; dockWaterTex: THREE.Texture; dockUnder: THREE.Mesh; lamps: THREE.Mesh[];
   sea: THREE.Mesh; seaBase: Float32Array; seaTex: THREE.Texture; stormShip: THREE.Group; lantern: THREE.Mesh; markDock: THREE.Mesh;
+  dawnShip: THREE.Group; markDawn: THREE.Mesh; markTex: THREE.Texture[]; dawnCrates: THREE.Object3D[];
 };
+/** the Plimsoll mark half-painted: k = 0..16 (the circle first, then the line through it) */
+const markStep = (k: number) => ctex("markStep" + k, 256, 256, (g) => {
+  g.clearRect(0, 0, 256, 256); g.strokeStyle = "#ffffff"; g.fillStyle = "#ffffff"; g.lineCap = "round";
+  const ca = Math.min(1, k / 10), la = Math.max(0, Math.min(1, (k - 10) / 6));
+  if (ca > 0) { g.lineWidth = 22; g.beginPath(); g.arc(128, 128, 84, -Math.PI / 2, -Math.PI / 2 + ca * Math.PI * 2); g.stroke(); }
+  if (la > 0) g.fillRect(6, 116, 244 * la, 24);
+  if (k >= 16) { g.font = "bold 46px Georgia, serif"; g.textAlign = "center"; g.fillText("L", 64, 100); g.fillText("R", 192, 100); }
+});
 
 export const buildSets2 = (R: THREE.Object3D): Sets2 => {
   const b = new Batch();
@@ -75,8 +84,8 @@ export const buildSets2 = (R: THREE.Object3D): Sets2 => {
   // gas lamps, bollards, crates, barrels, rope coils along the quay
   const iron = lam("dockIron", () => ({ color: "#26282e" }));
   const lamps: THREE.Mesh[] = [];
-  for (let k = -5; k <= 5; k++) {
-    const x = DX + k * 9 + 1.5;
+  for (const dx of [-40, -31, -22, -13, 11, 20, 29, 38]) { // kept clear of the action between DX - 9 and DX + 9
+    const x = DX + dx;
     b.add(cyl(0.07, 0.11, 3.8, 10), iron, M(x, 1.9, -1.4));
     b.add(boxGeo(V(x - 0.22, 3.8, -1.62), V(x + 0.22, 4.35, -1.18)), iron);
     const glass = new THREE.Mesh(new THREE.BoxGeometry(0.34, 0.42, 0.34), basic("lampGlow", () => ({ color: new THREE.Color(2.2, 1.6, 0.8) })));
@@ -143,7 +152,20 @@ export const buildSets2 = (R: THREE.Object3D): Sets2 => {
   stormShip.position.set(SX, 0.2, 0); R.add(stormShip);
   const lantern = new THREE.Mesh(new THREE.SphereGeometry(0.22, 12, 10), basic("lanternGlow", () => ({ color: new THREE.Color(3.2, 2.2, 0.9) })));
   lantern.position.set(-7.2, 2.0, 0); lantern.layers.set(NOINK); stormShip.add(lantern);
-  return { dockShip, dockSails, craneJib, craneLoad, deckCrates, dockWater: dw, dockWaterTex, dockUnder: du, lamps, sea, seaBase, seaTex, stormShip, lantern, markDock };
+  // dawn: a sound ship in the same berth; its starboard side gets the mark, then a load that pushes the mark under
+  const dawnShip = ship(15, 4.2, 3.0, false, { masts: 2, crates: 3, seed: 41, sails: "furled" });
+  dawnShip.position.set(DSHIP[0], DW + 1.55, DSHIP[2]); dawnShip.visible = false; R.add(dawnShip);
+  const markSteps = Array.from({ length: 17 }, (_, k) => markStep(k));
+  const markDawn = new THREE.Mesh(new THREE.PlaneGeometry(1.2, 1.2), new THREE.MeshBasicMaterial({ map: markSteps[0], transparent: true, alphaTest: 0.3, depthWrite: false }));
+  markDawn.position.set(0.4, -0.5, 2.07); markDawn.layers.set(NOINK); dawnShip.add(markDawn);
+  const dawnCrates: THREE.Object3D[] = [];
+  for (let k = 0; k < 10; k++) {
+    const g2 = new THREE.Group(), cb = new Batch(), sz = 0.85 + (k % 3) * 0.12;
+    cb.add(new THREE.BoxGeometry(sz, sz * 0.85, sz), crates[k % 3], M(0, sz * 0.42, 0, k * 0.41)); cb.build(g2);
+    g2.position.set(-4.5 + (k % 5) * 2.1, 0.05 + Math.floor(k / 5) * 0.82, ((k * 5) % 3 - 1) * 1.0); g2.visible = false; dawnShip.add(g2); dawnCrates.push(g2);
+  }
+  return { dockShip, dockSails, craneJib, craneLoad, deckCrates, dockWater: dw, dockWaterTex, dockUnder: du, lamps, sea, seaBase, seaTex, stormShip, lantern, markDock,
+    dawnShip, markDawn, markTex: markSteps, dawnCrates };
 };
 
 /** storm swell: a pure function of the time (used for the sheet and to float the ship) */

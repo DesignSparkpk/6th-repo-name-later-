@@ -3,7 +3,7 @@
 import * as THREE from "three";
 import { Pen, bodyFront, SKIN, INK, fxBurst, fxRing, fxSplash, fxShadow, fxContact, Outfit, FrontOpts } from "./toon";
 import type { Place, FxPlace, Stage, CamInfo } from "../bridge/cast";
-import { FPS, PLIM, WATER, HOARD, BED, COFFIN, T, talking, camAt, clamp01, smooth, OWNER, DESK, DSHIP, DX, SX, HULLPT, paperAt, shipSink, CUT, STRIKES } from "./story";
+import { FPS, PLIM, WATER, HOARD, BED, COFFIN, T, talking, camAt, clamp01, smooth, OWNER, DESK, DSHIP, DX, SX, HULLPT, paperAt, shipSink, CUT, STRIKES, plimWalk, PL_STOP, MARK, HARB, dawnSink, DW } from "./story";
 import type { Place as Place3 } from "./story";
 
 // ---------------- cast ----------------
@@ -20,6 +20,8 @@ const MP = (v: number): Outfit => ({
 const OWNER_O: Outfit = { jacket: "#3a2f4a", pants: "#2b2633", boots: "#1d1d22", hat: "tophat", style: "vest", trim: "#8a1f2b", chops: "#5a4636",
   monocle: true, chain: true, cigar: true, build: "stout", skin: SKIN };
 const CLERK_O: Outfit = { jacket: "#2a2f3a", pants: "#2a2f3a", boots: "#1d1d22", hat: "hair", hair: "#3a2c22", style: "collar", trim: "#3a3a48", specs: true, skin: SKIN };
+const HARBOUR_O: Outfit = { jacket: "#22304a", pants: "#22304a", boots: "#1b1b20", hat: "cap", cap: "#22304a", style: "collar", trim: "#c9a24e", moustache: "#5a4636",
+  buttons: "#e2b84a", build: "stout", skin: SKIN };
 const SAILOR = (v: number): Outfit => ({ jacket: "#f2efe8", style: "stripes", trim: "#2c4f86", pants: ["#2b3a55", "#3a3a44", "#4a3b30"][v % 3], boots: "#3a2c22",
   hat: "cap", cap: ["#2c3a55", "#7a1f2b", "#3a3a44"][v % 3], beard: v % 2 ? "#5a4636" : undefined, skin: SKIN });
 
@@ -124,6 +126,14 @@ const stampHand = (p: Pen, u: number) => { // the clerk's hand bringing the rubb
   p.poly([[86, 262], [214, 262], [214, 290], [86, 290]], "#6b4520", 7);
   if (u > 0.9) p.poly([[86, 290], [214, 290], [214, 298], [86, 298]], "#c0202a", 0);
 };
+const brushHand = (p: Pen) => { // a hand holding a dripping paint brush, bristles at the bottom-left (the card's anchor)
+  p.band([[230, 40], [300, -40]], "#2b2e3d", 60, 8, "butt");
+  p.ell(205, 70, 42, 36, "#fbf8f3", 7);
+  p.band([[190, 92], [120, 170]], "#8a5a34", 18, 6, "round");
+  p.poly([[100, 160], [140, 192], [112, 232], [70, 200]], "#e9e4d8", 7);
+  p.poly([[70, 200], [112, 232], [98, 246], [58, 214]], "#ffffff", 0);
+};
+const capFly = (p: Pen, col: string) => { p.ell(64, 70, 50, 34, col, 7); p.ell(64, 96, 58, 12, col, 6); };
 const rainStreak = (p: Pen) => { p.g.globalAlpha = 0.85; p.stroke([[16, 8], [8, 248]], 7, "#dfe8f6"); p.g.globalAlpha = 1; };
 const gull = (p: Pen, u: number) => { const w = 30 * Math.sin(u * Math.PI * 2); p.stroke([[10, 60 + w], [60, 50], [110, 60 + w]], 9, "#2a2430"); };
 
@@ -211,12 +221,12 @@ export const stage = (place: Place3, f: number, cam: CamInfo): Stage => {
     if (!night && f < CUT.storm1 && f >= T.nasty - 2) { // a puff of cigar smoke curling up
       const u = q(((f - T.nasty) / FPS * 0.6) % 1, 20); fxAt(out, `cigar${u}`, 300, 300, (p) => fxBurst(p, u, "#d9dde6", 5, 30, 120), OWNER[0] + r.x * 0.35, 1.9 + u * 0.4, OWNER[2] + r.z * 0.35, 0.45, 0.45, { soft: true });
     }
-    if (hatUp) for (let k = 0; k < 16; k++) { // coins raining into the upturned hat
-      const age = (f - T.rich) / FPS - (k % 8) * 0.07 - Math.floor(k / 8) * 0.5;
+    if (hatUp) for (let k = 0; k < 28; k++) { // coins raining into the upturned hat
+      const age = (f - T.rich) / FPS - (k % 14) * 0.045 - Math.floor(k / 14) * 0.4;
       if (age < 0 || age > 0.5) continue;
       const hx = OWNER[0] + r.x * 0.55, hz = OWNER[2] + r.z * 0.55, y = 3.7 - 9.8 * age * age * 2.4;
       if (y < 2.25) continue;
-      fxAt(out, `coin${k % 3}`, 128, 128, (p) => coin(p, k), hx + (hh(k, 3) - 0.5) * 0.3, y, hz, 0.17, 0.17);
+      fxAt(out, `coin${k % 3}`, 128, 128, (p) => coin(p, k), hx + (hh(k, 3) - 0.5) * 0.36, y, hz + (hh(k, 4) - 0.5) * 0.2, 0.2, 0.2);
     }
     if (night) {
       if (f >= T.richer - 8) { // the bag drops out of the sky into his arm
@@ -257,6 +267,42 @@ export const stage = (place: Place3, f: number, cam: CamInfo): Stage => {
       // gulls in the fog
       [[DX + 6, 9, 8], [DX - 4, 11, 12]].forEach(([x, y, z], k) => { const u = q(((f / FPS) * 2.1 + k * 0.4) % 1, 12); fxAt(out, `gull${u}`, 128, 100, (p) => gull(p, u), x + (f / FPS) * 1.5, y, z, 1.1, 0.85); });
     }
+  }
+
+  if (place === "dawn") {
+    const r = cam.right;
+    // Plimsoll: strides in with his pot of white paint; stops, an idea, the brush goes up
+    const w = plimWalk(f), stopped = f >= T.pushes - 4;
+    P({ i: 1, o: PLIMSOLL, okey: "plim" }, w.pos[0], 0, w.pos[2], stopped
+      ? { mode: "stand", expr: f >= T.simple - LEAD ? "smug" : "stern", prop: "brush", swing: q(((f - T.pushes) / FPS * 1.2) % 1, 12), facing: 1, tilt: 2 }
+      : { mode: w.walking ? "stroll" : "stand", phase: q(w.phase % 1, 24), expr: "stern", prop: "paint", tilt: 3 });
+    blob(out, w.pos[0], 0, w.pos[2]);
+    if (f >= T.simple - 4 && f < T.simple + 12) { const v = (f - T.simple + 4) / 16; fxAt(out, `idea${q(v, 8)}`, 500, 500, (p) => fxBurst(p, v, "#ffe066", 9, 60, 200), w.pos[0] + r.x * 0.2, 2.45, w.pos[2] + r.z * 0.2, 0.7, 0.7); }
+    // sailors watching from the quay; caps go up on "home"
+    const late = f >= T.stays - 7; // for the board and the cheer they gather round the harbour master, at the quay edge behind him
+    const SAIL: [number, number, number][] = late ? [[HARB[0] - 1.05, -0.35, 0], [HARB[0] + 1.1, -0.45, 1], [HARB[0] - 0.2, -0.15, 2], [HARB[0] + 2.2, -0.6, 3]]
+      : [[PL_STOP[0] + 1.6, -2.7, 0], [PL_STOP[0] + 3.0, -3.3, 1], [PL_STOP[0] - 1.4, -3.4, 2], [HARB[0] + 1.6, -2.4, 3]];
+    SAIL.forEach(([x, z, k]) => {
+      const cheer = f >= T.home - LEAD;
+      P({ i: 40 + k, o: SAILOR(k), okey: "sailorDawn" + k }, x, 0, z, { mode: "stand", expr: cheer ? "laugh" : f >= T.water ? "shock" : "neutral", wave: cheer ? q(0.5 + 0.5 * Math.sin(f * 0.5 + k), 10) : undefined });
+      blob(out, x, 0, z);
+      if (cheer && f < T.home + 26) { const u = (f - T.home) / 26; fxAt(out, `cap${k}`, 128, 128, (p) => capFly(p, SAILOR(k).cap!), x + r.x * 0.2, 2.0 + 3.2 * u - 3 * u * u, z, 0.35, 0.35, { rot: u * 6 + k }); }
+    });
+    // the harbour master: board up, slammed down on "stays"
+    const sw = smooth((f - (T.stays - 1)) / 4);
+    P({ i: 50, o: HARBOUR_O, okey: "harbour" }, HARB[0], 0, HARB[2], { mode: "stand", expr: f >= T.stays - LEAD ? "stern" : "neutral", prop: "board", swing: sw, facing: -1 });
+    blob(out, HARB[0], 0, HARB[2]);
+    if (f >= T.stays + 3 && f < T.stays + 11) { const v = (f - T.stays - 3) / 8; fxAt(out, `slam${q(v, 8)}`, 500, 500, (p) => fxBurst(p, v, "#f3e6c8", 8, 80, 220), HARB[0] + r.x * 0.45, 0.45, HARB[2] + r.z * 0.45, 0.8, 0.8); }
+    // the macro: a hand with the brush rides the tip of every stroke of the mark
+    if (f >= T.paint - 2 && f < T.everyHull + 16) {
+      const kk = Math.max(0, Math.min(16, (16 * (f - T.paint)) / (T.everyHull + 12 - T.paint))), ca = Math.min(1, kk / 10), la = Math.max(0, Math.min(1, (kk - 10) / 6));
+      let px = 128, py = 44;
+      if (la <= 0) { const th = -Math.PI / 2 + ca * Math.PI * 2; px = 128 + 84 * Math.cos(th); py = 128 + 84 * Math.sin(th); } else { px = 6 + 244 * la; py = 128; }
+      const my = dawnSink(f) - 0.5;
+      fxAt(out, "brushHand", 300, 300, brushHand, MARK[0] + ((px - 128) * 1.2) / 256 + 0.12, my - ((py - 128) * 1.2) / 256 + 0.14, MARK[2] + 0.18, 0.55, 0.55);
+    }
+    // ripples where the water meets the hull as it is loaded
+    if (f >= T.water - 6) for (let i = 0; i < 3; i++) { const u = q(((f / FPS) * 1.1 + i / 3) % 1, 20); fxAt(out, `ring${u}`, 600, 600, (p) => fxRing(p, u), MARK[0] - 1 + i, DW + 0.02, MARK[2] + 0.6, 1.6, 1.6, { flat: true }); }
   }
 
   if (place === "storm") {

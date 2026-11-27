@@ -446,10 +446,10 @@ const hatOn = (p: Pen, o: Outfit, hp: P2[], H: Blob, cx: number, hc: number, lig
 export type Arms = [P2[], P2[]];
 /** held prop; for the hammer the number is the strike 0 (raised) .. 1 (struck) */
 export type Prop = null | "icecream" | "shako" | ["hammer", number] | "pan" | "magnifier" | "model" | "keys" | "umbrella"
-  | "paint" | "brush" | "stamp" | "newspaper" | "notebook" | "copies" | "folder" | "whistle" | "moneybag" | "hatUp" | "tipHat" | "policy";
+  | "paint" | "brush" | "stamp" | "newspaper" | "notebook" | "copies" | "folder" | "whistle" | "moneybag" | "hatUp" | "tipHat" | "policy" | "board";
 const HELD = ["icecream", "pan", "magnifier", "model", "keys", "notebook", "copies", "folder", "policy"];
 /** props carried in a raised hand (above the shoulder) */
-const RAISED = ["stamp", "newspaper", "moneybag", "hatUp", "tipHat"];
+const RAISED = ["stamp", "newspaper", "moneybag", "hatUp", "tipHat", "board"];
 
 const BUILD: Record<Build, { a: number; torso: number; legs: number; tw: number }> = {
   adult: { a: 118, torso: 1.1, legs: 1.4, tw: 0.8 },
@@ -721,6 +721,12 @@ export const bodyFront = (p: Pen, o: Outfit, opts: FrontOpts) => {
       p.poly(Rh([[hx - 34 * u, hy - 52 * u], [hx + 34 * u, hy - 56 * u], [hx + 36 * u, hy + 4 * u], [hx - 32 * u, hy + 6 * u]]), "#efe9d8", 2.6 * u);
       p.poly(Rh([[hx - 28 * u, hy - 46 * u], [hx + 28 * u, hy - 49 * u], [hx + 28 * u, hy - 38 * u], [hx - 28 * u, hy - 35 * u]]), "#2a2430", 0);
       for (let k = 0; k < 4; k++) p.stroke(Rh([[hx - 26 * u, hy - 28 * u + k * 8 * u], [hx + (k % 2 ? 6 : 26) * u, hy - 29 * u + k * 8 * u]]), 1.6 * u, "#6b6470");
+      p.dot(hx, hy, 5.5 * u);
+    } else if (prop === "board") { // red STAYS IN PORT board on a short pole
+      p.band([[hx, hy + 10 * u], [hx, hy - 30 * u]], "#6b4520", 4.5 * u, 1.4 * u, "round");
+      p.poly([[hx - 52 * u, hy - 92 * u], [hx + 52 * u, hy - 92 * u], [hx + 52 * u, hy - 28 * u], [hx - 52 * u, hy - 28 * u]], "#c0202a", 3.4 * u);
+      p.g.save(); p.g.fillStyle = "#ffffff"; p.g.textAlign = "center"; p.g.font = `bold ${Math.round(19 * u)}px Georgia, serif`;
+      p.g.fillText("STAYS IN", hx, hy - 66 * u); p.g.fillText("PORT", hx, hy - 42 * u); p.g.restore();
       p.dot(hx, hy, 5.5 * u);
     } else if (prop === "notebook") {
       p.poly([[hx - 18 * u, hy - 22 * u], [hx + 14 * u, hy - 24 * u], [hx + 16 * u, hy + 10 * u], [hx - 16 * u, hy + 12 * u]], "#f4efe2", 2.2 * u);

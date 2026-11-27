@@ -126,6 +126,23 @@ const BubbleWipe: React.FC = () => {
     </AbsoluteFill>
   );
 };
+/** pink-white cloud puffs sweeping across the frame (out of the storm clouds into the dawn sky) */
+const CloudWipe: React.FC = () => {
+  const f = useCurrentFrame(), k = f - (CUT.dawn - 8);
+  if (k < 0 || k > 16) return null;
+  const u = k / 16, cover = Math.sin(Math.PI * u);
+  return (
+    <AbsoluteFill>
+      <svg width="1080" height="1920" viewBox="0 0 1080 1920">
+        <rect x="0" y="0" width="1080" height="1920" fill={u < 0.5 ? "#c9cfe0" : "#ffe1d2"} opacity={0.6 * cover} />
+        {Array.from({ length: 46 }, (_, i) => {
+          const x = -400 + u * 1900 + hsh(i, 11) * 1200 - 600, y = hsh(i, 12) * 1920, r = 120 + hsh(i, 13) * 260 * cover;
+          return <circle key={i} cx={x} cy={y} r={r} fill={u < 0.5 ? "#dde2ee" : "#fff0e6"} opacity={0.95 * cover} />;
+        })}
+      </svg>
+    </AbsoluteFill>
+  );
+};
 /** lightning: a white flash on the cuts in and out of the storm */
 const Flash: React.FC = () => {
   const f = useCurrentFrame();
@@ -153,6 +170,7 @@ export const PlimsollShort: React.FC = () => {
       <Plunge />
       <BubbleWipe />
       <Flash />
+      <CloudWipe />
       <Caption />
     </AbsoluteFill>
   );

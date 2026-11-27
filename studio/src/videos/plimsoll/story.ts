@@ -48,7 +48,21 @@ export const T = {
   cram: wf("trick", "cram"), withC: wf("trick", "with"), cargo: wf("trick", "cargo"), until: wf("trick", "until"), floating: wf("trick", "floating"),
   makes: wf("rich", "makes"), rich: wf("rich", "rich"), ifSinks: wf("rich", "if", 1), sinks: wf("rich", "sinks"), richer: wf("rich", "richer"),
   coffin: wf("coffin"), cships: wf("coffin", "ships"), fix: wf("fix"),
+  mp: wf("fix", "mp"), plimsoll: wf("fix", "plimsoll"), pushes: wf("fix", "pushes"), simple: wf("fix", "simple"), paint: wf("fix", "paint"),
+  everyHull: wf("fix", "hull"), water: wf("fix", "water"), lineQ: wf("fix", "line", 1), stays: wf("fix", "stays"), home: wf("fix", "home"),
+  laugh: wf("laugh"),
 };
+/** dawn: Plimsoll strides down the quay toward the camera, stops at the edge with his pot and brush */
+export const PL_WALK0: V3 = [DX - 7.2, 0, -1.9], PL_STOP: V3 = [DX - 1.6, 0, -1.25];
+export const plimWalk = (f: number): { pos: V3; phase: number; walking: boolean } => {
+  const u = smooth((f - (T.fix + 8)) / (T.pushes - 4 - (T.fix + 8)));
+  return { pos: [PL_WALK0[0] + (PL_STOP[0] - PL_WALK0[0]) * u, 0, PL_WALK0[2] + (PL_STOP[2] - PL_WALK0[2]) * u], phase: ((f - T.fix) / 30) * 1.6, walking: u > 0.001 && u < 0.999 };
+};
+/** the mark painted on the sound ship's starboard side (seen from the water), and the harbour master on the quay */
+export const MARK: V3 = [DX + 2.4, DW + 1.05, DSHIP[2] + 2.12];
+export const HARB: V3 = [DX + 3.6, 0, -1.3];
+/** loading at dawn: the water creeps up over the new mark on "Water over the line?" */
+export const dawnSink = (f: number) => DW + 1.55 - 0.95 * smooth((f - T.water) / 26);
 /** the stamped policy blowing off the clerk's desk and landing against the rotten hull */
 export const HULLPT: V3 = [DX + 0.9, DW + 1.05, 1.18];
 export const paperAt = (f: number): V3 => {
@@ -56,7 +70,7 @@ export const paperAt = (f: number): V3 => {
   return [v * v * p0[0] + 2 * u * v * c[0] + u * u * HULLPT[0], v * v * p0[1] + 2 * u * v * c[1] + u * u * HULLPT[1], v * v * p0[2] + 2 * u * v * c[2] + u * u * HULLPT[2]];
 };
 /** frames of the hidden cuts: under a rising-bubble wipe into the dock, under lightning flashes in and out of the storm */
-export const CUT = { dock: T_DOCK(), storm1: T.ifSinks, night: T.richer - 16, storm2: T.coffin };
+export const CUT = { dock: T_DOCK(), storm1: T.ifSinks, night: T.richer - 16, storm2: T.coffin, dawn: T.fix, club: T.laugh };
 function T_DOCK() { return wf("yousee") + 6; }
 /** crate drops on the beat: [frame, crate index]; plus a fast time-lapse that fills the deck before "until" */
 export const DROPS: [number, number][] = [[T.cram, 0], [T.withC, 1], [T.cargo, 2], ...[3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13].map((k, i) => [T.cargo + 6 + i * 2, k] as [number, number])];
@@ -117,7 +131,7 @@ const KEYS: Key[] = [
   { f: T.until + 5, dur: 12, s: (f) => dolly([DX + 0.5, DW + 0.75, 0.55], [DX + 6, DW + 0.35, 1.15], pushK(f, T.until + 17, 0.003), { fov: 46, roll: -0.04 }) },
   // "If a ship makes it": crane up out of the gap and back over the quay: the owner in front, his ship sailing off behind him
   { f: T.makes - 14, dur: 8, s: () => ({ pos: [DX + 0.5, 1.4, 0.4], look: [DX + 5, 0.5, 2], fov: 44, roll: 0 }) },
-  { f: T.makes - 6, dur: 18, s: () => ({ pos: [OWNER[0] - 1.0, 1.7, OWNER[2] - 5.0], look: [OWNER[0] + 0.6, 1.25, OWNER[2] + 6], fov: 44, roll: 0.02 }) },
+  { f: T.makes - 6, dur: 18, s: () => ({ pos: [OWNER[0] - 0.9, 1.7, OWNER[2] - 5.2], look: [OWNER[0] + 0.25, 1.3, OWNER[2] + 1.5], fov: 44, roll: 0.02 }) },
   // "they get rich": in on the owner holding his hat out; coins rain into it
   { f: T.rich - 5, dur: 12, s: (f) => dolly([DX - 1.4, 1.65, -4.4], [OWNER[0], 1.75, OWNER[2]], pushK(f, T.rich + 6, 0.003), { fov: 40 }) },
   // "If it sinks": lightning, the open sea at night, the ship going under
@@ -126,6 +140,20 @@ const KEYS: Key[] = [
   { f: CUT.night, cut: true, s: (f) => dolly([DX - 4.8, 1.55, 0.9], [OWNER[0], 1.5, OWNER[2]], pushK(f, CUT.night, 0.004), { fov: 40, roll: 0.03 }) },
   // "They're called coffin ships": lightning, back at sea, the stern rising like a headstone, the lantern goes out
   { f: CUT.storm2, cut: true, s: (f) => dolly([SX - 13, 2.8, 9.5], [SX + 1, 2.4, 0], pushK(f, CUT.storm2, 0.0035), { fov: 42, roll: 0.05 }) },
+  { f: T.cships + 8, dur: 12, s: () => ({ pos: [SX - 13, 3.2, 9.5], look: [SX - 4, 30, -4], fov: 46, roll: 0.0 }) },          // tilt up into the storm clouds
+  // ---- "Then an MP named Samuel Plimsoll": a cloud wipe; looking up into a pink dawn sky, tilt down onto the quay ----
+  { f: CUT.dawn, cut: true, s: () => ({ pos: [DX + 1.3, 1.55, -0.95], look: [DX - 3, 14, -1.6], fov: 46, roll: 0 }) },
+  { f: CUT.dawn + 3, dur: 18, s: () => ({ pos: [DX + 1.5, 1.6, -0.95], look: [PL_WALK0[0] + 1.5, 1.3, PL_WALK0[2]], fov: 42, roll: 0.02 }) },
+  // he strides toward us: the camera backs off ahead of him
+  { f: CUT.dawn + 22, dur: 40, s: (f) => { const w = plimWalk(f).pos; return { pos: [w[0] + 4.4, 1.62, -0.95], look: [w[0], 1.35, w[2]], fov: 40, roll: 0.02 }; } },
+  // "pushes a simple fix": he stops at the quay edge, brush up; the ship behind him
+  { f: T.pushes - 4, dur: 14, s: (f) => dolly([PL_STOP[0] + 1.3, 1.62, PL_STOP[2] - 3.6], [PL_STOP[0], 1.45, PL_STOP[2]], pushK(f, T.pushes + 10, 0.003), { fov: 40, roll: -0.03 }) },
+  // "Paint a line on every hull": macro on the starboard side from the water, the mark appears stroke by stroke
+  { f: T.paint - 5, dur: 10, s: (f) => dolly([MARK[0] + 0.25, MARK[1] + 0.15, MARK[2] + 3.0], [MARK[0], MARK[1] + 0.05, MARK[2]], pushK(f, T.paint + 5, 0.003), { fov: 40, roll: 0.03 }) },
+  // "Water over the line?": hold as the water climbs over it
+  { f: T.water - 4, dur: 16, s: (f) => dolly([MARK[0] + 0.4, DW + 0.75, MARK[2] + 3.2], [MARK[0], DW + 0.45, MARK[2]], pushK(f, T.water + 12, 0.003), { fov: 40, roll: -0.02 }) },
+  // "The ship stays home": the harbour master slams down the board, the sailors cheer
+  { f: T.stays - 7, dur: 12, s: (f) => dolly([HARB[0] - 0.6, 1.6, HARB[2] - 4.1], [HARB[0], 1.3, HARB[2]], pushK(f, T.stays + 5, 0.003), { fov: 42, roll: 0.03 }) },
 ];
 const run = (f: number) => {
   let cur = full(KEYS[0].s(f));
@@ -138,7 +166,7 @@ const run = (f: number) => {
 };
 // impact kicks: image offset flips sign every frame and decays over 7 f
 const KICKS: [number, number][] = [[T.villains, 1.1], [T.parliament, 0.4], [T.bottom + 1, 0.6], [T.insure + 9, 1.0],
-  [T.cram, 0.8], [T.withC, 0.8], [T.cargo, 1.0], [T.sinks, 0.7], [T.richer, 0.9]];
+  [T.cram, 0.8], [T.withC, 0.8], [T.cargo, 1.0], [T.sinks, 0.7], [T.richer, 0.9], [T.stays + 3, 1.0], [T.paint, 0.3]];
 export const kickAt = (f: number) => {
   let a = 0;
   for (const [f0, g] of KICKS) { const n = f - f0; if (n >= 0 && n < 7) a += g * (n % 2 ? -1 : 1) * (1 - n / 7) ** 1.5; }
@@ -154,7 +182,7 @@ export const camAt = (f: number): Cam => {
 };
 
 // ---------------- light follows the camera: inside the chamber, out over the river, under the water ----------------
-export type Place = "chamber" | "river" | "under" | "dock" | "storm" | "night";
+export type Place = "chamber" | "river" | "under" | "dock" | "storm" | "night" | "dawn";
 export const placeAt = (f: number): Place => {
   const c = run(f);
   if (f < CUT.dock) {
@@ -164,13 +192,14 @@ export const placeAt = (f: number): Place => {
   if (f < CUT.storm1) return c.pos[1] < DW ? "under" : "dock";
   if (f < CUT.night) return "storm";
   if (f < CUT.storm2) return "night";
-  return "storm";
+  if (f < CUT.dawn) return "storm";
+  return "dawn";
 };
-export const LIGHT_OF: Record<Place, LightName> = { chamber: "candle", river: "dusk", under: "under", dock: "fog", storm: "storm", night: "night" };
+export const LIGHT_OF: Record<Place, LightName> = { chamber: "candle", river: "dusk", under: "under", dock: "fog", storm: "storm", night: "night", dawn: "dawn" };
 /** sun direction per place, world space (fixed: the camera moves continuously through each place) */
 export const SUN_OF: Record<Place, V3> = {
   chamber: [0.55, 0.8, 0.25], river: [-0.6, 0.24, -0.76], under: [-0.15, 0.97, 0.1],
-  dock: [0.35, 0.75, -0.56], storm: [0.3, 0.8, 0.5], night: [0.3, 0.6, 0.75],
+  dock: [0.35, 0.75, -0.56], storm: [0.3, 0.8, 0.5], night: [0.3, 0.6, 0.75], dawn: [0.7, 0.3, 0.65],
 };
 /** lightning: frames of the strikes (the cuts in and out of the storm hide under the first one) */
 export const STRIKES = [CUT.storm1, CUT.storm1 + 10, CUT.night, T.richer, CUT.storm2, T.cships - 3];
@@ -194,6 +223,11 @@ export const DOF: Dof[] = [
   { f: CUT.storm1, cInf: 0 },
   { f: CUT.night, cInf: 10, focus: () => [OWNER[0], 1.5, OWNER[2]] },
   { f: CUT.storm2, cInf: 3 },
+  { f: CUT.dawn, cInf: 1 },
+  { f: CUT.dawn + 22, dur: 10, cInf: 9, focus: (f) => [plimWalk(f).pos[0], 1.4, plimWalk(f).pos[2]] },
+  { f: T.pushes - 4, dur: 10, cInf: 10, focus: () => [PL_STOP[0], 1.45, PL_STOP[2]] },
+  { f: T.paint - 5, dur: 8, cInf: 12, focus: () => MARK },
+  { f: T.stays - 7, dur: 8, cInf: 9, focus: () => [HARB[0], 1.3, HARB[2]] },
 ];
 export const dofAt = (f: number) => {
   let cur = { cInf: DOF[0].cInf, focus: DOF[0].focus };

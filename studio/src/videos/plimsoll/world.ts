@@ -10,7 +10,7 @@ import { LIGHTS, LOOK } from "./lights";
 import { buildSets, Sets } from "./sets";
 import { buildSets2, Sets2, swell } from "./sets2";
 import { stage } from "./cast";
-import { FPS, camAt, placeAt, LIGHT_OF, SUN_OF, T, WIN, smooth, DX, DW, DSHIP, SX, DROPS, shipSink, strikeAt, CUT } from "./story";
+import { FPS, camAt, placeAt, LIGHT_OF, SUN_OF, T, WIN, smooth, DX, DW, DSHIP, SX, DROPS, shipSink, strikeAt, CUT, dawnSink } from "./story";
 
 export class World {
   root = new THREE.Group();
@@ -135,6 +135,20 @@ export class World {
       S2.stormShip.position.set(SX, y0 + 0.2 - 4.2 * sink, 0);
       S2.stormShip.rotation.set(0.12 * Math.sin(t * 1.7), 0.3, 0.1 * Math.sin(t * 1.3) - 0.95 * sink);
       S2.lantern.visible = f < T.cships;
+    }
+    // dawn: the sound ship gets its mark stroke by stroke, then a load pushes the mark under the water
+    const dawn = place === "dawn";
+    S2.dawnShip.visible = dawn;
+    if (dawn) {
+      S2.dockShip.visible = false;
+      S2.dawnShip.position.y = dawnSink(f) + 0.04 * Math.sin(t * 1.3);
+      const k = Math.max(0, Math.min(16, Math.floor(16 * (f - T.paint) / (T.everyHull + 12 - T.paint))));
+      (S2.markDawn.material as THREE.MeshBasicMaterial).map = S2.markTex[k]; S2.markDawn.visible = f >= T.paint;
+      S2.dawnCrates.forEach((c3, i) => {
+        const f0 = T.water - 4 + i * 2, u = (f - f0) / 5; c3.visible = f >= f0 - 6;
+        const home = c3.userData.home ?? (c3.userData.home = c3.position.y);
+        c3.position.y = home + 7 * Math.max(0, 1 - Math.max(0, u + 1.2) / 1.2) ** 2;
+      });
     }
     void DX; void DW;
     // ---- cast + effects ----
