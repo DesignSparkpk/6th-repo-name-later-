@@ -85,6 +85,8 @@ export const FLD: V3 = [30000, 0, -30000];
 export const LADDER_H = 30;
 export const CLN: V3 = [-30000, 0, -30000];
 export const PRS: V3 = [0, 0, 60000];
+/** the final picture (a nebula on a plane facing +z) */
+export const NEB: V3 = [0, 0, 90000];
 
 /** hidden cuts */
 export const CUT = {
@@ -92,7 +94,7 @@ export const CUT = {
   pad: T.yousee,                      // whip to Florida, 1990
   control: T.blurryL, tube: T.mirrorL, studio: T.roast, senate: T.senatorA - 2, orbit2: T.worse, field: T.nobody - 2,
   street: T.crocker, bath2: T.showerL, clean: T.glassesL, glasses: T.glasses - 2, nightpad: T.risk, walk: T.astronauts,
-  control2: T.photo, press: T.senator,
+  control2: T.photo, press: T.senator, arms: T.little2 - 2, neb: T.over,
 };
 
 // ---------------- the launch pad (1990 by day, 1993 by night) ----------------
@@ -126,15 +128,29 @@ const STACK_MID = (f: number): V3 => add(PAD, [0, DECK + 32 + launchAt(f).h, 3])
 /** how much of the picture has arrived on the big screen (0..1), and how sharp it is */
 export const screenAt = (f: number) => f < CUT.tube
   ? { load: clamp01((f - T.picture) / (T.completely - T.picture - 2)), sharp: 0, label: "HST  WF/PC  FIRST IMAGE" }
-  : { load: clamp01((f - T.loads) / (T.razor - T.loads - 1)), sharp: smooth((f - T.sharp + 2) / 4), label: "HST  WFPC2  POST-SERVICING" };
+  : { load: clamp01((f - T.loads) / (T.razor - T.loads - 1)), sharp: smooth((f - T.razor + 1) / 4), label: "HST  WFPC2  POST-SERVICING" };
 /** the mirror's flaw: the red rim glows on "off"; the hair's 1/50 strip lights during "one-fiftieth"; the red step on "human hair" */
 export const flawAt = (f: number) => ({ ring: smooth((f - T.off + 1) / 5) * (0.75 + 0.25 * Math.sin(f * 0.5)), strip: smooth((f - T.fiftieth - 6) / 6), step: smooth((f - T.human + 2) / 6) });
 /** the ladder sways once he stretches too far (radians about its feet, z axis) */
 export const swayAt = (f: number) => (f < T.fix - 6 ? 0 : 0.09 * Math.sin((f - T.fix + 6) * 0.35) * smooth((f - T.fix + 6) / 8));
+/** Munich, the night he checks in: where he is on the sidewalk (he walks toward the entrance with his suitcase) */
+export const crocWalkX = (f: number) => 3.2 - (f - CUT.street) * 0.105;
+/** the blueprint: the side arms fold out on "tiny mirrors", the main arm swings its mirror into the beam on "reverse" */
+export const costarAt = (f: number) => f < CUT.walk
+  ? { side: smooth((f - T.tiny) / 10), arm: smooth((f - T.reverse + 9) / 9), fix: smooth((f - T.reverse) / 4) }
+  : { side: smooth((f - T.little2) / 8), arm: smooth((f - T.unfold + 4) / 8), fix: smooth((f - T.unfold - 4) / 4) };
+/** the spectacles pop onto Hubble on "Glasses" (overshoot), and a glint runs across a lens on "telescope" */
+export const specsAt = (f: number) => { const u = clamp01((f - T.glasses + 1) / 6); return { s: u * (1 + 0.35 * Math.sin(u * Math.PI)), glint: clamp01((f - T.telescope2) / 10) }; };
+/** the spacewalk: the box slides home on "slide... in"; the wrench slips out of the glove on "slip" and tumbles away */
+export const EVA_ON = (f: number) => f >= CUT.walk && f < CUT.arms;
+export const boxSlide = (f: number) => smooth((f - T.slide) / (T.inW - T.slide + 1));
+export const wrenchAt = (f: number) => { const t = Math.max(0, f - T.slip - 1) / FPS; return { d: [0.6 * t, 0.26 * t, 1.0 * t] as V3, spin: [t * 2.1, t * 3.3, t * 1.4] as V3 }; };
 /** press camera flashes: frames on which one of the photographers' flashes pops (Senate, press room) */
-export const FLASHES = [T.turkey + 2, T.turkey + 7, T.turkey + 13, T.turkey + 19];
+export const FLASHES = [T.turkey + 2, T.turkey + 7, T.turkey + 13, T.turkey + 19, T.holds + 2, T.holds + 5, T.holds + 9, T.holds + 14, T.holds + 18, T.holds + 23, T.holds + 29, T.holds + 34, T.cameras + 4, T.cameras + 9, T.troubleW + 3, T.hubble2 + 2, T.over - 3];
+/** a white flash over the whole frame (hides the cut into the final picture) */
+export const whiteFlash = (f: number) => Math.max(0, 1 - Math.abs(f - T.over + 0.5) / 4);
 /** the coffee mug: tips over on "blurry", the coffee spreads */
-export const mugAt = (f: number) => ({ tip: smooth((f - T.blurry - 1) / 6) * 1.52, spill: clamp01((f - T.blurry - 5) / 16) });
+export const mugAt = (f: number) => (f >= CUT.walk ? { tip: 0, spill: 0 } : { tip: smooth((f - T.blurry - 1) / 6) * 1.52, spill: clamp01((f - T.blurry - 5) / 16) });
 
 
 // ---------------- camera: one path, keys blended with an ease-in-out glide ----------------
@@ -214,14 +230,45 @@ const KEYS: Key[] = [
   // ---- "nobody can climb inside": a man at the top of a ladder reaching up... pull back: a 30 m ladder in a field, Hubble a speck ----
   { f: CUT.field, cut: true, s: (f) => dolly(add(FLD, [1.0, LADDER_H + 0.15, 2.7]), add(FLD, [0, LADDER_H + 0.4, 0]), pushK(f, CUT.field, 0.004), { fov: 42, roll: 0.03 }) },
   { f: T.climb + 2, dur: 22, s: () => ({ pos: add(FLD, [7.5, 2.2, 23]), look: add(FLD, [-0.4, 14, -2]), fov: 62, roll: -0.04 }) },
-  { f: CUT.street, cut: true, s: () => ({ pos: [4, 1.7, 15], look: [0, 1.6, FACADE_Z], fov: 44 }) },
-  { f: CUT.bath2, cut: true, s: (f) => { const hy = showerHead(f).y; return { pos: [RAIL.x + 0.2, hy - 0.16, RAIL.z + 0.72], look: [RAIL.x, hy, RAIL.z + 0.2], fov: 38 }; } },
-  { f: CUT.clean, cut: true, s: () => ({ pos: add(CLN, [0, 2, 8]), look: add(CLN, [0, 1.5, 0]), fov: 44 }) },
-  { f: CUT.glasses, cut: true, s: (f) => ({ pos: orbitAt(HUB, 20, 2, 1.4, 0.004, f, CUT.glasses), look: HUB, fov: 42 }) },
-  { f: CUT.nightpad, cut: true, s: () => ({ pos: add(PAD, [-120, 14, 160]), look: add(PAD, [0, 40, 0]), fov: 44 }) },
-  { f: CUT.walk, cut: true, s: (f) => ({ pos: orbitAt(HUB, 14, 3, 1.9, 0.003, f, CUT.walk), look: HUB, fov: 42 }) },
-  { f: CUT.control2, cut: true, s: () => ({ pos: add(CTL, [0, 2.4, 9]), look: add(CTL, [0, 2.6, -6]), fov: 44 }) },
-  { f: CUT.press, cut: true, s: () => ({ pos: add(PRS, [0, 1.6, 5]), look: add(PRS, [0, 1.5, 0]), fov: 42 }) },
+  // ---- Munich, night, drizzle: track alongside him and his suitcase toward the hotel; on "German hotel" crane up to the window ----
+  { f: CUT.street, cut: true, s: (f) => { const x = crocWalkX(f); return { pos: [x + 1.25, 1.5, 12.6], look: [x - 0.7, 1.95, FACADE_Z], fov: 40, roll: 0.02 }; } },
+  { f: T.german - 2, dur: 26, s: () => ({ pos: [3.4, HB + 2.4, 15.5], look: [WIN.x - 0.4, HB + 1.5, FACADE_Z], fov: 50, roll: -0.02 }) },
+  // ---- back in the shower (the loop closes): him and the shower head on its rail... ----
+  { f: CUT.bath2, cut: true, s: (f) => dolly([0.66, HB + 1.5, 5.7], [-0.55, HB + 1.85, 3.6], pushK(f, CUT.bath2, 0.003), { fov: 46, roll: 0.02 }) },
+  // ...then in close on the head as it slides up the rail and tilts
+  { f: T.head2, cut: true, s: (f) => { const hy = showerHead(f).y; return { pos: [RAIL.x + 0.24, hy - 0.12, RAIL.z + 0.8], look: [RAIL.x, hy + 0.02, RAIL.z + 0.18], fov: 42, roll: -0.04 }; } },
+  // "He freezes": slam in on his face as it hits him
+  { f: T.freeze, cut: true, s: (f) => { const k = smooth((f - T.freeze) / 14); return { pos: add(CROC_HEAD, [0.5 - 0.08 * k, -0.1, 1.45 - 0.2 * k]), look: add(CROC_HEAD, [0.02, -0.14, 0]), fov: 42 - 9 * k, roll: 0.03 * k }; } },
+  // ---- the idea as a glowing blueprint: the box, its fold-out arms, the beam that will not focus... until the mirror swings in ----
+  { f: CUT.clean, cut: true, s: (f) => ({ pos: orbitAt(add(CLN, [0.5, 2.0, 0]), 4.8, 0.4, 0.75, 0.006, f, CUT.clean), look: add(CLN, [0.6, 1.15, 0]), fov: 42, roll: 0.02 }) },
+  { f: T.tiny - 2, dur: 10, s: (f) => ({ pos: orbitAt(add(CLN, [0.9, 1.3, 0]), 2.1, 0.2, 0.9, 0.006, f, T.tiny - 2), look: add(CLN, [0.55, 0.95, 0]), fov: 40, roll: -0.02 }) },
+  { f: T.flaw - 4, dur: 14, s: (f) => ({ pos: orbitAt(add(CLN, [0.2, 1.4, 0]), 3.9, 1.0, 1.0, 0.004, f, T.flaw - 4), look: add(CLN, [0.25, 0.95, 0]), fov: 46, roll: 0.0 }) },
+  // ---- "Glasses. For a telescope.": Hubble in orbit, wearing spectacles ----
+  { f: CUT.glasses, cut: true, s: (f) => dolly(add(HUB, [21, 2.2, 6.0]), add(HUB, [6.6, 0.2, 0.0]), pushK(f, CUT.glasses, 0.005), { fov: 38, roll: -0.06 }) },
+  // ---- 1993, 4:27 a.m.: the second launch, already climbing on its pillar of fire ----
+  { f: CUT.nightpad, cut: true, s: (f) => ({ pos: add(PAD, [-150, 3, 150]), look: add(STACK_MID(f), [0, -16, 4]), fov: 22, roll: -0.02 }) },
+  // ---- the spacewalk: two astronauts, the robot arm, the box; Earth below ----
+  { f: CUT.walk, cut: true, s: (f) => ({ pos: orbitAt(add(HUB, [-2.6, 0, 3.4]), 15, 4.5, 1.75, 0.004, f, CUT.walk), look: add(HUB, [-2.6, -0.4, 3.4]), fov: 46, roll: 0.04 }) },
+  { f: T.install - 1, cut: true, s: (f) => dolly(add(HUB, [2.6, 1.6, 11.5]), add(HUB, [-1.4, 0.2, 4.2]), pushK(f, T.install - 1, 0.004), { fov: 40, roll: -0.03 }) },
+  // "One slip": in close on the glove... the wrench gets away
+  { f: T.one - 1, cut: true, s: (f) => dolly(add(HUB, [-2.9, 2.9, 6.4]), add(HUB, [-4.3, 2.3, 3.0]), pushK(f, T.one - 1, 0.006), { fov: 36, roll: 0.05 }) },
+  // "...and Hubble is dead": the wrench tumbling off into the dark as the orbit carries them into night
+  { f: T.slip + 15, cut: true, s: (f) => ({ pos: add(HUB, [-4.35 + 1.55, 2.25 + 0.95, 2.95 + 3.0]), look: add(HUB, [-4.35 + 0.15, 2.25 + 0.05, 2.95 + 0.2]), fov: 40, roll: -0.08 }) },
+  // ---- sunrise: they slide the box in (clunk on "in") ----
+  { f: T.slideL, cut: true, s: (f) => dolly(add(HUB, [3.4, 1.1, 9.4]), add(HUB, [-1.6, 0.1, 2.5]), pushK(f, T.slideL, 0.005), { fov: 38, roll: 0.02 }) },
+  // ---- "the little arms unfold": back inside the schematic, low and close ----
+  { f: CUT.arms, cut: true, s: (f) => ({ pos: orbitAt(add(CLN, [0.4, 1.45, 0]), 2.5, -0.15, 0.3, 0.008, f, CUT.arms), look: add(CLN, [0.35, 1.2, 0]), fov: 40, roll: -0.03 }) },
+  // ---- 1994, the control room again: the new picture arrives line by line... and snaps razor sharp; the room erupts ----
+  { f: CUT.control2, cut: true, s: (f) => dolly(add(CTL, [0.5, 2.5, 4.9]), add(CTL, [0, 2.55, -9]), pushK(f, CUT.control2, 0.005), { fov: 46, roll: 0.0 }) },
+  { f: T.loads, cut: true, s: (f) => dolly(add(CTL, [0.25, 2.62, 0.6]), add(CTL, [0, 2.6, -9]), pushK(f, T.loads, 0.004), { fov: 42, roll: 0.01 }) },
+  { f: T.razor, dur: 4, s: (f) => dolly(add(CTL, [0.25, 2.62, 0.6]), add(CTL, [0, 2.6, -9]), pushK(f, T.loads, 0.004), { fov: 27, roll: -0.02 }) },
+  { f: T.sharp + 3, cut: true, s: (f) => dolly(add(CTL, [-1.55, 1.2, -6.4]), add(CTL, [-1.25, 1.85, -1.2]), pushK(f, T.sharp + 3, 0.004), { fov: 48, roll: 0.03 }) },
+  // ---- the press conference: the senator who called it a turkey holds up the before-and-after for the cameras ----
+  { f: CUT.press, cut: true, s: (f) => dolly(add(PRS, [0.5, 1.6, 6.2]), add(PRS, [0, 1.75, -1.3]), pushK(f, CUT.press, 0.004), { fov: 34, roll: 0.0 }) },
+  { f: T.cameras - 1, cut: true, s: (f) => dolly(add(PRS, [-0.5, 1.75, 2.8]), add(PRS, [0, 1.95, -1.3]), pushK(f, T.cameras - 1, 0.006), { fov: 38, roll: -0.02 }) },
+  { f: T.troubleW - 3, cut: true, s: (f) => dolly(add(PRS, [0.45, 1.85, 1.9]), add(PRS, [0.22, 2.0, -1.3]), pushK(f, T.troubleW - 3, 0.006), { fov: 38, roll: 0.02 }) },
+  // ---- "...is over": into the sharp picture - a nebula fills the frame ----
+  { f: CUT.neb, cut: true, s: (f) => ({ pos: add(NEB, [0, 0, 26.5 - (f - CUT.neb) * 0.22]), look: NEB, fov: 40, roll: 0.0 }) },
 ];
 const run = (f: number) => {
   let cur = full(KEYS[0].s(f));
@@ -233,18 +280,18 @@ const run = (f: number) => {
   return cur;
 };
 /** camera motion blur strength per shot (1 = full): a tracking shot keeps its subject crisp, so it gets only a little */
-export const blurScale = (f: number) => (f >= T.hubble && f < CUT.control ? 0.25 : 1);
+export const blurScale = (f: number) => ((f >= T.hubble && f < CUT.control) || (f >= CUT.nightpad && f < CUT.walk) ? 0.25 : 1);
 /** true on frames where a hard cut lands (no motion blur across a cut) */
 export const isCut = (f: number) => KEYS.some((k) => k.cut && (f === k.f || f === k.f + 1));
 // impact kicks: the image jolts, flipping sign every frame and decaying over 7 frames
-const KICKS: [number, number][] = [[T.telescope, 0.4], [LAUNCHES[0].srb, 0.7]];
+const KICKS: [number, number][] = [[T.telescope, 0.4], [LAUNCHES[0].srb, 0.7], [T.freeze, 0.5], [T.glasses, 0.35], [T.slip, 0.45], [T.inW, 0.6], [T.razor, 0.5]];
 export const kickAt = (f: number) => {
   let a = 0;
   for (const [f0, g] of KICKS) { const n = f - f0; if (n >= 0 && n < 7) a += g * (n % 2 ? -1 : 1) * (1 - n / 7) ** 1.5; }
   return a;
 };
 /** handheld / tension shake: [from, to, amplitude in degrees-ish] */
-const SHAKES: [number, number, number][] = [[LAUNCHES[0].ssme, T.launches + 3, 2.6], [T.launches + 3, T.hubble, 1.1], [T.hubble, CUT.control, 1.3]];
+const SHAKES: [number, number, number][] = [[LAUNCHES[0].ssme, T.launches + 3, 2.6], [T.launches + 3, T.hubble, 1.1], [T.hubble, CUT.control, 1.3], [CUT.nightpad, CUT.walk, 1.4], [T.one, T.slip + 15, 1.0]];
 const shakeAt = (f: number) => {
   let a = 0;
   for (const [f0, f1, g] of SHAKES) if (f >= f0 && f < f1) a = Math.max(a, g * Math.min(1, (f - f0) / 6, (f1 - f) / 6));
@@ -279,7 +326,8 @@ export const placeAt = (f: number): Place => {
   if (f < CUT.glasses) return "clean";
   if (f < CUT.nightpad) return "space";
   if (f < CUT.walk) return "nightpad";
-  if (f < CUT.control2) return "space";
+  if (f < CUT.arms) return "space";
+  if (f < CUT.control2) return "clean";
   if (f < CUT.press) return "control";
   return "press";
 };
@@ -333,6 +381,24 @@ export const DOF: Dof[] = [
   { f: CUT.orbit2, cInf: 3, focus: () => HUB },
   { f: CUT.field, cInf: 6, focus: () => add(FLD, [0, LADDER_H + 0.4, 0]) },
   { f: T.climb + 2, dur: 22, cInf: 1.5, focus: () => add(FLD, [0, 12, 0]) },
+  { f: CUT.street, cInf: 5, focus: (f) => [crocWalkX(f), 1.6, 7.4] },
+  { f: T.german - 2, dur: 20, cInf: 2, focus: () => [WIN.x, HB + 1.7, FACADE_Z] },
+  { f: CUT.bath2, cInf: 9, focus: () => add(CROC_HEAD, [0.2, 0, 0]) },
+  { f: T.head2, cInf: 14, focus: (f) => [RAIL.x, showerHead(f).y, RAIL.z + 0.24] },
+  { f: T.freeze, cInf: 12, focus: () => add(CROC_HEAD, [0, -0.1, 0.25]) },
+  { f: CUT.clean, cInf: 3, focus: () => add(CLN, [0.6, 1.15, 0]) },
+  { f: CUT.glasses, cInf: 5, focus: () => add(HUB, [6.9, 0.15, 0]) },
+  { f: CUT.nightpad, cInf: 2, focus: (f) => STACK_MID(f) },
+  { f: CUT.walk, cInf: 3, focus: () => add(HUB, [-2.6, -0.4, 3.4]) },
+  { f: T.install - 1, cInf: 6, focus: () => add(HUB, [-1.4, 0.2, 4.2]) },
+  { f: T.one - 1, cInf: 10, focus: () => add(HUB, [-4.35, 2.25, 2.95]) },
+  { f: T.slip + 15, cInf: 9, focus: (f) => { const w = wrenchAt(f).d; return add(HUB, [-4.35 + w[0], 2.25 + w[1], 2.95 + w[2]]); } },
+  { f: T.slideL, cInf: 5, focus: () => add(HUB, [-1.7, 0.1, 2.4]) },
+  { f: CUT.arms, cInf: 4, focus: () => add(CLN, [0.35, 1.2, 0]) },
+  { f: CUT.control2, cInf: 4, focus: () => add(CTL, [0, 2.6, -9]) },
+  { f: T.sharp + 3, cInf: 6, focus: () => add(CTL, [-1.6, 1.26, -3.7]) },
+  { f: CUT.press, cInf: 7, focus: () => add(PRS, [0, 1.75, -1.35]) },
+  { f: CUT.neb, cInf: 0 },
 ];
 export const dofAt = (f: number) => {
   let cur = { cInf: DOF[0].cInf, focus: DOF[0].focus };

@@ -89,7 +89,7 @@ const cellTex = () => ctex("solarCells", 256, 1024, (g, r) => {
   g.fillStyle = "#c9a248"; g.fillRect(0, 0, 256, 10); g.fillRect(0, 1014, 256, 10); g.fillRect(0, 0, 8, 1024); g.fillRect(248, 0, 8, 1024);
   for (let y = 128; y < 1024; y += 128) { g.fillStyle = "#c9a248"; g.fillRect(0, y - 2, 256, 4); }
 });
-export type HubbleModel = { g: THREE.Group; door: THREE.Group; bayDoor: THREE.Group; tube: THREE.Mesh };
+export type HubbleModel = { g: THREE.Group; door: THREE.Group; bayDoor: THREE.Group; tube: THREE.Mesh; specs: THREE.Group; glint: THREE.Sprite };
 export const hubbleModel = (): HubbleModel => {
   const g = new THREE.Group(), b = new Batch();
   const foil = twoTone(new THREE.MeshPhongMaterial({ map: rep(foilTex(), 3, 1), specular: new THREE.Color("#8a8f9a"), shininess: 38 }));
@@ -143,7 +143,19 @@ export const hubbleModel = (): HubbleModel => {
   const bayDoor = new THREE.Group(); bayDoor.position.set(-2.8, 0, 2.18);
   const bd = new THREE.Mesh(new THREE.PlaneGeometry(2.2, 2.6), bays); bd.position.set(1.1, 0, 0); bayDoor.add(bd);
   g.add(bayDoor);
-  return { g, door, bayDoor, tube };
+  // the gag: a pair of round spectacles perched on the front of the telescope (frames, lenses, bridge, temple arms)
+  const specs = new THREE.Group(); specs.position.set(6.9, 0.15, 0); specs.visible = false; g.add(specs);
+  const frameM = lam("specFrame", () => ({ color: "#1c1c22" }));
+  const lensM = new THREE.MeshBasicMaterial({ color: new THREE.Color("#bfe6ff"), transparent: true, opacity: 0.32, depthWrite: false, side: THREE.DoubleSide });
+  for (const sd of [-1, 1]) {
+    const ring = new THREE.Mesh(new THREE.TorusGeometry(1.05, 0.1, 10, 48).rotateY(Math.PI / 2), frameM); ring.position.set(0, 0, sd * 1.15); specs.add(ring);
+    const lens = new THREE.Mesh(new THREE.CircleGeometry(1.0, 40).rotateY(Math.PI / 2), lensM); lens.position.set(0, 0, sd * 1.15); lens.layers.set(NOINK); specs.add(lens);
+    const arm = new THREE.Mesh(cyl(0.06, 0.06, 4.6, 8).rotateZ(Math.PI / 2), frameM); arm.position.set(-2.3, 0.1, sd * 2.2); specs.add(arm);
+    const hook = new THREE.Mesh(cyl(0.06, 0.06, 0.8, 8).rotateZ(0.5), frameM); hook.position.set(-4.75, -0.2, sd * 2.2); specs.add(hook);
+  }
+  const bridge = new THREE.Mesh(new THREE.TorusGeometry(0.2, 0.07, 8, 16, Math.PI).rotateY(Math.PI / 2), frameM); bridge.position.set(0, 0.35, 0); specs.add(bridge);
+  const glint = glow("#ffffff", 1.4, 4.0); glint.visible = false; specs.add(glint);
+  return { g, door, bayDoor, tube, specs, glint };
 };
 
 export type SpaceSet = { earth: THREE.Mesh; atmo: THREE.Mesh; stars: THREE.Points; sun: THREE.Sprite; sunCore: THREE.Sprite; hubble: HubbleModel };

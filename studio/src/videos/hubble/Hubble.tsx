@@ -14,7 +14,7 @@ import { loadEarth } from "./setsSpace";
 import { InkPass, noInkFallback } from "../bridge/ink";
 import { LensBlur } from "../bridge/lensblur";
 import { GradeEffect, GRADES, GRADE_STRENGTH, gradeFor } from "../bridge/grade";
-import { TOTAL, dofAt, placeAt, WORDS_T, FPS, CUT, camAt, isCut, blurScale } from "./story";
+import { TOTAL, dofAt, placeAt, WORDS_T, FPS, CUT, camAt, isCut, blurScale, whiteFlash } from "./story";
 
 export const HUBBLE_FRAMES = TOTAL;
 
@@ -89,6 +89,11 @@ const Caption: React.FC = () => {
 
 const hsh = (i: number, s: number) => { const v = Math.sin(i * 127.1 + s * 311.7) * 43758.5453; return v - Math.floor(v); };
 /** the crane punches up through a moonlit cloud deck: puffs rush down past the lens, hiding the cut into orbit */
+/** a white flash over the frame (the cut into the final picture hides under it) */
+const WhiteFlash: React.FC = () => {
+  const a = whiteFlash(useCurrentFrame());
+  return a > 0 ? <AbsoluteFill style={{ background: "#fffaf0", opacity: a }} /> : null;
+};
 const CloudPass: React.FC = () => {
   const f = useCurrentFrame(), k = f - (CUT.space - 7);
   if (k < 0 || k > 13) return null;
@@ -153,6 +158,7 @@ export const HubbleShort: React.FC = () => {
         ) : null}
       </AbsoluteFill>
       <CloudPass />
+      <WhiteFlash />
       <Caption />
     </AbsoluteFill>
   );

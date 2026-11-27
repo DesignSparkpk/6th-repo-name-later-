@@ -4,13 +4,16 @@
 import * as THREE from "three";
 import { Pen, bodyFront, SKIN, fxBurst, Outfit, FrontOpts, shade, INK } from "./toon";
 import type { FxPlace, Stage, CamInfo, Place as Card } from "../bridge/cast";
-import { FPS, T, CUT, CROC, HB, RAIL, WIN, BATH, clamp01, smooth, PAD, PADL, DECK, LAUNCHES, launchAt, add, CTL, STU, SEN, FLD, LADDER_H, swayAt } from "./story";
+import { FPS, T, CUT, CROC, HB, RAIL, WIN, BATH, clamp01, smooth, PAD, PADL, DECK, LAUNCHES, launchAt, add, CTL, STU, SEN, FLD, LADDER_H, swayAt, crocWalkX, FACADE_Z, HUB, EVA_ON, boxSlide, PRS } from "./story";
+import { EVA } from "./setsEva";
 import { SEATS, ROWS, MUG as MUGW } from "./setsControl";
 import type { Place } from "./story";
+import { speaking as speakingLine } from "./story";
 
 // ---------------- cast ----------------
 export const CROC_O: Outfit = { jacket: "#f2f0ea", style: "collar", trim: "#2c4f86", pants: "#4a4f5c", boots: "#2a2a30", hat: "hair", hair: "#6a5644", specs: true, skin: SKIN };
 const CROC_SHOWER: Outfit = { jacket: SKIN, style: "bare", pants: SKIN, boots: SKIN, hat: "showercap", skin: SKIN };
+const CROC_COAT: Outfit = { ...CROC_O, jacket: "#b49a6e", style: "collar", trim: "#2c4f86" };
 // the control room's engineers (short sleeves, ties, headsets); index 1 is the lead, front row, by the mug
 const ENG: Outfit[] = [
   { jacket: "#f2f0ea", style: "collar", trim: "#7a2a3a", pants: "#4a4f5c", boots: "#2a2a30", hat: "hair", hair: "#3a2c22", specs: true, headset: true, skin: SKIN },
@@ -80,17 +83,17 @@ const steamPuff = (p: Pen, k: number) => { // soft white steam cloud (alpha only
 
 /** a lit cumulus puff of launch smoke: lobes with their bright side toward the light (ang = canvas angle the light comes
  *  FROM), lavender shade, soft edges; warm = fresh exhaust still lit orange from below by the flame */
-const smokePuff = (p: Pen, k: number, ang: number, warm: boolean) => {
+const smokePuff = (p: Pen, k: number, ang: number, warm: boolean, night = false) => {
   const g = p.g, lx = Math.cos(ang), ly = Math.sin(ang);
   g.clearRect(0, 0, 256, 256);
   for (let i = 0; i < 8; i++) {
     const a = i * 0.83 + k * 1.7, rad = i === 0 ? 0 : 38 + 12 * Math.sin(i * 1.3 + k);
     const cx = 128 + Math.cos(a) * rad, cy = 134 + Math.sin(a) * rad * 0.72, r = i === 0 ? 84 : 50 + 15 * Math.sin(i * 2.1 + k);
     const gr = g.createRadialGradient(cx + lx * r * 0.5, cy + ly * r * 0.5, r * 0.05, cx, cy, r);
-    gr.addColorStop(0, warm ? "rgba(255,238,210,0.96)" : "rgba(255,247,234,0.96)");
-    gr.addColorStop(0.5, warm ? "rgba(240,196,160,0.9)" : "rgba(228,218,216,0.9)");
-    gr.addColorStop(0.84, "rgba(162,152,180,0.62)");
-    gr.addColorStop(1, "rgba(150,140,170,0)");
+    gr.addColorStop(0, night ? (warm ? "rgba(255,214,150,0.96)" : "rgba(196,140,110,0.92)") : warm ? "rgba(255,238,210,0.96)" : "rgba(255,247,234,0.96)");
+    gr.addColorStop(0.5, night ? (warm ? "rgba(200,120,80,0.9)" : "rgba(110,72,70,0.88)") : warm ? "rgba(240,196,160,0.9)" : "rgba(228,218,216,0.9)");
+    gr.addColorStop(0.84, night ? "rgba(46,34,44,0.6)" : "rgba(162,152,180,0.62)");
+    gr.addColorStop(1, night ? "rgba(30,24,32,0)" : "rgba(150,140,170,0)");
     g.fillStyle = gr; g.beginPath(); g.arc(cx, cy, r, 0, 7); g.fill();
   }
   if (warm) {
@@ -100,12 +103,12 @@ const smokePuff = (p: Pen, k: number, ang: number, warm: boolean) => {
 };
 /** the launch's smoke: main-engine steam, booster clouds rolling out of both trench mouths, a billow round the launcher,
  *  and the column the boosters leave behind as the stack climbs. Every puff is a pure function of its age. */
-const launchSmoke = (out: Stage, f: number, cam: CamInfo, Lk: { ssme: number; srb: number }) => {
-  const ang = light2D(cam);
+const launchSmoke = (out: Stage, f: number, cam: CamInfo, Lk: { ssme: number; srb: number }, night = false) => {
+  const ang = night ? Math.PI / 2 : light2D(cam);
   const puff = (k: number, x: number, y: number, z: number, s: number, age: number, warmUntil = 8, rot = 0) => {
     if (age < 0) return;
     const warm = age < warmUntil, a = q(ang, 4);
-    fxAt(out, `smk${k % 6}|${a}|${warm ? 1 : 0}`, 256, 256, (p) => smokePuff(p, k % 6, a, warm), PAD[0] + x, PAD[1] + y, PAD[2] + z, s, s * 0.86, { soft: true, rot: rot + hh(k, 7) * 6 });
+    fxAt(out, `smk${k % 6}|${a}|${warm ? 1 : 0}|${night ? 1 : 0}`, 256, 256, (p) => smokePuff(p, k % 6, a, warm, night), PAD[0] + x, PAD[1] + y, PAD[2] + z, s, s * 0.86, { soft: true, rot: rot + hh(k, 7) * 6 });
   };
   const e = (age: number, tau: number) => 1 - Math.exp(-Math.max(0, age) / tau);
   // main-engine steam pouring off the deck under the tail
@@ -140,8 +143,17 @@ export const stage = (place: Place, f: number, cam: CamInfo): Stage => {
 
   if (place === "bath") {
     // Crocker under the hot water, hand up on the shower head, staring at it (deadpan); later he slides it and it tilts
-    const eureka = f >= T.freeze - 2 && f < CUT.clean;
-    P({ i: 1, o: CROC_SHOWER, okey: "crocShower" }, CROC[0], CROC[1], CROC[2], { mode: "stand", expr: eureka ? (f >= T.mirrors - 2 ? "shock" : "dazed") : "neutral", prop: eureka ? null : "showerhead", look: eureka ? 0 : 0.85, facing: eureka ? 0 : 1, headTilt: eureka ? 0 : 7 });
+    // eureka: frozen wide-eyed on "freezes", then "Mirrors... on little arms" (mouth open on the words, a slow grin between)
+    const eureka = f >= T.freeze && f < CUT.clean, talk = eureka && f >= T.mirrors - 1 && speakingLine(f, "freeze");
+    const expr = !eureka ? "neutral" : f < T.mirrors - 1 ? "shock" : talk ? (Math.floor(f / 3) % 2 ? "relief_open" : "shock") : "smile";
+    P({ i: 1, o: CROC_SHOWER, okey: "crocShower" }, CROC[0], CROC[1], CROC[2], { mode: "stand", expr, prop: eureka ? null : "showerhead", look: eureka ? 0 : 0.85, facing: eureka ? 0 : 1, headTilt: eureka ? 0 : 7 });
+    if (eureka) {
+      // the idea hits: a burst behind his head, and a blob of soap foam slides off his cap
+      const bu = (f - T.freeze) / 12;
+      if (bu >= 0 && bu < 1) fxAt(out, `idea${q(bu, 12)}`, 256, 256, (p) => fxBurst(p, bu, "#ffe27a", 12, 30, 120), CROC[0] - 0.05, CROC[1] + 1.62, CROC[2] - 0.35, 1.3, 1.3);
+      const fu = clamp01((f - T.freeze - 8) / 30);
+      fxAt(out, "foam", 256, 256, (p) => steamPuff(p, 2), CROC[0] + 0.22, CROC[1] + 1.86 - 0.45 * fu * fu, CROC[2] + 0.12, 0.2, 0.16, { soft: true });
+    }
     // steam: puffs rise off the hot water, drift toward the open window and pour out of it
     for (let k = 0; k < 16; k++) {
       const per = 70 + 30 * hh(k, 1), u = (((f + hh(k, 2) * per) % per) / per), x0 = CROC[0] + (hh(k, 3) - 0.5) * 0.7, z0 = CROC[2] - 0.2 + hh(k, 5) * 0.5;
@@ -176,6 +188,22 @@ export const stage = (place: Place, f: number, cam: CamInfo): Stage => {
     CROWD.forEach((o, i) => P({ i: 20 + i, o, okey: "crowd" + i }, ...at(-3.2 + i * 1.35 + (hh(i, 3) - 0.5) * 0.6, 5.5 + hh(i, 5) * 4), { mode: "stand", expr: cheer ? (i % 2 ? "laugh" : "grin") : "shock", fist: cheer && i % 3 === 0 ? ph(i) : undefined, wave: cheer && i % 3 === 1 ? ph(i + 1) : undefined }));
     const Lk = LAUNCHES[0], lit = launchAt(f);
     if (lit.lit) launchSmoke(out, f, cam, Lk);
+  }
+  if (place === "control" && f >= CUT.control2) {
+    // 1994: nervous while it loads; on "razor sharp" the room erupts - fists, waves, papers in the air
+    const win = f >= T.razor + 2;
+    SEATS.forEach(([ri, x], i) => {
+      const r = ROWS[ri], wx = CTL[0] + x + (i === 1 ? 0 : (hh(i, 2) - 0.5) * 0.25), wy = CTL[1] + r.y + 0.4 + (win ? 0.05 * Math.abs(Math.sin((f + i * 4) * 0.5)) : 0), wz = CTL[2] + r.z + 0.9;
+      const who = { i: 30 + i, o: ENG[i % ENG.length], okey: "eng" + i };
+      if (cam.pos.z > wz + 0.2) { out.places.push({ key: `B|eng${i}`, x: wx, y: wy, z: wz, scale: 1, draw: (pp) => bodyBackSit(pp, who.o), size: [480, 800, 0.8] }); return; }
+      const ph = ((f + i * 3) * 0.18) % 1;
+      P(who, wx, wy, wz, { mode: "sit", expr: win ? (i % 2 ? "laugh" : "relief_open") : "nervous", fist: win && i % 2 === 0 ? ph : undefined, wave: win && i % 2 === 1 ? ph : undefined, look: (hh(i, 6) - 0.5) * 0.4 });
+    });
+    if (win) for (let k = 0; k < 14; k++) {   // papers thrown up, fluttering down
+      const t = (f - T.razor - 2) / FPS, x = CTL[0] - 1.6 + (hh(k, 1) - 0.5) * 3.2, z = CTL[2] - 3.2 + hh(k, 2) * 2.6, vy = 3.2 + hh(k, 3) * 1.6;
+      const y = CTL[1] + 1.3 + vy * t - 2.4 * t * t, rot = (hh(k, 4) - 0.5) * 6 + t * (2 + hh(k, 5) * 4);
+      fxAt(out, "paper", 64, 80, (p) => { const g = p.g; g.fillStyle = "#f4f1ea"; g.fillRect(4, 4, 56, 72); g.strokeStyle = "#241726"; g.lineWidth = 3; g.strokeRect(4, 4, 56, 72); g.fillStyle = "#9aa1ab"; for (let l = 0; l < 6; l++) g.fillRect(12, 16 + l * 9, 40, 3); }, x, Math.max(CTL[1] + 0.9, y), z, 0.2, 0.25, { rot });
+    }
   }
   if (place === "control" && f < CUT.tube) {
     // 1990: anticipation (leaning in, hopeful smiles), then the picture lands blurry: shock, then crushed; the lead is dazed
@@ -221,6 +249,39 @@ export const stage = (place: Place, f: number, cam: CamInfo): Stage => {
     const sw = swayAt(f), y = FLD[1] + LADDER_H - 1.25, dx = Math.sin(sw) * (LADDER_H - 1.25);
     const late = f >= T.fix - 4;
     P({ i: 50, o: { ...ENG[3], headset: false }, okey: "ladderMan" }, FLD[0] - dx, y * Math.cos(sw) + FLD[1] * 0, FLD[2] + 0.12, { mode: "stand", expr: late ? "nervous" : "pained", prop: "wrenchUp", look: late ? 0 : 0.5, tilt: -sw * 57 });
+  }
+  if (place === "street") {
+    for (let k = 0; k < 8; k++) {   // steam curling out of the lit bathroom window high above
+      const per = 60 + 20 * hh(k, 1), u = ((f + hh(k, 2) * per) % per) / per;
+      fxAt(out, `steam${k % 4}`, 256, 256, (p) => steamPuff(p, k % 4), WIN.x + (hh(k, 3) - 0.5) * 0.6 + u * 0.4, HB + 1.9 + u * 2.4, FACADE_Z + 0.3 + u * 1.2, 0.6 + u * 1.4, (0.6 + u * 1.4) * 0.8, { soft: true, rot: hh(k, 5) * 6 });
+    }
+    // he trudges along the wet sidewalk with his suitcase toward the hotel; drizzle streaks past the lens
+    const x = crocWalkX(f);
+    P({ i: 1, o: CROC_COAT, okey: "crocCoat" }, x, 0.12, 7.4, { mode: "stroll", phase: ((f - CUT.street) * 0.035) % 1, expr: "neutral", prop: "suitcase", facing: -1, look: -0.4, blink: 0.55 });
+    for (let k = 0; k < 46; k++) {
+      const per = 9 + 5 * hh(k, 1), u = ((f + hh(k, 2) * per) % per) / per;
+      const cx = cam.pos.x + (hh(k, 3) - 0.5) * 7, cz = cam.pos.z - 1.5 - hh(k, 4) * 6, cy = cam.pos.y + 3.2 - u * 6.5;
+      fxAt(out, "rain", 32, 256, (p) => { const g = p.g, gr = g.createLinearGradient(0, 0, 0, 256); gr.addColorStop(0, "rgba(220,230,255,0)"); gr.addColorStop(0.6, "rgba(220,230,255,0.55)"); gr.addColorStop(1, "rgba(220,230,255,0)"); g.fillStyle = gr; g.fillRect(13, 0, 6, 256); }, cx, cy, cz, 0.03, 0.55, { soft: true, rot: 0.08 });
+    }
+  }
+  if (place === "press" && f < CUT.neb) {
+    // the senator at the lectern; on "holds it up" up go the prints; she says the line into the microphones
+    const up = f >= T.holds, say = f >= T.troubleW - 1 && speakingLine(f, "trouble"), open = say && Math.floor(f / 3) % 2 === 0;
+    P({ i: 41, o: SENATOR, okey: "senatorP" }, PRS[0], PRS[1], PRS[2] - 1.75, { mode: "stand", expr: say ? (open ? "relief_open" : "smile") : up ? "grin" : "smile", prop: up ? "prints" : null, look: up ? 0 : 0.3 });
+    for (let k = 0; k < 4; k++) {
+      const o: Outfit = { jacket: BACKS[(k + 1) % 6], pants: "#222", boots: "#222", hat: k === 2 ? "cap" : "hair", cap: "#2a2a30", hair: ["#3a2c22", "#6a5644", "#1e1a18", "#8a6a40"][k], skin: SKIN };
+      out.places.push({ key: `B|pressP${k}`, x: PRS[0] - 1.9 + k * 1.25, y: PRS[1] - 0.15, z: PRS[2] + 3.6 + (k % 2) * 0.5, scale: 1, draw: (pp) => bodyBackSit(pp, o, "rgba(230,240,255,0.8)", true), size: [480, 800, 0.8] });
+    }
+  }
+  if (place === "nightpad") launchSmoke(out, f, cam, LAUNCHES[1], true);
+  if (place === "space" && EVA_ON(f)) {
+    // the spacewalk: one astronaut on the robot arm's foot restraint with the box, one on the aft shroud's handrail
+    const ASTRO: Outfit = { jacket: "#eeeeea", space: true, hat: "helmet", visor: 1, pants: "#eeeeea", boots: "#e6e6e2", skin: SKIN };
+    const pa = EVA.plate, slipped = f >= T.slip + 2;
+    P({ i: 60, o: ASTRO, okey: "astroA" }, HUB[0] + pa.x, HUB[1] + pa.y + 0.05, HUB[2] + pa.z, { mode: "stand", expr: "neutral", look: -0.5, facing: -1 });
+    const closeB = f >= T.one - 1 && f < T.slideL, visor = closeB ? 0 : 1;
+    P({ i: 61, o: { ...ASTRO, visor }, okey: "astroB" + visor }, HUB[0] - 4.75, HUB[1] + 0.75, HUB[2] + 2.75, { mode: "stand", expr: slipped ? "shock" : closeB ? "nervous" : "neutral", prop: slipped ? null : "wrench", look: slipped ? 0.6 : 0.2 });
+    void boxSlide;
   }
   void clamp01;
   return out;

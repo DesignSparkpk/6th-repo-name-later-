@@ -14,8 +14,12 @@ import { buildControl, ControlSet, paintBig } from "./setsControl";
 import { buildTube, TubeSet, hairEnd } from "./setsTube";
 import { buildStudio, buildSenate, SenateSet } from "./setsStudio";
 import { buildField, FieldSet } from "./setsField";
+import { buildClean, CleanSet } from "./setsClean";
+import { buildEva, EvaSet, EVA } from "./setsEva";
+import { buildPress, PressSet } from "./setsPress";
 import { stage } from "./cast";
-import { FPS, camAt, placeAt, sunAt, showerHead, CUT, RAIL, SUN_OF, EARTH_BELOW, DECK, LAUNCHES, launchAt, screenAt, mugAt, flawAt, FLASHES, swayAt, HUB } from "./story";
+import { clamp01, T } from "./story";
+import { FPS, camAt, placeAt, sunAt, showerHead, CUT, RAIL, SUN_OF, EARTH_BELOW, DECK, LAUNCHES, launchAt, screenAt, mugAt, flawAt, FLASHES, swayAt, HUB, costarAt, specsAt, EVA_ON, boxSlide, wrenchAt } from "./story";
 import { glow } from "./kit";
 
 export class World {
@@ -26,7 +30,7 @@ export class World {
   private hemi: THREE.HemisphereLight; private sun: THREE.DirectionalLight;
   private sky: THREE.Mesh; private skyMat: THREE.ShaderMaterial;
   private fog = new THREE.Fog("#000000", 25, 420);
-  private H: HotelSet; private S: SpaceSet; private P: PadSet; private C: ControlSet; private Tb: TubeSet; private Sn: SenateSet; private Fd: FieldSet; private glint: THREE.Sprite; private clockS = -1; private moon: THREE.Sprite; private moonHalo: THREE.Sprite;
+  private H: HotelSet; private S: SpaceSet; private P: PadSet; private C: ControlSet; private Tb: TubeSet; private Sn: SenateSet; private Fd: FieldSet; private Cl: CleanSet; private Ev: EvaSet; private Pr: PressSet; private evaRoot: THREE.Object3D[] = []; private glint: THREE.Sprite; private clockS = -1; private moon: THREE.Sprite; private moonHalo: THREE.Sprite;
   private frustum = new THREE.Frustum(); private m4 = new THREE.Matrix4(); private v = new THREE.Vector3(); private sph = new THREE.Sphere();
 
   constructor() {
@@ -52,6 +56,9 @@ export class World {
     this.Tb = buildTube(R);
     buildStudio(R); this.Sn = buildSenate(R);
     this.Fd = buildField(R);
+    this.Cl = buildClean(R);
+    const before = R.children.length; this.Ev = buildEva(R); this.evaRoot = R.children.slice(before);
+    this.Pr = buildPress(R);
     this.glint = glow("#ffffff", 1, 2.6); this.glint.position.set(...HUB); R.add(this.glint);
     this.moonHalo = glow("#9fb4ff", 160, 0.55); this.moon = glow("#fff6e4", 34, 3.2); R.add(this.moonHalo, this.moon);
   }
@@ -142,6 +149,26 @@ export class World {
     }
     // ---- press flashes in the Senate ----
     if (place === "senate") this.Sn.flash.forEach((s, i) => { const hit = FLASHES.some((f0) => f - f0 >= 0 && f - f0 < 2 && (f0 + i) % 3 === 0); s.visible = hit; });
+    if (place === "press") this.Pr.flash.forEach((s, i) => { const hit = FLASHES.some((f0) => f - f0 >= 0 && f - f0 < 2 && (f0 + i) % 4 === 0); s.visible = hit; });
+    // ---- Munich, the night he checks in: the taxi pulls away ----
+    if (place === "street") H.taxi.position.x = -9 - Math.max(0, f - CUT.street - 4) * 0.32;
+    else H.taxi.position.x = -9;
+    H.winGlow.visible = place === "street";
+    // ---- the blueprint: arms fold out, the mirror swings into the beam, the smear becomes one sharp point ----
+    if (place === "clean") {
+      const c = costarAt(f), Cl = this.Cl;
+      Cl.arm.rotation.z = (Math.PI / 2) * (1 - c.arm); Cl.arms2.forEach((g, i) => { g.rotation.z = (Math.PI / 2) * (1 - c.side) - 0.25 * c.side * (i ? -1 : 1); g.rotation.y = 0.9 * c.side * (i ? 1 : -1); });
+      Cl.redM.opacity = 1 - c.fix; Cl.cyanM.opacity = c.fix; Cl.smear.visible = c.fix < 0.99; Cl.smear.scale.setScalar(1.3 * (1 - c.fix) + 0.05);
+      Cl.star.visible = c.fix > 0; const pop = clamp01((f - T.reverse) / 8); Cl.star.scale.setScalar(0.5 + 1.4 * Math.sin(pop * Math.PI) * (1 - pop * 0.6));
+    }
+    // ---- the spacewalk: arm, box and wrench only exist in that stretch; the bay door stands open ----
+    { const on = EVA_ON(f); this.evaRoot.forEach((o) => (o.visible = on)); this.S.hubble.bayDoor.rotation.y = on ? -1.9 : 0;
+      if (on) { const u = boxSlide(f); this.Ev.box.position.lerpVectors(EVA.boxOut, EVA.boxIn, u);
+        const w = wrenchAt(f); this.Ev.wrench.position.set(EVA.glove.x + w.d[0], EVA.glove.y + w.d[1], EVA.glove.z + w.d[2]); this.Ev.wrench.rotation.set(...w.spin); this.Ev.wrench.visible = f >= T.slip + 2; } }
+    // ---- the spectacles on Hubble ----
+    { const hm = this.S.hubble, sp = specsAt(f), on = place === "space" && f >= CUT.glasses && f < CUT.nightpad;
+      hm.specs.visible = on && sp.s > 0; hm.specs.scale.setScalar(Math.max(0.001, sp.s));
+      hm.glint.visible = on && sp.glint > 0 && sp.glint < 1; hm.glint.position.set(0.15, 0.7 - 1.4 * sp.glint, -1.15 - 0.6 + 1.2 * sp.glint); }
     // ---- the field: the ladder sways; in orbit, Hubble glints so it still reads as a speck far away ----
     if (place === "field") this.Fd.ladder.rotation.z = swayAt(f);
     const far = place === "space" ? cam.position.distanceTo(V(...HUB)) : 0;

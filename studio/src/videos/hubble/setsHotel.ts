@@ -123,7 +123,7 @@ const block = (b: Batch, k: Block) => {
   }
 };
 
-export type HotelSet = { head: THREE.Group; spray: THREE.Object3D; cars: THREE.Object3D[]; lampGlows: THREE.Sprite[]; casement: THREE.Object3D; taxi: THREE.Group };
+export type HotelSet = { head: THREE.Group; spray: THREE.Object3D; cars: THREE.Object3D[]; lampGlows: THREE.Sprite[]; casement: THREE.Object3D; taxi: THREE.Group; winGlow: THREE.Mesh };
 
 export const buildHotel = (R: THREE.Object3D): HotelSet => {
   const b = new Batch();
@@ -175,14 +175,27 @@ export const buildHotel = (R: THREE.Object3D): HotelSet => {
   const sash = new THREE.Mesh(new THREE.BoxGeometry(WIN.w * 0.98, 0.05, 0.05), frame); sash.position.set(-WIN.w * 0.48, WIN.y1 - 0.03, 0); casement.add(sash);
   const sash2 = sash.clone(); sash2.position.y = WIN.y0 + 0.03; casement.add(sash2);
   casement.rotation.y = -2.0; R.add(casement); // swung wide open into the room, out of the camera's path
+  // seen from the street at night the open window glows warm with steam (a plane just inside the reveal; hidden from inside)
+  const winGlow = new THREE.Mesh(new THREE.PlaneGeometry(WIN.w, WIN.y1 - WIN.y0), new THREE.MeshBasicMaterial({ map: ctex("winGlowTex", 128, 160, (g) => {
+    const gr = g.createLinearGradient(0, 0, 0, 160); gr.addColorStop(0, "#ffe2b0"); gr.addColorStop(1, "#f0a860"); g.fillStyle = gr; g.fillRect(0, 0, 128, 160);
+    for (let i = 0; i < 26; i++) { const x = (i * 37) % 128, y = (i * 53) % 160, r = 18 + (i % 5) * 8; const rg = g.createRadialGradient(x, y, 0, x, y, r); rg.addColorStop(0, "rgba(255,255,255,0.55)"); rg.addColorStop(1, "rgba(255,255,255,0)"); g.fillStyle = rg; g.beginPath(); g.arc(x, y, r, 0, 7); g.fill(); }
+  }), color: hdr("#ffffff", 1.5) }));
+  winGlow.position.set(WIN.x, (WIN.y0 + WIN.y1) / 2, z1 - 0.12); winGlow.layers.set(NOINK); winGlow.visible = false; R.add(winGlow);
   // hotel facade (24 m x 21.5 m), the bathroom window column aligned with the painted grid
   const FX0 = -12.05, FW = 24, FH = 21.5;
   const hotelWall = "#d9c7a4";
   const hotelMat = lam("hotelFacade", () => ({ map: nightFacade("hotel", FW, FH, hotelWall, 41, false, { colX0: WIN.x - FX0, colStep: 3.0, litFrac: 0.4, skip: [WIN.x - FX0, 5] }),
     emissiveMap: nightFacade("hotel", FW, FH, hotelWall, 41, true, { colX0: WIN.x - FX0, colStep: 3.0, litFrac: 0.4, skip: [WIN.x - FX0, 5] }), emissive: hdr("#ffffff", 1.6) }));
-  for (const [a0, a1, c0, c1] of [[FX0, wx0, 0, FH], [wx1, FX0 + FW, 0, FH], [wx0, wx1, 0, WIN.y0], [wx0, wx1, WIN.y1, FH]])
-    b.add(facePiece(a0, a1, c0, c1, FACADE_Z, FX0, FW, FH), hotelMat);
-  b.add(boxGeo(V(FX0, 0, -14), V(FX0 + FW, FH, FACADE_Z - 0.01), 0), lam("hotelBack", () => ({ color: hotelWall })));
+  // a 3 x 3 grid round the window hole (no T-junctions: they open pixel cracks the ink pass draws as dotted lines)
+  for (const [a0, a1] of [[FX0, wx0], [wx0, wx1], [wx1, FX0 + FW]]) for (const [c0, c1] of [[0, WIN.y0], [WIN.y0, WIN.y1], [WIN.y1, FH]])
+    if (!(a0 === wx0 && c0 === WIN.y0)) b.add(facePiece(a0, a1, c0, c1, FACADE_Z, FX0, FW, FH), hotelMat);
+  { // the building's other faces (no front face: it would close the bathroom window seen from the street)
+    const zb = -14, zf = FACADE_Z - 0.01, xa = FX0, xb = FX0 + FW, back = lam("hotelBack", () => ({ color: hotelWall }));
+    b.add(quad(V(xb, 0, zb), V(xa, 0, zb), V(xa, FH, zb), V(xb, FH, zb)), back);
+    b.add(quad(V(xa, 0, zb), V(xa, 0, zf), V(xa, FH, zf), V(xa, FH, zb)), back);
+    b.add(quad(V(xb, 0, zf), V(xb, 0, zb), V(xb, FH, zb), V(xb, FH, zf)), back);
+    b.add(quad(V(xa, FH, zf), V(xb, FH, zf), V(xb, FH, zb), V(xa, FH, zb)), back);
+  }
   b.add(boxGeo(V(FX0 - 0.3, FH, -14.3), V(FX0 + FW + 0.3, FH + 0.6, FACADE_Z + 0.4), 0), lam("cornice", () => ({ color: "#bfae8c" })));
   for (const yy of [3.04, 15.2 - 0.04]) b.add(boxGeo(V(FX0 - 0.1, yy - 0.15, FACADE_Z), V(FX0 + FW + 0.1, yy, FACADE_Z + 0.22), 0), lam("cornice", () => ({ color: "#bfae8c" })));
   // ground floor: entrance with warm glass doors and a canopy
@@ -258,5 +271,5 @@ export const buildHotel = (R: THREE.Object3D): HotelSet => {
     m.scale.set(s, s * 0.5, 1); m.position.set(-120 + C() * 320, CLOUD_Y + C() * 70, 40 + C() * 320); m.rotation.set(-Math.PI / 2 + (C() - 0.5) * 0.5, 0, C() * 6.28);
     m.layers.set(NOINK); R.add(m);
   }
-  return { head, spray, cars, lampGlows, casement, taxi };
+  return { head, spray, cars, lampGlows, casement, taxi, winGlow };
 };
