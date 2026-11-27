@@ -462,10 +462,10 @@ export type Arms = [P2[], P2[]];
 /** held prop; for the hammer the number is the strike 0 (raised) .. 1 (struck) */
 export type Prop = null | "icecream" | "shako" | ["hammer", number] | "pan" | "magnifier" | "model" | "keys" | "umbrella"
   | "paint" | "brush" | "stamp" | "newspaper" | "notebook" | "copies" | "folder" | "whistle" | "moneybag" | "hatUp" | "tipHat" | "policy" | "board"
-  | "mug" | "wrench" | "camera" | "prints" | "suitcase" | "showerhead";
+  | "mug" | "wrench" | "camera" | "prints" | "suitcase" | "showerhead" | "blurryPrint" | "wrenchUp";
 const HELD = ["icecream", "pan", "magnifier", "model", "keys", "notebook", "copies", "folder", "policy", "mug", "wrench"];
 /** props carried in a raised hand (above the shoulder) */
-const RAISED = ["stamp", "newspaper", "moneybag", "hatUp", "tipHat", "board", "prints"];
+const RAISED = ["stamp", "newspaper", "moneybag", "hatUp", "tipHat", "board", "prints", "blurryPrint", "wrenchUp"];
 
 const BUILD: Record<Build, { a: number; torso: number; legs: number; tw: number }> = {
   adult: { a: 118, torso: 1.1, legs: 1.4, tw: 0.8 },
@@ -801,7 +801,7 @@ export const bodyFront = (p: Pen, o: Outfit, opts: FrontOpts) => {
       p.ell(hx + 1 * u, hy - 16 * u, 11 * u, 3 * u, "#5a3a22", 1.4 * u); p.arc(hx + 14 * u, hy - 4 * u, 6 * u, 7 * u, -90, 90, 2.4 * u);
       p.band([[hx - 9 * u, hy - 4 * u], [hx + 11 * u, hy - 4 * u]], "#2c4f86", 3 * u, 0);
       p.dot(hx, hy, 5.5 * u);
-    } else if (prop === "wrench") {
+    } else if (prop === "wrench" || prop === "wrenchUp") {
       p.band([[hx - 4 * u, hy + 10 * u], [hx + 6 * u, hy - 34 * u]], "#9aa1ab", 5.5 * u, 1.5 * u, "round");
       p.arc(hx + 8 * u, hy - 42 * u, 9 * u, 9 * u, 120, 420, 5 * u, "#9aa1ab"); p.dot(hx, hy, 5.5 * u);
     } else if (prop === "camera") { // 90s press SLR with a big flash on top, held to the eye
@@ -817,6 +817,12 @@ export const bodyFront = (p: Pen, o: Outfit, opts: FrontOpts) => {
       p.poly([[bx + 4 * u, by - 28 * u], [bx + 64 * u, by - 28 * u], [bx + 64 * u, by + 28 * u], [bx + 4 * u, by + 28 * u]], "#0c0e1a", 0);
       p.ell(bx - 34 * u, by, 20 * u, 18 * u, "rgba(230,225,255,0.28)", 0); p.ell(bx - 34 * u, by, 11 * u, 10 * u, "rgba(255,250,240,0.55)", 0);
       p.ell(bx + 34 * u, by, 5 * u, 5 * u, "#ffffff", 0); for (let k = 0; k < 6; k++) p.dot(bx + 12 * u + rnd(seed, 80 + k) * 46 * u, by - 22 * u + rnd(seed, 90 + k) * 44 * u, 1.4 * u, "#ffffff");
+      p.dot(hx, hy, 5.5 * u);
+    } else if (prop === "blurryPrint") { // one glossy print of the blurry first picture, held up to the audience
+      const bx = hx - 6 * u, by = hy - 64 * u;
+      p.poly([[bx - 46 * u, by - 40 * u], [bx + 46 * u, by - 40 * u], [bx + 46 * u, by + 40 * u], [bx - 46 * u, by + 40 * u]], "#f4f1ea", 3 * u);
+      p.poly([[bx - 40 * u, by - 34 * u], [bx + 40 * u, by - 34 * u], [bx + 40 * u, by + 34 * u], [bx - 40 * u, by + 34 * u]], "#0c0e1a", 0);
+      p.ell(bx, by, 30 * u, 27 * u, "rgba(220,215,255,0.22)", 0); p.ell(bx, by, 19 * u, 17 * u, "rgba(235,230,255,0.35)", 0); p.ell(bx, by, 9 * u, 8 * u, "rgba(255,250,240,0.6)", 0);
       p.dot(hx, hy, 5.5 * u);
     } else if (prop === "suitcase") {
       p.poly([[hx - 26 * u, hy + 10 * u], [hx + 26 * u, hy + 10 * u], [hx + 26 * u, hy + 46 * u], [hx - 26 * u, hy + 46 * u]], "#7a4b2a", 3 * u);

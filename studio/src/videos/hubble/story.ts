@@ -75,9 +75,14 @@ export const EARTH_BELOW = { lat: 24, lon: -76, drift: 0.35 };
 export const PAD: V3 = [-30000, 0, 0];
 export const CTL: V3 = [0, 0, 30000];
 export const TUB: V3 = [0, 0, -30000];
+/** the macro set: the mirror's rim at hair scale (a hair HAIR_R metres in radius) */
+export const MAC: V3 = [0, 0, -30400];
+export const HAIR_R = 0.5;
 export const STU: V3 = [30000, 0, 30000];
 export const SEN: V3 = [-30000, 0, 30000];
 export const FLD: V3 = [30000, 0, -30000];
+/** the absurd ladder in the field */
+export const LADDER_H = 30;
 export const CLN: V3 = [-30000, 0, -30000];
 export const PRS: V3 = [0, 0, 60000];
 
@@ -89,6 +94,48 @@ export const CUT = {
   street: T.crocker, bath2: T.showerL, clean: T.glassesL, glasses: T.glasses - 2, nightpad: T.risk, walk: T.astronauts,
   control2: T.photo, press: T.senator,
 };
+
+// ---------------- the launch pad (1990 by day, 1993 by night) ----------------
+/** the stack stands on the mobile launcher deck, DECK metres above the pad surface (stack-local y = 0 there) */
+export const DECK = 11.6;
+/** marsh level around the pad mound (the mound's top is y = 0) */
+export const GROUND = -6;
+/** pad layout relative to PAD: x east (the ocean), z south (the press site) */
+export const PADL = {
+  tower: { x0: -26, x1: -16, z0: -5, z1: 5, h: 82 },
+  srbX: 6.7, orbZ: 7.7,
+  trench: 46,                                                   // flame-trench mouths at x = +-trench; the smoke rolls out along +-x
+  clock: [-232, GROUND, 318] as V3, clockYaw: -0.63,            // the countdown clock at the press site, face toward the camera
+  press: [-250, GROUND + 0.6, 330] as V3,                       // the spectators' grass bank
+};
+/** the countdown clock's face centre and the middle of the stack, world space */
+export const CLOCK_FACE: V3 = add(PAD, [PADL.clock[0], GROUND + 2.6, PADL.clock[2]]);
+/** ignition frames: main engines, then the boosters (liftoff one frame later) */
+export const LAUNCHES = [
+  { ssme: T.nasa - 2, srb: T.launches + 1 },                     // 24 April 1990
+  { ssme: CUT.nightpad - 26, srb: CUT.nightpad - 20 },           // 2 December 1993: already climbing when we cut in
+];
+/** engines (0..1 lit), boosters (0..1 lit) and the stack's height above the deck; a stylised, fast climb */
+export const launchAt = (f: number) => {
+  const L = f < CUT.control ? LAUNCHES[0] : LAUNCHES[1];
+  const t = Math.max(0, f - L.srb - 1) / FPS;
+  return { ssme: clamp01((f - L.ssme) / 3), srb: clamp01((f - L.srb + 1) / 2), h: 0.5 * 66 * t * t + 3 * t, lit: f >= L.ssme };
+};
+const STACK_MID = (f: number): V3 => add(PAD, [0, DECK + 32 + launchAt(f).h, 3]);
+// ---------------- the control room (1990: the blurry first picture; 1994: the sharp one) ----------------
+/** how much of the picture has arrived on the big screen (0..1), and how sharp it is */
+export const screenAt = (f: number) => f < CUT.tube
+  ? { load: clamp01((f - T.picture) / (T.completely - T.picture - 2)), sharp: 0, label: "HST  WF/PC  FIRST IMAGE" }
+  : { load: clamp01((f - T.loads) / (T.razor - T.loads - 1)), sharp: smooth((f - T.sharp + 2) / 4), label: "HST  WFPC2  POST-SERVICING" };
+/** the mirror's flaw: the red rim glows on "off"; the hair's 1/50 strip lights during "one-fiftieth"; the red step on "human hair" */
+export const flawAt = (f: number) => ({ ring: smooth((f - T.off + 1) / 5) * (0.75 + 0.25 * Math.sin(f * 0.5)), strip: smooth((f - T.fiftieth - 6) / 6), step: smooth((f - T.human + 2) / 6) });
+/** the ladder sways once he stretches too far (radians about its feet, z axis) */
+export const swayAt = (f: number) => (f < T.fix - 6 ? 0 : 0.09 * Math.sin((f - T.fix + 6) * 0.35) * smooth((f - T.fix + 6) / 8));
+/** press camera flashes: frames on which one of the photographers' flashes pops (Senate, press room) */
+export const FLASHES = [T.turkey + 2, T.turkey + 7, T.turkey + 13, T.turkey + 19];
+/** the coffee mug: tips over on "blurry", the coffee spreads */
+export const mugAt = (f: number) => ({ tip: smooth((f - T.blurry - 1) / 6) * 1.52, spill: clamp01((f - T.blurry - 5) / 16) });
+
 
 // ---------------- camera: one path, keys blended with an ease-in-out glide ----------------
 export type Cam = { pos: V3; look: V3; fov: number; roll: number };
@@ -128,13 +175,45 @@ const KEYS: Key[] = [
   { f: CUT.space, cut: true, s: (f) => ({ pos: add(HUB, [-34 + (f - CUT.space) * 0.2, 13, 58]), look: add(HUB, [2, -3, 0]), fov: 46, roll: -0.04 }) },
   { f: CUT.space + 2, dur: 40, s: (f) => dolly(add(HUB, [-20.5, 7.5, 35.5]), add(HUB, [0.2, -1.4, 0]), pushK(f, CUT.space + 42, 0.003), { fov: 40, roll: -0.26 }) },
   // ---- placeholders for the rest of the film (refined scene by scene) ----
-  { f: CUT.pad, cut: true, s: (f) => ({ pos: add(PAD, [-120, 14, 160]), look: add(PAD, [0, 40 + (f - CUT.pad) * 0.1, 0]), fov: 44 }) },
-  { f: CUT.control, cut: true, s: () => ({ pos: add(CTL, [0, 2.4, 9]), look: add(CTL, [0, 2.6, -6]), fov: 44 }) },
-  { f: CUT.tube, cut: true, s: () => ({ pos: add(TUB, [0, 0, 9]), look: add(TUB, [0, 0, -4]), fov: 44 }) },
-  { f: CUT.studio, cut: true, s: () => ({ pos: add(STU, [0, 1.5, 5]), look: add(STU, [0, 1.3, 0]), fov: 42 }) },
-  { f: CUT.senate, cut: true, s: () => ({ pos: add(SEN, [0, 1.6, 5]), look: add(SEN, [0, 1.5, 0]), fov: 42 }) },
-  { f: CUT.orbit2, cut: true, s: (f) => ({ pos: orbitAt(HUB, 22, 4, 2.2, 0.004, f, CUT.orbit2), look: HUB, fov: 42 }) },
-  { f: CUT.field, cut: true, s: () => ({ pos: add(FLD, [0, 2, 12]), look: add(FLD, [0, 5, 0]), fov: 46 }) },
+  // ---- 1990, the pad at sunrise. 1: crane up off the countdown clock to the shuttle, racking focus onto it ----
+  { f: CUT.pad, cut: true, s: (f) => {
+    const u = glide((f - CUT.pad) / 36), w = glide((f - CUT.pad - 4) / 30), b: V3 = [-0.589, 0, 0.808];
+    const p0 = add(CLOCK_FACE, [b[0] * 37, 0.9, b[2] * 37]), p1 = add(CLOCK_FACE, [b[0] * 31, 9.5, b[2] * 31]);
+    const l0 = add(CLOCK_FACE, [0, 0.25, 0]), l1 = STACK_MID(f);
+    return { pos: [lerp(p0[0], p1[0], u), lerp(p0[1], p1[1], u), lerp(p0[2], p1[2], u)], look: [lerp(l0[0], l1[0], w), lerp(l0[1], l1[1], w), lerp(l0[2], l1[2], w)], fov: lerp(30, 23, u), roll: 0.01 };
+  } },
+  // 2: low on the launcher deck behind the orbiter's tail: the main engines light, the boosters light, it lifts
+  { f: T.nasa - 5, cut: true, s: (f) => { const h = launchAt(f).h, k = pushK(f, T.nasa - 5, 0.004);
+    return dolly(add(PAD, [40, DECK + 1.2, 33]), add(PAD, [0, DECK + 9.5 + h * 0.8, 7]), k, { fov: 40, roll: -0.04 }); } },
+  // 3: the faces at the press site, lit by it
+  { f: T.launches + 3, cut: true, s: (f) => { const P = add(PAD, PADL.press), fw: V3 = [0.589, 0, -0.808];
+    return { pos: add(P, [fw[0] * 5.4 + 0.1, 0.7 + (f - T.launches - 3) * 0.01, fw[2] * 5.4 + 0.1]), look: add(P, [0, 1.45, 0]), fov: 34, roll: 0.02 }; } },
+  // 4: long lens, tracking the orbiter up past the tower
+  { f: T.hubble, cut: true, s: (f) => ({ pos: add(PAD, [-150, 6, 152]), look: add(STACK_MID(f), [0, -15, 4]), fov: 19, roll: -0.02 }) },
+  // ---- the control room, 1990. 1: behind the back row, over the silhouettes, the picture arriving on the big screen ----
+  { f: CUT.control, cut: true, s: (f) => dolly(add(CTL, [0.5, 2.5, 4.9]), add(CTL, [0, 2.55, -9]), pushK(f, CUT.control, 0.0055), { fov: 46, roll: 0.0 }) },
+  // 2: "completely": turn round to their faces, lit by it
+  { f: T.completely, cut: true, s: (f) => dolly(add(CTL, [-1.6, 1.3, -6.5]), add(CTL, [-1.6, 1.24, -3.7]), pushK(f, T.completely, 0.007), { fov: 31, roll: 0.015 }) },
+  // 3: "blurry": down at desk height, the mug between the monitors goes over; the lead behind it, crushed
+  { f: T.blurry, cut: true, s: (f) => dolly(add(CTL, [-1.42, 1.13, -5.45]), add(CTL, [-1.47, 1.03, -4.0]), pushK(f, T.blurry, 0.004), { fov: 40, roll: -0.02 }) },
+  // ---- inside the telescope: fly down the black tube, past the secondary mirror, onto the primary; its rim glows red on "off" ----
+  { f: CUT.tube, cut: true, s: (f) => ({ pos: add(TUB, [0.34, 0.3, 6.4]), look: add(TUB, [0, 0, -7]), fov: 54, roll: 0.12 }) },
+  { f: CUT.tube + 1, dur: T.off - CUT.tube - 2, s: (f) => ({ pos: add(TUB, [0.04, 0.03, -1.1 - (f - T.off) * 0.02]), look: add(TUB, [0, 0, -7]), fov: 50, roll: -0.04 }) },
+  // the macro: the cut end of a human hair, 50 strips across it, one of them lit; then pull back to the hair on the mirror's rim
+  { f: T.fiftieth, cut: true, s: (f) => dolly(add(MAC, [1.25, HAIR_R + 0.08, -2.5 + 0.3]), add(MAC, [0, HAIR_R, -2.5]), pushK(f, T.fiftieth, 0.004), { fov: 40, roll: 0.03 }) },
+  { f: T.human - 3, dur: 18, s: () => ({ pos: add(MAC, [6.2, 3.0, 5.4]), look: add(MAC, [-2.8, 0.15, -1.6]), fov: 44, roll: -0.03 }) },
+  // ---- the late-night TV roast: over the laughing audience onto the host waving the blurry print; crash zoom on "roast" ----
+  { f: CUT.studio, cut: true, s: (f) => dolly(add(STU, [0.5, 1.7, 6.6]), add(STU, [-1.35, 2.1, -2.5]), pushK(f, CUT.studio, 0.004), { fov: 36, roll: 0.02 }) },
+  { f: T.roastW + 2, dur: 4, s: (f) => dolly(add(STU, [0.5, 1.7, 6.6]), add(STU, [-1.4, 2.25, -2.5]), pushK(f, CUT.studio, 0.004), { fov: 19, roll: -0.03 }) },
+  // ---- the Senate hearing: over the photographers onto the senator; on "techno-turkey" she points at the chart ----
+  { f: CUT.senate, cut: true, s: (f) => dolly(add(SEN, [0.7, 1.55, 5.6]), add(SEN, [0, 1.78, -2.7]), pushK(f, CUT.senate, 0.005), { fov: 30, roll: 0.0 }) },
+  { f: T.turkey, cut: true, s: (f) => dolly(add(SEN, [-0.8, 1.55, 3.0]), add(SEN, [-0.62, 1.62, -2.2]), pushK(f, T.turkey, 0.004), { fov: 40, roll: -0.02 }) },
+  // ---- "already in orbit": pull back from Hubble until it is a glinting speck over the Earth's limb ----
+  { f: CUT.orbit2, cut: true, s: (f) => { const u = glide((f - CUT.orbit2) / 58), d = lerp(19, 235, u ** 1.25);
+    return { pos: add(HUB, [-0.55 * d, 2 + 0.2 * d, 0.81 * d]), look: add(HUB, [0, -0.18 * d, 0]), fov: 40, roll: 0.02 + 0.06 * u }; } },
+  // ---- "nobody can climb inside": a man at the top of a ladder reaching up... pull back: a 30 m ladder in a field, Hubble a speck ----
+  { f: CUT.field, cut: true, s: (f) => dolly(add(FLD, [1.0, LADDER_H + 0.15, 2.7]), add(FLD, [0, LADDER_H + 0.4, 0]), pushK(f, CUT.field, 0.004), { fov: 42, roll: 0.03 }) },
+  { f: T.climb + 2, dur: 22, s: () => ({ pos: add(FLD, [7.5, 2.2, 23]), look: add(FLD, [-0.4, 14, -2]), fov: 62, roll: -0.04 }) },
   { f: CUT.street, cut: true, s: () => ({ pos: [4, 1.7, 15], look: [0, 1.6, FACADE_Z], fov: 44 }) },
   { f: CUT.bath2, cut: true, s: (f) => { const hy = showerHead(f).y; return { pos: [RAIL.x + 0.2, hy - 0.16, RAIL.z + 0.72], look: [RAIL.x, hy, RAIL.z + 0.2], fov: 38 }; } },
   { f: CUT.clean, cut: true, s: () => ({ pos: add(CLN, [0, 2, 8]), look: add(CLN, [0, 1.5, 0]), fov: 44 }) },
@@ -153,17 +232,19 @@ const run = (f: number) => {
   }
   return cur;
 };
+/** camera motion blur strength per shot (1 = full): a tracking shot keeps its subject crisp, so it gets only a little */
+export const blurScale = (f: number) => (f >= T.hubble && f < CUT.control ? 0.25 : 1);
 /** true on frames where a hard cut lands (no motion blur across a cut) */
 export const isCut = (f: number) => KEYS.some((k) => k.cut && (f === k.f || f === k.f + 1));
 // impact kicks: the image jolts, flipping sign every frame and decaying over 7 frames
-const KICKS: [number, number][] = [[T.telescope, 0.4]];
+const KICKS: [number, number][] = [[T.telescope, 0.4], [LAUNCHES[0].srb, 0.7]];
 export const kickAt = (f: number) => {
   let a = 0;
   for (const [f0, g] of KICKS) { const n = f - f0; if (n >= 0 && n < 7) a += g * (n % 2 ? -1 : 1) * (1 - n / 7) ** 1.5; }
   return a;
 };
 /** handheld / tension shake: [from, to, amplitude in degrees-ish] */
-const SHAKES: [number, number, number][] = [];
+const SHAKES: [number, number, number][] = [[LAUNCHES[0].ssme, T.launches + 3, 2.6], [T.launches + 3, T.hubble, 1.1], [T.hubble, CUT.control, 1.3]];
 const shakeAt = (f: number) => {
   let a = 0;
   for (const [f0, f1, g] of SHAKES) if (f >= f0 && f < f1) a = Math.max(a, g * Math.min(1, (f - f0) / 6, (f1 - f) / 6));
@@ -235,7 +316,23 @@ export const DOF: Dof[] = [
   { f: T.saves - 4, dur: 10, cInf: 1 },                                                  // the city: everything sharp
   { f: CUT.space, cInf: 16, focus: () => add(HUB, [60, -10, 0]) },                        // orbit: Hubble arrives out of focus...
   { f: T.telescope - 3, dur: 7, cInf: 7, focus: () => HUB },                             // ...and snaps sharp on "telescope"
-  { f: CUT.pad, cInf: 2 },
+  { f: CUT.pad, cInf: 7, focus: () => add(CLOCK_FACE, [0, 0.25, 0]) },                 // the clock sharp, the shuttle soft...
+  { f: CUT.pad + 12, dur: 16, cInf: 2.2, focus: (f) => STACK_MID(f) },                 // ...rack focus onto the shuttle
+  { f: T.nasa - 5, cInf: 3, focus: () => add(PAD, [0, DECK + 8, 8]) },
+  { f: T.launches + 3, cInf: 9, focus: () => add(PAD, PADL.press) },                    // faces sharp, background soft
+  { f: T.hubble, cInf: 2, focus: (f) => STACK_MID(f) },
+  { f: CUT.control, cInf: 4, focus: () => add(CTL, [0, 2.6, -9]) },                     // the screen sharp, the heads in front soft
+  { f: T.completely, cInf: 6, focus: () => add(CTL, [-1.6, 1.26, -3.7]) },
+  { f: T.blurry, cInf: 8, focus: () => add(CTL, [-1.42, 0.86, -4.34]) },                // the mug sharp, his face just soft behind it
+  { f: CUT.tube, cInf: 6, focus: () => add(TUB, [0, 0, -6.7]) },                         // the vanes rush past soft, the mirror sharp
+  { f: T.fiftieth, cInf: 7, focus: () => add(MAC, [0, HAIR_R, -2.5]) },
+  { f: T.human - 3, dur: 18, cInf: 4, focus: () => add(MAC, [-1.0, 0.3, -1.2]) },
+  { f: CUT.studio, cInf: 7, focus: () => add(STU, [-1.4, 1.95, -3.1]) },                 // the host sharp, the audience heads soft
+  { f: CUT.senate, cInf: 7, focus: () => add(SEN, [0, 1.85, -2.7]) },
+  { f: T.turkey, cInf: 5, focus: () => add(SEN, [0, 1.85, -2.7]) },
+  { f: CUT.orbit2, cInf: 3, focus: () => HUB },
+  { f: CUT.field, cInf: 6, focus: () => add(FLD, [0, LADDER_H + 0.4, 0]) },
+  { f: T.climb + 2, dur: 22, cInf: 1.5, focus: () => add(FLD, [0, 12, 0]) },
 ];
 export const dofAt = (f: number) => {
   let cur = { cInf: DOF[0].cInf, focus: DOF[0].focus };

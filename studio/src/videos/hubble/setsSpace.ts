@@ -24,6 +24,9 @@ export const loadEarth = () => {
   return earthPromise;
 };
 
+/** the day map's image (for the mission-control ground-track display), once loaded */
+export const earthDayImage = () => EARTH.day?.image as HTMLImageElement | undefined;
+
 const earthMaterial = () => new THREE.ShaderMaterial({
   uniforms: { dayMap: { value: EARTH.day ?? null }, nightMap: { value: EARTH.night ?? null }, cloudMap: { value: EARTH.clouds ?? null },
     sunDir: { value: new THREE.Vector3(1, 0, 0) }, camPos: { value: new THREE.Vector3() }, cloudShift: { value: 0 }, exposure: { value: 1 } },

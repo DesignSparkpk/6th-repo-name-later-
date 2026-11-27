@@ -14,7 +14,7 @@ import { loadEarth } from "./setsSpace";
 import { InkPass, noInkFallback } from "../bridge/ink";
 import { LensBlur } from "../bridge/lensblur";
 import { GradeEffect, GRADES, GRADE_STRENGTH, gradeFor } from "../bridge/grade";
-import { TOTAL, dofAt, placeAt, WORDS_T, FPS, CUT, camAt, isCut } from "./story";
+import { TOTAL, dofAt, placeAt, WORDS_T, FPS, CUT, camAt, isCut, blurScale } from "./story";
 
 export const HUBBLE_FRAMES = TOTAL;
 
@@ -137,7 +137,7 @@ export const HubbleShort: React.FC = () => {
   const ready = useEarth();
   const f = useCurrentFrame();
   const [mx, my] = motionAt(f);
-  const bx = Math.min(36, Math.max(0, mx - 26) * 0.32), by = Math.min(36, Math.max(0, my - 26) * 0.32);
+  const k = blurScale(f), bx = Math.min(36, Math.max(0, mx - 26) * 0.32) * k, by = Math.min(36, Math.max(0, my - 26) * 0.32) * k;
   const blur = bx > 0.5 || by > 0.5;
   return (
     <AbsoluteFill style={{ background: "#05060c" }}>
