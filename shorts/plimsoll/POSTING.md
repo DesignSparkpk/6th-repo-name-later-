@@ -1,6 +1,6 @@
 # The Plimsoll Line: posting kit
 
-**File:** `plimsoll-final.mp4` (1080x1920, 30 fps, 61.9 s, -14 LUFS)
+**File:** `plimsoll-final.mp4` (1080x1920, 30 fps, 61.9 s, -14 LUFS, 73 MB, H.264 + AAC 256k)
 
 **Title (pick one):**
 1. Why Shipowners Wanted Their Ships to Sink  ← recommended (the hook's paradox, in the "Why ..." form the top reference shorts use)
