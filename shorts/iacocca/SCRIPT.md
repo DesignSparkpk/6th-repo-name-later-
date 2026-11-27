@@ -1,41 +1,43 @@
-# Ford Fired Him. He Saved Their Rival: script v1 (~125 spoken words, ~38 s)
+# One Dollar to Save a Dying Company: script v2 (~125 spoken words, ~38 s)
 
-Why this topic (vidIQ, 2026-11-27): the "laughed at / fired, then proved them wrong" format is the strongest pattern in recent Shorts (e.g. 27.7M and 12.2M views).
-"How Lee Iacocca's $2.4 Billion Revenge Humiliated Ford" got 2.8M views from a 9.6k-subscriber channel with a 7-second clip, while the best full versions I found are tiny (13k), so demand
-is proven and nobody has told it well. Rejected: Kodak digital camera (a dozen shorts, all 1-9k views: saturated), Karikó (no sign of demand), Pringles (a joke, not an arc).
+v2 = high-stakes hook (a threat on screen in the first 3 s, a number and a paradox, as in the reference shorts) and no still frames: every beat has something moving, breaking or racing.
+v1 (a quieter hook) is in git history.
+
+Why this topic (vidIQ, 2026-11-27): the "fired / laughed at, then proved them wrong" format is the strongest pattern in recent Shorts (27.7M and 12.2M views); a 7-second Iacocca clip got 2.8M from a
+9.6k-subscriber channel, while the best full versions are tiny (13k): proven demand, nobody has told it well. Rejected: Kodak (saturated, 1-9k views each), Karikó (no sign of demand), Pringles (a joke, not an arc).
 
 ## Pattern check against the reference shorts
 | Pattern | This script |
 |---|---|
-| Hook = odd action + number + paradox in 4 s | "Ford fired the man who built the Mustang... and he turned their dying rival into a $2.4 billion machine." |
-| "You see," pivot | line 1 |
-| Hero mocked, misunderstood | fired with "I just don't like you" (reported), then a company everyone gave up on |
-| Rehook at ~20 % and ~55 % | "And it gets worse" (the begging), "And Ford?" |
-| Escalation before the payoff | the bailout vote, a dying company |
-| 2-3 in-character lines | Henry Ford II's reported line; "Chrysler paid it all back" |
-| Concrete numbers | 1978, $1.5 billion, seven years early, $2.4 billion |
-| Payoff = visual reversal, ends there | the check handed over, the record-profit board, last frame on the Ford boardroom |
+| Hook = odd action + number + paradox + threat in 3-4 s | "A car company lost over a billion dollars in one year... and the man in charge cut his own salary to one dollar." Red ink flooding the screen, a ticking clock |
+| "You see," pivot early | line 1 |
+| Hero mocked / wronged | fired by Ford ("I just don't like you", reported), then handed a company everyone gave up on |
+| Rehooks at ~20 % and ~55 % | "And it gets worse" (the begging for $1.5 billion), "And Ford?" |
+| Escalation before the payoff | the vote, critics saying let it die |
+| Concrete numbers | over $1 billion lost, $1, $1.5 billion, seven years early, $2.4 billion |
+| Payoff = visual reversal, ends there | the oversized cheque slapped down, then Ford's boardroom, cup tips, cut to black |
 
 ## Narration (Kokoro, same voice and mix chain as the other shorts)
-| # | Line | Picture and mood |
+| # | Line | Picture (no dead frames) |
 |---|---|---|
-| hook | Ford fired the man who built the Mustang... and he turned their dying rival into a two-point-four-billion-dollar machine. | Cold open: a roaring red sports car on a Detroit street, slam to a boardroom, a man in a suit holding a cardboard box; the screen flashes "$2.4B". Warm sunset gold. |
-| 1 | You see, in 1978, Lee Iacocca was Ford's president. | Ford glass tower, Iacocca at his desk with a Mustang model; tall, confident. |
-| 2 | Then Henry Ford the Second reportedly told him: "I just don't like you." | Boardroom, cold light: an older man behind a huge desk, flat voice; Iacocca freezes. The desk lamp pops. |
-| 3 | Fired. So he walked straight into Chrysler: a company everyone had written off. | Rain on a Detroit street, the cardboard box, a rusty Chrysler sign with letters missing. |
-| 4 | And it gets worse. To save it, he begged Congress for a one-point-five-billion-dollar loan guarantee. | A marble Senate chamber, a tiny Iacocca at a huge microphone, senators leaning back, arms crossed. |
-| 5 | They said yes. | One beat of silence. A gavel. |
-| 6 | By 1983, Chrysler had paid it all back... seven years early. | Close-up: he slaps an oversized cheque onto a table in front of a stunned banker. |
-| 7 | A year later: a record profit. Two-point-four billion dollars. | The Chrysler sign now lit and full; an assembly line, cars rolling out, a chart rocketing. |
-| 8 | And Ford? They had fired the one man who could do it... for their biggest rival. | Back to the Ford boardroom: Henry Ford the Second looks at a TV showing Iacocca's triumph, the coffee cup tips. Cut to black. |
+| hook | A car company lost over a billion dollars in one year... and the man in charge cut his own salary to one dollar. | 0-3 s: a factory floor, red ink pours down the walls like a flood, a huge clock ticking, cars stalling in a row like dominoes. Crash zoom onto a man in a suit holding up one dollar bill; the number "$1,100,000,000" stamps over the ink. Hard shake, hit. |
+| 1 | You see, a year earlier, Ford had fired him. | Whip-pan to a glass tower; the man hauled out of the door by two guards, his Mustang model flying out of the box and skidding across the floor. Rain starts. |
+| 2 | Henry Ford the Second reportedly said: "I just don't like you." | Ford boardroom, cold light: an old man behind a huge desk waves one finger, the desk lamp pops, the man falls back a step. Cut. |
+| 3 | So he went to Ford's rival... Chrysler. A company everyone had written off. | A truck skids through puddles; he marches through factory doors, the Chrysler sign (generic, letters falling off) crashes down behind him; workers freeze. |
+| 4 | And it gets worse. The only way to survive was to beg Congress for one-point-five billion dollars. | Marble hall, a tiny man at a huge microphone; an enormous stack of cash on a scale tipping the wrong way; a senator pushes the stack off the table. Critics shout "LET IT DIE" (generic newsreel). |
+| 5 | They said yes. | One-beat silence. Gavel slam, confetti of paper, the scale snaps level. |
+| 6 | By 1983, Chrysler had paid it all back... seven years early. | He slaps an oversized cheque on a desk; the banker's glasses fly off; a calendar rips seven pages away in one whoosh. |
+| 7 | A year later: a record profit. Two-point-four billion dollars. | Assembly line roaring, cars launching one after another, a chart rocketing through the ceiling, the red ink on the walls turns green and flows back up. |
+| 8 | And Ford? They'd fired the one man who could do it... for their biggest rival. | Back to the Ford boardroom: the old man watches a TV of the triumph, the coffee cup tips and drips on his shoes; hard cut to black. Last word hit. |
 
-Word count ~125. Target 38-42 s.
+Word count ~125. Target 38-42 s. Every shot is a crash zoom, a whip-pan or an object in motion; no static talking heads, and no dead or idle scenes.
 
 ## Facts and sources (verified 2026-11-27)
-- Henry Ford II fired Lee Iacocca as Ford president in July 1978; the widely reported explanation was "I just don't like you." (UPI archives; Encyclopedia.com; Biography.com.) Shown as "reportedly".
-- Iacocca then became Chrysler's chief; Congress approved a $1.5 billion federal loan guarantee (Chrysler Loan Guarantee Act, signed January 1980). Chrysler drew about $1.2 billion of it. (History.com; Britannica; UPI.)
-- Chrysler repaid the guaranteed loans in 1983, about seven years ahead of schedule. (Christian Science Monitor, 14 Jul 1983; TIME, "Chrysler pays off its loan".)
-- 1984: record profit of about $2.4 billion, then $1.6 billion in 1985. (Business/encyclopedia sources, TIME.)
-- Iacocca led development of the Ford Mustang. (Britannica; Biography.com.)
-- NOT used: the exact day of the final repayment (sources conflict: 13 July vs 15 August 1983), the "five years to the day" claim, a 1980 loss figure (unverified), the $1 salary beat (not yet checked).
-- Dramatized: all dialogue other than the reported line, the cheque scene, the Senate hall, the coffee cup. Henry Ford II, Iacocca and the senators are generic cartoon stand-ins, not portraits. No car-brand logos are shown; the cars and signs are generic.
+- Chrysler's 1979 loss was about $1.1 billion (Congressional Research Service: $1.126 billion), described at the time as the gaudiest red ink in US corporate history. (CRS R40005; TIME; EBSCO.)
+- Iacocca cut his own base salary to one dollar a year. (EBSCO research starter on the Chrysler bailout.)
+- Henry Ford II fired Iacocca in July 1978; the widely reported explanation was "I just don't like you". (UPI archives; Encyclopedia.com; Biography.com.) Shown as "reportedly".
+- Congress approved up to $1.5 billion in federal loan guarantees (signed January 1980); critics argued it should not be done. Chrysler drew about $1.2 billion. (History.com; Britannica; EBSCO; Heritage Foundation as a critic.)
+- Chrysler repaid the guaranteed loans in 1983, about seven years early. (CSM, 14 Jul 1983; TIME, "Chrysler pays off its loan".)
+- 1984: a record profit of about $2.4 billion. (TIME; business and encyclopedia sources.)
+- NOT used: the exact day of the final repayment (sources conflict), "five years to the day", job counts (unverified and disputed), any "bankruptcy filing" claim (it was a loan guarantee, not a formal bankruptcy).
+- Dramatized: all visuals and dialogue other than the reported line; the red-ink flood, the scale, the cheque and the coffee cup are visual metaphors. Henry Ford II, Iacocca and the senators are generic cartoon stand-ins, not portraits. No car-brand logos are shown.
