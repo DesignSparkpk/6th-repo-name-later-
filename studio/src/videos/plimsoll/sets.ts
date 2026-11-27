@@ -310,7 +310,8 @@ export const buildSets = (R: THREE.Object3D): Sets => {
     if (zc < 15) b.add(boxGeo(V(Math.min(x, x + s * 0.4), 4.2, zc), V(Math.max(x, x + s * 0.4), 12, 15), 2.4), stone);
   }
   // end walls (the Speaker's end at -z with his canopied chair, the bar end at +z) + ceiling
-  for (const z of [-15, 15]) b.add(boxGeo(V(-7.2, 0, Math.min(z, z + Math.sign(z) * 0.4)), V(7.2, 12, Math.max(z, z + Math.sign(z) * 0.4)), 2.1), z < 0 ? oak : stone);
+  b.add(boxGeo(V(-7.2, 0, -15.4), V(7.2, 12, -15), 2.1), oak);
+  for (const [x0, x1, y0] of [[-7.2, -1.1, 0], [1.1, 7.2, 0], [-1.1, 1.1, 3.4]] as const) b.add(boxGeo(V(x0, y0, 15), V(x1, 12, 15.4), 2.1), stone); // the bar end, with the door to the club
   b.add(boxGeo(V(-1.0, 0, -14.6), V(1.0, 1.2, -13.4)), oakPlain);
   b.add(boxGeo(V(-0.8, 1.2, -14.6), V(0.8, 3.8, -14.3)), leather);
   b.add(boxGeo(V(-1.1, 3.8, -14.8), V(1.1, 4.2, -13.2)), oakPlain);

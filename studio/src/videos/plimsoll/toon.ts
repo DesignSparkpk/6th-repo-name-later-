@@ -599,7 +599,8 @@ export const bodyFront = (p: Pen, o: Outfit, opts: FrontOpts) => {
     } else if (typeof prop === "string" && RAISED.includes(prop)) {
       const S = sh(1), k = clamp(swing, 0, 1); // 0 = raised high, 1 = brought down in front
       const E = lerp2([tcx + 1.15 * T.a + 12 * u, S[1] - 0.2 * HH], [tcx + 1.2 * T.a + 16 * u, S[1] + 0.25 * HH], k);
-      const Hd = lerp2([tcx + 1.2 * T.a + 20 * u, S[1] - 0.62 * HH], [tcx + 1.05 * T.a + 30 * u, S[1] + 0.5 * HH], k);
+      const top: P2 = prop === "tipHat" ? [tcx + 1.25 * T.a + 20 * u, S[1] - 0.3 * HH] : [tcx + 1.2 * T.a + 20 * u, S[1] - 0.62 * HH]; // a hat is lifted only to head height
+      const Hd = lerp2(top, [tcx + 1.05 * T.a + 30 * u, S[1] + 0.5 * HH], k);
       arms.push({ pts: [S, E, Hd], front: true });
     } else if (prop === "brush") { // arm stretched out to the side, painting
       const S = sh(1), k = Math.sin(swing * Math.PI * 2);

@@ -12,7 +12,7 @@ export type LightPreset = {
   sunCol: string; sunI: number; sky: string; ground: string; hemiI: number;         // three lights (unpatched mats only)
   bias: number; normalBias: number;
 };
-export type LightName = "day" | "golden" | "overcast" | "desert" | "candle" | "dusk" | "under" | "fog" | "storm" | "night" | "dawn";
+export type LightName = "day" | "golden" | "overcast" | "desert" | "candle" | "dusk" | "under" | "fog" | "storm" | "night" | "dawn" | "club";
 export const LIGHTS: Record<LightName, LightPreset> = {
   day: {
     az: 75, el: 48,
@@ -124,6 +124,17 @@ export const LIGHTS: Record<LightName, LightPreset> = {
     bias: -0.0005, normalBias: 0.025,
   },
 
+  // the shipowners' club: firelight and gas lamps, red shade, a haze of cigar smoke
+  club: {
+    az: 60, el: 25,
+    lit: [1.6, 0.98, 0.6], shade: [0.24, 0.1, 0.13], lift: [0.06, 0.03, 0.04], lambert: 0.4, sideK: 0.8, term: 0.12,
+    charTint: [1.0, 0.84, 0.7], charShade: 0.84, charGrad: 0.12, bodyGrad: 0.28, sideTint: [0.92, 0.8, 0.82],
+    blob: [0.55, 0.42, 0.42], actorShadow: true,
+    top: "#2a1410", hor: "#5a2a1c", skyCurve: [0.0, 0.5, 0.6], fog: "#3a1c14", fogNear: 6, fogFar: 42, sunDisc: "#000000",
+    sunCol: "#ffb070", sunI: 3.2, sky: "#ffcf9a", ground: "#3a1a12", hemiI: 0.55,
+    bias: -0.0004, normalBias: 0.02,
+  },
+
 };
 
 /** world-only look per light (sky stops by elevation in degrees, river colours, cloud palette). All colours are
@@ -214,6 +225,13 @@ export const LOOK: Record<LightName, WorldLook> = {
     water: { near: "#5a6f8a", mid: "#7a86a8", far: "#e8a8a0", crest: "#ffd8c0", trough: "#3a4a68", glint: "#ffe6c8", shade: [0.5, 0.5, 0.75] },
     cloud: { lit: "#ffd8c0", mid: "#f3a7a4", shade: "#a58fc0" },
     bounce: [0.04, 0.02, 0.02],
+    sat: 1.12,
+  },
+  club: {
+    sky: { c: ["#5a2a1c", "#4a2218", "#3a1a12", "#2a1410", "#1e0e0a"], e: [0, 4, 10, 20, 40] },
+    water: { near: "#3a1c14", mid: "#3a1c14", far: "#3a1c14", crest: "#a8763a", trough: "#2a1410", glint: "#ffd7a0", shade: [0.5, 0.4, 0.4] },
+    cloud: { lit: "#5a2a1c", mid: "#4a2218", shade: "#3a1a12" },
+    bounce: [0.06, 0.02, 0.0],
     sat: 1.12,
   },
 };

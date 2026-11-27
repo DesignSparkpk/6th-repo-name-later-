@@ -1,9 +1,9 @@
 // Who is on screen and what they do, plus the flat 2D effect cards (shout burst, splash, bubbles, fish, seaweed,
 // coin glints, the INSURED policy). Characters are the template's lit cards (Actor / Pool from ../bridge/cast).
 import * as THREE from "three";
-import { Pen, bodyFront, SKIN, INK, fxBurst, fxRing, fxSplash, fxShadow, fxContact, Outfit, FrontOpts } from "./toon";
+import { Pen, bodyFront, bodySide, SKIN, INK, fxBurst, fxRing, fxSplash, fxShadow, fxContact, Outfit, FrontOpts, SideOpts } from "./toon";
 import type { Place, FxPlace, Stage, CamInfo } from "../bridge/cast";
-import { FPS, PLIM, WATER, HOARD, BED, COFFIN, T, talking, camAt, clamp01, smooth, OWNER, DESK, DSHIP, DX, SX, HULLPT, paperAt, shipSink, CUT, STRIKES, plimWalk, PL_STOP, MARK, HARB, dawnSink, DW } from "./story";
+import { FPS, PLIM, WATER, HOARD, BED, COFFIN, T, talking, camAt, clamp01, smooth, OWNER, DESK, DSHIP, DX, SX, HULLPT, paperAt, shipSink, CUT, STRIKES, plimWalk, PL_STOP, MARK, HARB, dawnSink, DW, CLUB_CHAIRS, ownerWalk, OWNER_SEAT } from "./story";
 import type { Place as Place3 } from "./story";
 
 // ---------------- cast ----------------
@@ -20,6 +20,8 @@ const MP = (v: number): Outfit => ({
 const OWNER_O: Outfit = { jacket: "#3a2f4a", pants: "#2b2633", boots: "#1d1d22", hat: "tophat", style: "vest", trim: "#8a1f2b", chops: "#5a4636",
   monocle: true, chain: true, cigar: true, build: "stout", skin: SKIN };
 const CLERK_O: Outfit = { jacket: "#2a2f3a", pants: "#2a2f3a", boots: "#1d1d22", hat: "hair", hair: "#3a2c22", style: "collar", trim: "#3a3a48", specs: true, skin: SKIN };
+const OWNER2_O: Outfit = { jacket: "#2c3d33", pants: "#2b2633", boots: "#1d1d22", hat: "tophat", style: "vest", trim: "#2f6b4a", chops: "#9a9a9a", chain: true, build: "stout", skin: SKIN };
+const OWNER3_O: Outfit = { jacket: "#2c3550", pants: "#2b2633", boots: "#1d1d22", hat: "tophat", style: "vest", trim: "#c9a24e", moustache: "#3a2c22", cigar: true, build: "stout", skin: SKIN };
 const HARBOUR_O: Outfit = { jacket: "#22304a", pants: "#22304a", boots: "#1b1b20", hat: "cap", cap: "#22304a", style: "collar", trim: "#c9a24e", moustache: "#5a4636",
   buttons: "#e2b84a", build: "stout", skin: SKIN };
 const SAILOR = (v: number): Outfit => ({ jacket: "#f2efe8", style: "stripes", trim: "#2c4f86", pants: ["#2b3a55", "#3a3a44", "#4a3b30"][v % 3], boots: "#3a2c22",
@@ -47,6 +49,12 @@ const person = (cam: CamInfo, who: Who, x: number, y: number, z: number, fo: Fro
   const [w, h, k] = tier(d);
   const f2: FrontOpts = { ...fo, light: light2D(cam), seed: (who.i % 7) + 1 };
   return { key: `F|${who.okey}|${fkey(f2)}`, x, y, z, scale, draw: (p) => bodyFront(p, who.o, f2), size: [w, h, k] };
+};
+const personSide = (cam: CamInfo, who: Who, x: number, y: number, z: number, mirror: boolean, so: SideOpts, scale = 1): Place => {
+  const d = cam.pos.distanceTo(new THREE.Vector3(x, y + 1.2, z)) / scale;
+  const [w, h, k] = tier(d);
+  const s2: SideOpts = { ...so, light: light2D(cam), seed: (who.i % 7) + 1 };
+  return { key: `S|${who.okey}|${fkey(s2)}`, x, y, z, scale, mirror, draw: (p) => bodySide(p, who.o, s2), size: [w, h, k] };
 };
 const hexK = (k: number) => `#${[0.2, 0.21, 0.33].map((v) => Math.round(255 * (1 - (1 - v) * k) ** (1 / 2.2)).toString(16).padStart(2, "0")).join("")}`;
 const blob = (out: Stage, x: number, y: number, z: number, sc = 1, k = 1) => {
@@ -133,6 +141,8 @@ const brushHand = (p: Pen) => { // a hand holding a dripping paint brush, bristl
   p.poly([[100, 160], [140, 192], [112, 232], [70, 200]], "#e9e4d8", 7);
   p.poly([[70, 200], [112, 232], [98, 246], [58, 214]], "#ffffff", 0);
 };
+const monocleFly = (p: Pen) => { p.ell(64, 64, 44, 44, "rgba(220,235,255,0.35)", 7); p.stroke([[96, 96], [124, 126]], 4, "#d9b44a"); };
+const cigarFly = (p: Pen) => { p.band([[20, 64], [108, 64]], "#6b3f22", 16, 4, "round"); p.ell(110, 64, 9, 9, "#ff7a2e", 0); };
 const capFly = (p: Pen, col: string) => { p.ell(64, 70, 50, 34, col, 7); p.ell(64, 96, 58, 12, col, 6); };
 const rainStreak = (p: Pen) => { p.g.globalAlpha = 0.85; p.stroke([[16, 8], [8, 248]], 7, "#dfe8f6"); p.g.globalAlpha = 1; };
 const gull = (p: Pen, u: number) => { const w = 30 * Math.sin(u * Math.PI * 2); p.stroke([[10, 60 + w], [60, 50], [110, 60 + w]], 9, "#2a2430"); };
@@ -143,7 +153,39 @@ export const stage = (place: Place3, f: number, cam: CamInfo): Stage => {
   if (cam.sun) SUN.copy(cam.sun).normalize();
   const P = (who: Who, x: number, y: number, z: number, fo: FrontOpts, sc = 1) => { out.places.push(person(cam, who, x, y, z, { blink: lidAt(f, who.i), ...fo }, sc)); };
 
-  if (place === "chamber") {
+  if (place === "chamber" && f >= T.plenty - 6 && f < T.snaps) {
+    // "Plenty of them sit in Parliament": shipowners in top hats along the east benches, tipping their hats to each other
+    const seats: [number, number, number, Outfit][] = [[OWNER_SEAT[0], OWNER_SEAT[1], OWNER_SEAT[2], OWNER_O], [2.21, 0.3, 10.7, OWNER2_O], [3.21, 0.7, 11.5, OWNER3_O],
+      [3.21, 0.7, 9.9, OWNER2_O], [4.21, 1.1, 10.8, OWNER_O], [2.21, 0.3, 9.1, OWNER3_O], [4.21, 1.1, 12.4, OWNER2_O]];
+    seats.forEach(([x, y, z, o], k) => {
+      const tip = f >= T.plenty + 4 + k * 3 && f < T.plenty + 26 + k * 3;
+      P({ i: 60 + k, o, okey: "ownerMP" + k }, x, y, z, { mode: "sit", expr: tip ? "grin" : "smug", prop: tip ? "tipHat" : null, look: k % 2 ? 0.5 : -0.5 });
+    });
+  }
+  if (place === "club") {
+    // three shipowners roaring in their armchairs by the fire
+    const laughing = f >= T.laughW - LEAD - 6, talk = f >= T.linePaint - LEAD && f < T.worse && talking(f + LEAD);
+    const walk = ownerWalk(f), up = f >= T.worse + 4;
+    if (!up) P({ i: 30, o: OWNER_O, okey: "owner" }, CLUB_CHAIRS[0][0], 0.33, CLUB_CHAIRS[0][1], { mode: "sit", expr: talk ? (f % 8 < 4 ? "laugh" : "grin") : laughing ? "laugh" : "smug",
+      point: f >= T.my - LEAD && f < T.worse - 2, tilt: f >= T.my - LEAD ? 6 : laughing ? -6 : 0, headTilt: laughing && !talk ? -5 : 0, facing: 1 });
+    else if (f < T.plenty - 11) out.places.push(personSide(cam, { i: 30, o: OWNER_O, okey: "ownerWalk" }, walk.pos[0], 0, walk.pos[2], false,
+      { mode: walk.walking ? "march" : "stand", phase: q(walk.phase % 1, 20), expr: "smug", stomp: 1.1 }));
+    [[1, OWNER2_O], [2, OWNER3_O]].forEach(([k, o]) => {
+      const [x, z] = CLUB_CHAIRS[k as number];
+      P({ i: 30 + (k as number), o: o as Outfit, okey: "clubOwner" + k }, x, 0.33, z, { mode: "sit", expr: laughing ? (f % 10 < 5 ? "laugh" : "grin") : "smug", tilt: laughing ? -8 : 0, facing: (k as number) === 1 ? 1 : -1 });
+    });
+    const r = cam.right;
+    if (f >= T.laughW - 2 && f < T.laughW + 22) { // the monocle pops off
+      const u = (f - T.laughW + 2) / 24;
+      fxAt(out, "monocleFly", 128, 128, monocleFly, CLUB_CHAIRS[0][0] + r.x * (0.2 + 0.6 * u), 1.35 + 1.4 * u - 2.2 * u * u, CLUB_CHAIRS[0][1] + r.z * (0.2 + 0.6 * u), 0.16, 0.16, { rot: u * 9 });
+    }
+    if (f >= T.laughW + 2 && f < T.laughW + 26) { // a cigar shoots out of a laughing mouth
+      const u = (f - T.laughW - 2) / 24;
+      fxAt(out, "cigarFly", 128, 128, cigarFly, CLUB_CHAIRS[2][0] - r.x * (0.3 + 1.0 * u), 1.3 + 1.2 * u - 2.0 * u * u, CLUB_CHAIRS[2][1] - r.z * (0.3 + 1.0 * u), 0.22, 0.22, { rot: -u * 12 });
+    }
+    for (let i = 0; i < 3; i++) { const u = q(((f / FPS) * 0.4 + i / 3) % 1, 20); fxAt(out, `smoke${u}`, 300, 300, (p) => fxBurst(p, u, "#d9c9c0", 5, 30, 120), -1.6 + i * 0.4, 2.2 + u * 0.8, 18.6 + i, 0.6, 0.6, { soft: true }); }
+  }
+  if (place === "chamber" && f < CUT.dock) {
     // Plimsoll on his feet: fist up and shaking, mouth working with the words; "villains" is the loudest
     const vil = f >= T.villains - LEAD && f < T.villains + 12, open = talking(f + LEAD);
     P({ i: 1, o: PLIMSOLL, okey: "plim" }, PLIM[0], PLIM[1], PLIM[2], {

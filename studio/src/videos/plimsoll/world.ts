@@ -9,6 +9,7 @@ import { Pool, Actor, Fx } from "../bridge/cast";
 import { LIGHTS, LOOK } from "./lights";
 import { buildSets, Sets } from "./sets";
 import { buildSets2, Sets2, swell } from "./sets2";
+import { buildClub, Sets3 } from "./sets3";
 import { stage } from "./cast";
 import { FPS, camAt, placeAt, LIGHT_OF, SUN_OF, T, WIN, smooth, DX, DW, DSHIP, SX, DROPS, shipSink, strikeAt, CUT, dawnSink } from "./story";
 
@@ -21,7 +22,7 @@ export class World {
   private sky: THREE.Mesh; private skyMat: THREE.ShaderMaterial;
   private fog = new THREE.Fog("#bccbec", 25, 420);
   private clouds: THREE.Mesh[] = [];
-  private S: Sets; private S2: Sets2;
+  private S: Sets; private S2: Sets2; private S3: Sets3;
   private frustum = new THREE.Frustum(); private m4 = new THREE.Matrix4(); private v = new THREE.Vector3(); private sph = new THREE.Sphere();
 
   constructor() {
@@ -47,6 +48,7 @@ export class World {
     }
     this.S = buildSets(R);
     this.S2 = buildSets2(R);
+    this.S3 = buildClub(R);
   }
 
   private actor(i: number) { while (this.actors.length <= i) this.actors.push(new Actor(this.root)); return this.actors[i]; }
@@ -150,6 +152,7 @@ export class World {
         c3.position.y = home + 7 * Math.max(0, 1 - Math.max(0, u + 1.2) / 1.2) ** 2;
       });
     }
+    this.S3.fire.forEach((m, k) => { m.scale.set(1, 0.8 + 0.35 * Math.abs(Math.sin(t * (7 + k * 2.3) + k)), 1); });
     void DX; void DW;
     // ---- cast + effects ----
     const right = V(0, 0, 0).setFromMatrixColumn(cam.matrixWorld, 0);

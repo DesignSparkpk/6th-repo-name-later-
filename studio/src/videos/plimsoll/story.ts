@@ -50,7 +50,8 @@ export const T = {
   coffin: wf("coffin"), cships: wf("coffin", "ships"), fix: wf("fix"),
   mp: wf("fix", "mp"), plimsoll: wf("fix", "plimsoll"), pushes: wf("fix", "pushes"), simple: wf("fix", "simple"), paint: wf("fix", "paint"),
   everyHull: wf("fix", "hull"), water: wf("fix", "water"), lineQ: wf("fix", "line", 1), stays: wf("fix", "stays"), home: wf("fix", "home"),
-  laugh: wf("laugh"),
+  laugh: wf("laugh"), laughW: wf("laugh", "laugh"), linePaint: wf("laugh", "line"), my: wf("laugh", "my"), worse: wf("worse"), plenty: wf("worse", "plenty"),
+  parl2: wf("worse", "parliament"), snaps: wf("snaps"),
 };
 /** dawn: Plimsoll strides down the quay toward the camera, stops at the edge with his pot and brush */
 export const PL_WALK0: V3 = [DX - 7.2, 0, -1.9], PL_STOP: V3 = [DX - 1.6, 0, -1.25];
@@ -63,6 +64,14 @@ export const MARK: V3 = [DX + 2.4, DW + 1.05, DSHIP[2] + 2.12];
 export const HARB: V3 = [DX + 3.6, 0, -1.3];
 /** loading at dawn: the water creeps up over the new mark on "Water over the line?" */
 export const dawnSink = (f: number) => DW + 1.55 - 0.95 * smooth((f - T.water) / 26);
+/** the club: three armchairs by the fire (the main owner first); he gets up on "worse" and strides to the Commons door */
+export const CLUB_CHAIRS: [number, number][] = [[-2.2, 19.6], [-2.6, 18.3], [-2.6, 20.9]];
+export const ownerWalk = (f: number): { pos: V3; walking: boolean; phase: number } => {
+  const u = smooth((f - (T.worse + 6)) / (T.plenty - 11 - (T.worse + 6)));
+  return { pos: [-1.6 + 1.4 * u, 0, 19.6 - 3.7 * u], walking: u > 0.001 && u < 0.999, phase: ((f - T.worse) / 30) * 2.2 };
+};
+/** back in the chamber: he has already taken his seat among the other shipowner MPs (east benches, bar end) */
+export const OWNER_SEAT: V3 = [2.21, 0.3, 12.2];
 /** the stamped policy blowing off the clerk's desk and landing against the rotten hull */
 export const HULLPT: V3 = [DX + 0.9, DW + 1.05, 1.18];
 export const paperAt = (f: number): V3 => {
@@ -70,7 +79,7 @@ export const paperAt = (f: number): V3 => {
   return [v * v * p0[0] + 2 * u * v * c[0] + u * u * HULLPT[0], v * v * p0[1] + 2 * u * v * c[1] + u * u * HULLPT[1], v * v * p0[2] + 2 * u * v * c[2] + u * u * HULLPT[2]];
 };
 /** frames of the hidden cuts: under a rising-bubble wipe into the dock, under lightning flashes in and out of the storm */
-export const CUT = { dock: T_DOCK(), storm1: T.ifSinks, night: T.richer - 16, storm2: T.coffin, dawn: T.fix, club: T.laugh };
+export const CUT = { dock: T_DOCK(), storm1: T.ifSinks, night: T.richer - 16, storm2: T.coffin, dawn: T.fix, club: T.laugh, snaps: T.snaps };
 function T_DOCK() { return wf("yousee") + 6; }
 /** crate drops on the beat: [frame, crate index]; plus a fast time-lapse that fills the deck before "until" */
 export const DROPS: [number, number][] = [[T.cram, 0], [T.withC, 1], [T.cargo, 2], ...[3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13].map((k, i) => [T.cargo + 6 + i * 2, k] as [number, number])];
@@ -154,6 +163,18 @@ const KEYS: Key[] = [
   { f: T.water - 4, dur: 16, s: (f) => dolly([MARK[0] + 0.4, DW + 0.75, MARK[2] + 3.2], [MARK[0], DW + 0.45, MARK[2]], pushK(f, T.water + 12, 0.003), { fov: 40, roll: -0.02 }) },
   // "The ship stays home": the harbour master slams down the board, the sailors cheer
   { f: T.stays - 7, dur: 12, s: (f) => dolly([HARB[0] - 0.6, 1.6, HARB[2] - 4.1], [HARB[0], 1.3, HARB[2]], pushK(f, T.stays + 5, 0.003), { fov: 42, roll: 0.03 }) },
+  // ---- "The shipowners just laugh": whip pan into the club, three owners roaring in their armchairs by the fire ----
+  { f: CUT.club, cut: true, s: (f) => dolly([3.6, 1.45, 19.75], [-2.3, 1.0, 19.6], pushK(f, CUT.club, 0.003), { fov: 42, roll: -0.02 }) },
+  // "A line of paint? On MY ship?": in on the main owner
+  { f: T.linePaint - 6, dur: 12, s: (f) => dolly([0.7, 1.22, 19.7], [-2.2, 1.02, 19.6], pushK(f, T.linePaint + 6, 0.003), { fov: 40, roll: 0.03 }) },
+  { f: T.my - 4, dur: 9, s: () => ({ pos: [-0.55, 1.18, 19.66], look: [-2.2, 1.06, 19.6], fov: 38, roll: -0.04 }) },
+  // "And it gets worse": back off; he gets up and strides off to the door
+  { f: T.worse - 6, dur: 12, s: (f) => ({ pos: [3.3, 1.55, 18.9], look: [ownerWalk(f).pos[0] - 0.2, 1.15, ownerWalk(f).pos[2] - 0.6], fov: 42, roll: 0 }) },
+  { f: T.worse + 8, dur: 22, s: (f) => ({ pos: [2.9, 1.6, 17.4], look: [ownerWalk(f).pos[0], 1.3, ownerWalk(f).pos[2] - 0.4], fov: 42, roll: 0.02 }) },
+  { f: T.plenty - 10, dur: 8, s: () => ({ pos: [1.0, 1.95, 20.8], look: [0, 2.35, 15.4], fov: 44, roll: 0 }) },   // whip to the door: HOUSE OF COMMONS
+  // "Plenty of them sit in Parliament": through the door into the chamber, the owners tipping their hats to each other
+  { f: T.plenty - 2, dur: 14, s: () => ({ pos: [0.15, 1.62, 13.7], look: [1.4, 1.2, 10.4], fov: 42, roll: 0 }) },
+  { f: T.plenty + 10, dur: 16, s: (f) => dolly([0.3, 1.65, 14.5], [OWNER_SEAT[0] + 0.7, 1.05, OWNER_SEAT[2] - 1.3], pushK(f, T.plenty + 26, 0.003), { fov: 44, roll: -0.03 }) },
 ];
 const run = (f: number) => {
   let cur = full(KEYS[0].s(f));
@@ -166,7 +187,7 @@ const run = (f: number) => {
 };
 // impact kicks: image offset flips sign every frame and decays over 7 f
 const KICKS: [number, number][] = [[T.villains, 1.1], [T.parliament, 0.4], [T.bottom + 1, 0.6], [T.insure + 9, 1.0],
-  [T.cram, 0.8], [T.withC, 0.8], [T.cargo, 1.0], [T.sinks, 0.7], [T.richer, 0.9], [T.stays + 3, 1.0], [T.paint, 0.3]];
+  [T.cram, 0.8], [T.withC, 0.8], [T.cargo, 1.0], [T.sinks, 0.7], [T.richer, 0.9], [T.stays + 3, 1.0], [T.paint, 0.3], [T.laughW, 0.6], [T.my, 0.5]];
 export const kickAt = (f: number) => {
   let a = 0;
   for (const [f0, g] of KICKS) { const n = f - f0; if (n >= 0 && n < 7) a += g * (n % 2 ? -1 : 1) * (1 - n / 7) ** 1.5; }
@@ -182,7 +203,7 @@ export const camAt = (f: number): Cam => {
 };
 
 // ---------------- light follows the camera: inside the chamber, out over the river, under the water ----------------
-export type Place = "chamber" | "river" | "under" | "dock" | "storm" | "night" | "dawn";
+export type Place = "chamber" | "river" | "under" | "dock" | "storm" | "night" | "dawn" | "club";
 export const placeAt = (f: number): Place => {
   const c = run(f);
   if (f < CUT.dock) {
@@ -193,13 +214,15 @@ export const placeAt = (f: number): Place => {
   if (f < CUT.night) return "storm";
   if (f < CUT.storm2) return "night";
   if (f < CUT.dawn) return "storm";
-  return "dawn";
+  if (f < CUT.club) return "dawn";
+  if (f < CUT.snaps) return c.pos[2] > 15.25 ? "club" : "chamber";
+  return "chamber";
 };
-export const LIGHT_OF: Record<Place, LightName> = { chamber: "candle", river: "dusk", under: "under", dock: "fog", storm: "storm", night: "night", dawn: "dawn" };
+export const LIGHT_OF: Record<Place, LightName> = { chamber: "candle", river: "dusk", under: "under", dock: "fog", storm: "storm", night: "night", dawn: "dawn", club: "club" };
 /** sun direction per place, world space (fixed: the camera moves continuously through each place) */
 export const SUN_OF: Record<Place, V3> = {
   chamber: [0.55, 0.8, 0.25], river: [-0.6, 0.24, -0.76], under: [-0.15, 0.97, 0.1],
-  dock: [0.35, 0.75, -0.56], storm: [0.3, 0.8, 0.5], night: [0.3, 0.6, 0.75], dawn: [0.7, 0.3, 0.65],
+  dock: [0.35, 0.75, -0.56], storm: [0.3, 0.8, 0.5], night: [0.3, 0.6, 0.75], dawn: [0.7, 0.3, 0.65], club: [-0.75, 0.45, 0.4],
 };
 /** lightning: frames of the strikes (the cuts in and out of the storm hide under the first one) */
 export const STRIKES = [CUT.storm1, CUT.storm1 + 10, CUT.night, T.richer, CUT.storm2, T.cships - 3];
@@ -228,6 +251,9 @@ export const DOF: Dof[] = [
   { f: T.pushes - 4, dur: 10, cInf: 10, focus: () => [PL_STOP[0], 1.45, PL_STOP[2]] },
   { f: T.paint - 5, dur: 8, cInf: 12, focus: () => MARK },
   { f: T.stays - 7, dur: 8, cInf: 9, focus: () => [HARB[0], 1.3, HARB[2]] },
+  { f: CUT.club, cInf: 9, focus: () => [CLUB_CHAIRS[0][0], 1.0, CLUB_CHAIRS[0][1]] },
+  { f: T.worse - 6, dur: 10, cInf: 6, focus: (f) => ownerWalk(f).pos },
+  { f: T.plenty - 2, dur: 10, cInf: 7, focus: () => [OWNER_SEAT[0], 1.0, OWNER_SEAT[2]] },
 ];
 export const dofAt = (f: number) => {
   let cur = { cInf: DOF[0].cInf, focus: DOF[0].focus };

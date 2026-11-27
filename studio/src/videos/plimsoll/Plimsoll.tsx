@@ -159,14 +159,24 @@ const useFont = () => {
   }, [handle]);
 };
 
+/** whip pans: horizontal motion blur on the picture around a cut (peak on the cut frame) */
+const WHIPS = [CUT.club];
+const whipAt = (f: number) => { let a = 0; for (const c0 of WHIPS) { const n = Math.abs(f - c0); if (n <= 5) a = Math.max(a, 1 - n / 6); } return a; };
+
 export const PlimsollShort: React.FC = () => {
   useFont();
+  const f = useCurrentFrame(), whip = whipAt(f);
   return (
     <AbsoluteFill style={{ background: "#1a1420" }}>
+      <svg width="0" height="0" style={{ position: "absolute" }}>
+        <filter id="whipblur" x="-10%" y="0%" width="120%" height="100%"><feGaussianBlur stdDeviation={`${Math.round(70 * whip)} 0`} /></filter>
+      </svg>
+      <AbsoluteFill style={{ filter: whip > 0.01 ? "url(#whipblur)" : undefined }}>
       <ThreeCanvas width={1080} height={1920} shadows gl={{ antialias: false, stencil: false, powerPreference: "high-performance", toneMappingExposure: 1.0 }}
         camera={{ fov: 40, near: 0.08, far: 1500 }}>
         <Inner />
       </ThreeCanvas>
+      </AbsoluteFill>
       <Plunge />
       <BubbleWipe />
       <Flash />
