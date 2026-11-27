@@ -240,8 +240,9 @@ def crowd(d, n=8, kind="cheer"):
         f0 = rng.uniform(110, 240) * (1.25 if kind == "cheer" else 1.0)
         if kind == "cheer": glide = 1 + 0.25 * np.minimum(1, x / 0.35)
         else: glide = 1 + 0.08 * np.sin(2 * np.pi * rng.uniform(4.5, 6) * x)
-        ph = np.cumsum(f0 * glide * (1 + 0.01 * rng.standard_normal())) / SR
-        src = (2 * (ph % 1) - 1) * 0.7 + noise(d) * 0.3
+        jit = 1 + 0.03 * lp1(rng.standard_normal(len(x)), 6) / 0.03  # slow natural pitch drift per voice
+        ph = np.cumsum(f0 * glide * jit) / SR
+        src = lp1(2 * (ph % 1) - 1, 2500) * 0.45 + noise(d) * 0.55  # breathy, not buzzy
         voice = reso(src, rng.uniform(650, 850), 6) + 0.6 * reso(src, rng.uniform(1100, 1400), 8) + 0.25 * reso(src, 2600, 10)
         if kind == "laugh": a = (0.5 + 0.5 * np.sin(2 * np.pi * rng.uniform(4.5, 6.5) * x + rng.uniform(0, 6.28))) ** 3
         else: a = np.ones(len(x))
