@@ -13,7 +13,7 @@ ls render-out/plimsoll_[0-9]*-[0-9]*.mp4
 ls render-out/plimsoll_[0-9]*-[0-9]*.mp4 | sort | sed "s#^#file '$PWD/#;s#\$#'#" > render-out/list.txt
 [ $(wc -l < render-out/list.txt) -eq 6 ] || { echo "only $(wc -l < render-out/list.txt) of 6 parts"; exit 1; }
 ffmpeg -v error -y -f concat -safe 0 -i render-out/list.txt -map 0:v -c copy render-out/plimsoll_silent.mp4
-NF=$(ffprobe -v error -count_frames -select_streams v:0 -show_entries stream=nb_read_frames -of csv=p=0 render-out/plimsoll_silent.mp4)
+NF=$(ffprobe -v error -count_frames -select_streams v:0 -show_entries stream=nb_read_frames -of csv=p=0 render-out/plimsoll_silent.mp4 | tr -dc 0-9)
 echo "frames $NF (expected 1857)"; [ "$NF" = 1857 ] || exit 1
 # flashes and cuts are allowed to differ from their neighbours
 python3 studio/qa/glitch_scan.py render-out/plimsoll_silent.mp4 123,151,158,421,431,442,458,475,488,503,511,723,728,733,872,1376,1384,1410,1426,1565,1570,1575,1614,1619,1687

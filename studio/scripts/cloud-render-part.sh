@@ -23,6 +23,6 @@ for ((a=A; a<=B; a+=CH)); do
 done
 ls "$WORK"/c_*.mp4 | sed "s#^#file '#;s#\$#'#" > "$WORK/list.txt"
 ffmpeg -loglevel error -y -f concat -safe 0 -i "$WORK/list.txt" -map 0:v -c copy "$OUT/$NAME.mp4"
-N=$(ffprobe -v error -count_frames -select_streams v:0 -show_entries stream=nb_read_frames -of csv=p=0 "$OUT/$NAME.mp4")
+N=$(ffprobe -v error -count_frames -select_streams v:0 -show_entries stream=nb_read_frames -of csv=p=0 "$OUT/$NAME.mp4" | tr -dc 0-9)
 echo "frames $N expected $((B-A+1))"
 [ "$N" = "$((B-A+1))" ] && echo "PART DONE render-out/$NAME.mp4" || { echo "FRAME COUNT MISMATCH"; exit 1; }
