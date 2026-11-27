@@ -1,0 +1,3 @@
+NASA Visible Earth "Blue Marble" (day.jpg, from Wikimedia Commons "Whole world - land and oceans") and
+"Earth lights" DMSP (night.jpg, from Wikimedia Commons "Earthlights dmsp") are NASA works in the public domain.
+clouds.jpg is generated procedurally for this project.

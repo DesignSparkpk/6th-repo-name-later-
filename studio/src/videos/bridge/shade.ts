@@ -14,6 +14,8 @@ export const TONE = {
 export const CHAR = {
   uCharTint: { value: new THREE.Vector3(1, 0.94, 0.92) }, uCharShade: { value: 0.86 }, uGrad: { value: 0.07 },
   uBodyGrad: { value: 0.2 }, uSideTint: { value: new THREE.Vector3(0.92, 0.9, 0.96) },
+  // rim light on the sun-facing silhouette edge: uRimK < 0 = the original automatic warm rim (golden scenes only)
+  uRimCol: { value: new THREE.Vector3(0.95, 0.52, 0.16) }, uRimK: { value: -1 },
 };
 
 // directional light 0 = the sun = the only shadow caster (three sorts shadow-casting lights first). Only the

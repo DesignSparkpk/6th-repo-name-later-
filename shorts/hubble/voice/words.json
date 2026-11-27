@@ -1,0 +1,950 @@
+[
+{
+"w": "He",
+"s": 0.0,
+"e": 0.1,
+"line": "hook"
+},
+{
+"w": "stares",
+"s": 0.1,
+"e": 0.32,
+"line": "hook"
+},
+{
+"w": "at",
+"s": 0.32,
+"e": 0.58,
+"line": "hook"
+},
+{
+"w": "a",
+"s": 0.58,
+"e": 0.7,
+"line": "hook"
+},
+{
+"w": "hotel",
+"s": 0.7,
+"e": 1.08,
+"line": "hook"
+},
+{
+"w": "shower",
+"s": 1.08,
+"e": 1.4,
+"line": "hook"
+},
+{
+"w": "head...",
+"s": 1.4,
+"e": 1.72,
+"line": "hook"
+},
+{
+"w": "and",
+"s": 1.72,
+"e": 2.12,
+"line": "hook"
+},
+{
+"w": "saves",
+"s": 2.12,
+"e": 2.4,
+"line": "hook"
+},
+{
+"w": "a",
+"s": 2.4,
+"e": 2.62,
+"line": "hook"
+},
+{
+"w": "$1.5",
+"s": 2.62,
+"e": 3.56,
+"line": "hook"
+},
+{
+"w": "billion",
+"s": 3.56,
+"e": 3.98,
+"line": "hook"
+},
+{
+"w": "telescope.",
+"s": 3.98,
+"e": 4.78,
+"line": "hook"
+},
+{
+"w": "You",
+"s": 5.0,
+"e": 5.06,
+"line": "yousee"
+},
+{
+"w": "see,",
+"s": 5.06,
+"e": 5.22,
+"line": "yousee"
+},
+{
+"w": "in",
+"s": 5.32,
+"e": 5.36,
+"line": "yousee"
+},
+{
+"w": "1990,",
+"s": 5.36,
+"e": 5.9,
+"line": "yousee"
+},
+{
+"w": "NASA",
+"s": 6.36,
+"e": 6.44,
+"line": "yousee"
+},
+{
+"w": "launches",
+"s": 6.44,
+"e": 6.82,
+"line": "yousee"
+},
+{
+"w": "Hubble.",
+"s": 6.82,
+"e": 7.08,
+"line": "yousee"
+},
+{
+"w": "The",
+"s": 7.28,
+"e": 7.36,
+"line": "blurry"
+},
+{
+"w": "first",
+"s": 7.36,
+"e": 7.52,
+"line": "blurry"
+},
+{
+"w": "picture",
+"s": 7.52,
+"e": 7.74,
+"line": "blurry"
+},
+{
+"w": "comes",
+"s": 7.74,
+"e": 8.02,
+"line": "blurry"
+},
+{
+"w": "back...",
+"s": 8.02,
+"e": 8.36,
+"line": "blurry"
+},
+{
+"w": "completely",
+"s": 8.36,
+"e": 8.84,
+"line": "blurry"
+},
+{
+"w": "blurry.",
+"s": 8.84,
+"e": 9.3,
+"line": "blurry"
+},
+{
+"w": "Its",
+"s": 9.66,
+"e": 9.74,
+"line": "mirror"
+},
+{
+"w": "giant",
+"s": 9.74,
+"e": 10.08,
+"line": "mirror"
+},
+{
+"w": "mirror",
+"s": 10.08,
+"e": 10.36,
+"line": "mirror"
+},
+{
+"w": "is",
+"s": 10.36,
+"e": 10.56,
+"line": "mirror"
+},
+{
+"w": "off",
+"s": 10.56,
+"e": 10.8,
+"line": "mirror"
+},
+{
+"w": "by",
+"s": 10.8,
+"e": 11.0,
+"line": "mirror"
+},
+{
+"w": "one-fiftieth",
+"s": 11.0,
+"e": 11.8,
+"line": "mirror"
+},
+{
+"w": "of",
+"s": 11.8,
+"e": 11.88,
+"line": "mirror"
+},
+{
+"w": "a",
+"s": 11.88,
+"e": 11.98,
+"line": "mirror"
+},
+{
+"w": "human",
+"s": 11.98,
+"e": 12.22,
+"line": "mirror"
+},
+{
+"w": "hair.",
+"s": 12.22,
+"e": 12.54,
+"line": "mirror"
+},
+{
+"w": "Comedians",
+"s": 12.74,
+"e": 13.14,
+"line": "roast"
+},
+{
+"w": "roast",
+"s": 13.14,
+"e": 13.4,
+"line": "roast"
+},
+{
+"w": "it.",
+"s": 13.4,
+"e": 13.66,
+"line": "roast"
+},
+{
+"w": "A",
+"s": 13.82,
+"e": 13.9,
+"line": "roast"
+},
+{
+"w": "senator",
+"s": 13.9,
+"e": 14.1,
+"line": "roast"
+},
+{
+"w": "calls",
+"s": 14.1,
+"e": 14.5,
+"line": "roast"
+},
+{
+"w": "it",
+"s": 14.5,
+"e": 14.68,
+"line": "roast"
+},
+{
+"w": "a",
+"s": 14.68,
+"e": 14.74,
+"line": "roast"
+},
+{
+"w": "\"techno-turkey.\"",
+"s": 14.74,
+"e": 15.48,
+"line": "roast"
+},
+{
+"w": "And",
+"s": 15.64,
+"e": 15.7,
+"line": "worse"
+},
+{
+"w": "it",
+"s": 15.7,
+"e": 15.8,
+"line": "worse"
+},
+{
+"w": "gets",
+"s": 15.8,
+"e": 16.0,
+"line": "worse"
+},
+{
+"w": "worse:",
+"s": 16.0,
+"e": 16.28,
+"line": "worse"
+},
+{
+"w": "it's",
+"s": 16.28,
+"e": 16.54,
+"line": "worse"
+},
+{
+"w": "already",
+"s": 16.54,
+"e": 16.78,
+"line": "worse"
+},
+{
+"w": "in",
+"s": 16.78,
+"e": 17.02,
+"line": "worse"
+},
+{
+"w": "orbit.",
+"s": 17.02,
+"e": 17.36,
+"line": "worse"
+},
+{
+"w": "Nobody",
+"s": 17.72,
+"e": 17.88,
+"line": "worse"
+},
+{
+"w": "can",
+"s": 17.88,
+"e": 18.22,
+"line": "worse"
+},
+{
+"w": "climb",
+"s": 18.22,
+"e": 18.52,
+"line": "worse"
+},
+{
+"w": "inside",
+"s": 18.52,
+"e": 18.9,
+"line": "worse"
+},
+{
+"w": "to",
+"s": 18.9,
+"e": 19.08,
+"line": "worse"
+},
+{
+"w": "fix",
+"s": 19.08,
+"e": 19.24,
+"line": "worse"
+},
+{
+"w": "it.",
+"s": 19.24,
+"e": 19.46,
+"line": "worse"
+},
+{
+"w": "Then",
+"s": 19.54,
+"e": 19.64,
+"line": "crocker"
+},
+{
+"w": "engineer",
+"s": 19.64,
+"e": 20.04,
+"line": "crocker"
+},
+{
+"w": "Jim",
+"s": 20.04,
+"e": 20.4,
+"line": "crocker"
+},
+{
+"w": "Crocker",
+"s": 20.4,
+"e": 20.74,
+"line": "crocker"
+},
+{
+"w": "checks",
+"s": 20.74,
+"e": 21.04,
+"line": "crocker"
+},
+{
+"w": "into",
+"s": 21.04,
+"e": 21.32,
+"line": "crocker"
+},
+{
+"w": "a",
+"s": 21.32,
+"e": 21.44,
+"line": "crocker"
+},
+{
+"w": "German",
+"s": 21.44,
+"e": 21.7,
+"line": "crocker"
+},
+{
+"w": "hotel.",
+"s": 21.7,
+"e": 22.14,
+"line": "crocker"
+},
+{
+"w": "In",
+"s": 22.32,
+"e": 22.4,
+"line": "shower"
+},
+{
+"w": "the",
+"s": 22.4,
+"e": 22.5,
+"line": "shower"
+},
+{
+"w": "shower,",
+"s": 22.5,
+"e": 22.78,
+"line": "shower"
+},
+{
+"w": "he",
+"s": 22.78,
+"e": 23.0,
+"line": "shower"
+},
+{
+"w": "watches",
+"s": 23.0,
+"e": 23.24,
+"line": "shower"
+},
+{
+"w": "the",
+"s": 23.24,
+"e": 23.54,
+"line": "shower"
+},
+{
+"w": "shower",
+"s": 23.54,
+"e": 23.77,
+"line": "shower"
+},
+{
+"w": "head",
+"s": 23.77,
+"e": 24.0,
+"line": "shower"
+},
+{
+"w": "slide",
+"s": 24.0,
+"e": 24.28,
+"line": "shower"
+},
+{
+"w": "on",
+"s": 24.28,
+"e": 24.48,
+"line": "shower"
+},
+{
+"w": "a",
+"s": 24.48,
+"e": 24.58,
+"line": "shower"
+},
+{
+"w": "rail...",
+"s": 24.58,
+"e": 24.78,
+"line": "shower"
+},
+{
+"w": "and",
+"s": 24.78,
+"e": 25.24,
+"line": "shower"
+},
+{
+"w": "tilt.",
+"s": 25.24,
+"e": 25.5,
+"line": "shower"
+},
+{
+"w": "He",
+"s": 25.76,
+"e": 25.78,
+"line": "freeze"
+},
+{
+"w": "freezes.",
+"s": 25.78,
+"e": 26.1,
+"line": "freeze"
+},
+{
+"w": "\"Mirrors...",
+"s": 26.1,
+"e": 26.52,
+"line": "freeze"
+},
+{
+"w": "on",
+"s": 26.52,
+"e": 26.82,
+"line": "freeze"
+},
+{
+"w": "little",
+"s": 26.82,
+"e": 26.96,
+"line": "freeze"
+},
+{
+"w": "arms.\"",
+"s": 26.96,
+"e": 27.36,
+"line": "freeze"
+},
+{
+"w": "NASA",
+"s": 27.36,
+"e": 27.84,
+"line": "glasses"
+},
+{
+"w": "builds",
+"s": 27.84,
+"e": 28.16,
+"line": "glasses"
+},
+{
+"w": "tiny",
+"s": 28.16,
+"e": 28.5,
+"line": "glasses"
+},
+{
+"w": "mirrors",
+"s": 28.5,
+"e": 28.88,
+"line": "glasses"
+},
+{
+"w": "with",
+"s": 28.88,
+"e": 29.1,
+"line": "glasses"
+},
+{
+"w": "the",
+"s": 29.1,
+"e": 29.26,
+"line": "glasses"
+},
+{
+"w": "same",
+"s": 29.26,
+"e": 29.48,
+"line": "glasses"
+},
+{
+"w": "flaw",
+"s": 29.48,
+"e": 29.8,
+"line": "glasses"
+},
+{
+"w": "in",
+"s": 29.8,
+"e": 30.0,
+"line": "glasses"
+},
+{
+"w": "reverse.",
+"s": 30.0,
+"e": 30.36,
+"line": "glasses"
+},
+{
+"w": "Glasses.",
+"s": 30.86,
+"e": 31.04,
+"line": "glasses"
+},
+{
+"w": "For",
+"s": 31.04,
+"e": 31.44,
+"line": "glasses"
+},
+{
+"w": "a",
+"s": 31.44,
+"e": 31.58,
+"line": "glasses"
+},
+{
+"w": "telescope.",
+"s": 31.58,
+"e": 32.04,
+"line": "glasses"
+},
+{
+"w": "Three",
+"s": 32.36,
+"e": 32.52,
+"line": "risk"
+},
+{
+"w": "years",
+"s": 32.52,
+"e": 32.72,
+"line": "risk"
+},
+{
+"w": "later,",
+"s": 32.72,
+"e": 33.04,
+"line": "risk"
+},
+{
+"w": "astronauts",
+"s": 33.04,
+"e": 33.5,
+"line": "risk"
+},
+{
+"w": "risk",
+"s": 33.5,
+"e": 33.96,
+"line": "risk"
+},
+{
+"w": "five",
+"s": 33.96,
+"e": 34.3,
+"line": "risk"
+},
+{
+"w": "spacewalks",
+"s": 34.3,
+"e": 34.88,
+"line": "risk"
+},
+{
+"w": "to",
+"s": 34.88,
+"e": 35.12,
+"line": "risk"
+},
+{
+"w": "install",
+"s": 35.12,
+"e": 35.5,
+"line": "risk"
+},
+{
+"w": "them.",
+"s": 35.5,
+"e": 35.8,
+"line": "risk"
+},
+{
+"w": "One",
+"s": 36.12,
+"e": 36.3,
+"line": "risk"
+},
+{
+"w": "slip,",
+"s": 36.3,
+"e": 36.56,
+"line": "risk"
+},
+{
+"w": "and",
+"s": 36.56,
+"e": 36.8,
+"line": "risk"
+},
+{
+"w": "Hubble",
+"s": 36.8,
+"e": 36.98,
+"line": "risk"
+},
+{
+"w": "is",
+"s": 36.98,
+"e": 37.24,
+"line": "risk"
+},
+{
+"w": "dead.",
+"s": 37.24,
+"e": 37.48,
+"line": "risk"
+},
+{
+"w": "They",
+"s": 37.72,
+"e": 37.78,
+"line": "slide"
+},
+{
+"w": "slide",
+"s": 37.78,
+"e": 38.04,
+"line": "slide"
+},
+{
+"w": "them",
+"s": 38.04,
+"e": 38.2,
+"line": "slide"
+},
+{
+"w": "in.",
+"s": 38.2,
+"e": 38.4,
+"line": "slide"
+},
+{
+"w": "The",
+"s": 38.56,
+"e": 38.64,
+"line": "slide"
+},
+{
+"w": "little",
+"s": 38.64,
+"e": 38.82,
+"line": "slide"
+},
+{
+"w": "arms",
+"s": 38.82,
+"e": 39.14,
+"line": "slide"
+},
+{
+"w": "unfold.",
+"s": 39.14,
+"e": 39.6,
+"line": "slide"
+},
+{
+"w": "Back",
+"s": 39.84,
+"e": 39.96,
+"line": "photo"
+},
+{
+"w": "on",
+"s": 39.96,
+"e": 40.14,
+"line": "photo"
+},
+{
+"w": "Earth,",
+"s": 40.14,
+"e": 40.28,
+"line": "photo"
+},
+{
+"w": "the",
+"s": 40.28,
+"e": 40.46,
+"line": "photo"
+},
+{
+"w": "first",
+"s": 40.46,
+"e": 40.68,
+"line": "photo"
+},
+{
+"w": "photo",
+"s": 40.68,
+"e": 40.96,
+"line": "photo"
+},
+{
+"w": "loads...",
+"s": 40.96,
+"e": 41.4,
+"line": "photo"
+},
+{
+"w": "razor",
+"s": 41.7,
+"e": 41.88,
+"line": "photo"
+},
+{
+"w": "sharp.",
+"s": 41.88,
+"e": 42.24,
+"line": "photo"
+},
+{
+"w": "And",
+"s": 42.46,
+"e": 42.52,
+"line": "senator"
+},
+{
+"w": "the",
+"s": 42.52,
+"e": 42.62,
+"line": "senator"
+},
+{
+"w": "senator",
+"s": 42.62,
+"e": 42.82,
+"line": "senator"
+},
+{
+"w": "who",
+"s": 42.82,
+"e": 43.16,
+"line": "senator"
+},
+{
+"w": "called",
+"s": 43.16,
+"e": 43.4,
+"line": "senator"
+},
+{
+"w": "it",
+"s": 43.4,
+"e": 43.52,
+"line": "senator"
+},
+{
+"w": "a",
+"s": 43.52,
+"e": 43.66,
+"line": "senator"
+},
+{
+"w": "turkey",
+"s": 43.66,
+"e": 43.96,
+"line": "senator"
+},
+{
+"w": "holds",
+"s": 43.96,
+"e": 44.32,
+"line": "senator"
+},
+{
+"w": "it",
+"s": 44.32,
+"e": 44.48,
+"line": "senator"
+},
+{
+"w": "up",
+"s": 44.48,
+"e": 44.6,
+"line": "senator"
+},
+{
+"w": "for",
+"s": 44.6,
+"e": 44.78,
+"line": "senator"
+},
+{
+"w": "the",
+"s": 44.78,
+"e": 44.9,
+"line": "senator"
+},
+{
+"w": "cameras:",
+"s": 44.9,
+"e": 45.22,
+"line": "senator"
+},
+{
+"w": "\"The",
+"s": 45.58,
+"e": 45.66,
+"line": "trouble"
+},
+{
+"w": "trouble",
+"s": 45.66,
+"e": 45.88,
+"line": "trouble"
+},
+{
+"w": "with",
+"s": 45.88,
+"e": 46.12,
+"line": "trouble"
+},
+{
+"w": "Hubble...",
+"s": 46.12,
+"e": 46.34,
+"line": "trouble"
+},
+{
+"w": "is",
+"s": 46.34,
+"e": 46.64,
+"line": "trouble"
+},
+{
+"w": "over.\"",
+"s": 46.64,
+"e": 46.92,
+"line": "trouble"
+}
+]
