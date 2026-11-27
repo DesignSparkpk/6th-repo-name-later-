@@ -227,7 +227,7 @@ const DEF_LIGHT = rad(-120);
 
 // ---------------- faces ----------------
 export type Expr = "neutral" | "stern" | "grin" | "laugh" | "whistle" | "nervous" | "shock" | "relief" | "relief_open" | "dazed"
-  | "pained" | "smile" | "smile_closed" | "lick" | "yell" | "angry" | "smug";
+  | "pained" | "smile" | "smile_closed" | "lick" | "yell" | "angry" | "smug" | "twitch";
 type EyeK = "dot" | "small" | "lid" | "slit" | "happy" | "dash" | "squeeze" | "shock" | "shockHalf" | "spiral";
 type MouthK = "dash" | "frown" | "smirk" | "smile" | "smileWide" | "grin" | "laugh" | "o" | "O" | "wave" | "teeth" | "lick";
 /** eyes [back, front], brows [inner, outer] offsets in u (+ = down), mouth kind */
@@ -249,6 +249,7 @@ const FACE: Record<Expr, { eye: [EyeK, EyeK]; brow: [number, number]; mouth: Mou
   yell: { eye: ["small", "small"], brow: [8, -4], mouth: "laugh" },   // furious shout: brows slammed down, mouth wide
   angry: { eye: ["lid", "lid"], brow: [7, -3], mouth: "teeth" },
   smug: { eye: ["lid", "lid"], brow: [-1, -3], mouth: "smirk" },
+  twitch: { eye: ["squeeze", "small"], brow: [8, -4], mouth: "teeth" },   // one eye screwed shut, teeth gritted: about to snap
 };
 const halfLid = (k: EyeK): EyeK => (k === "dot" || k === "small" ? "lid" : k === "lid" ? "slit" : k === "shock" ? "shockHalf" : k);
 const eyeKind = (k: EyeK, lid: number): EyeK =>
@@ -468,6 +469,8 @@ export type FrontOpts = {
   point?: boolean;
   /** 0..1: raised props swing down (stamp slams at 1, newspaper waves) */
   swing?: number;
+  /** foot stamp: 0 = planted, rises to its highest at 0.6, slams down at 1 (right foot, stand mode) */
+  stampFoot?: number;
   /** canvas angle the key light comes FROM (painted crescent + thick outline side) */
   light?: number; facing?: -1 | 0 | 1; seed?: number;
 };
@@ -510,7 +513,7 @@ const facial = (p: Pen, o: Outfit, cx: number, hc: number, H: Blob, u: number, l
 };
 
 export const bodyFront = (p: Pen, o: Outfit, opts: FrontOpts) => {
-  const { phase = 0, expr = "neutral", mode = "march", look = 0, blink = false, lift = 60, prop = null, tilt = 0, headTilt = 0, wave, fist, fold = false, point = false, swing = 0,
+  const { phase = 0, expr = "neutral", mode = "march", look = 0, blink = false, lift = 60, prop = null, tilt = 0, headTilt = 0, wave, fist, fold = false, point = false, swing = 0, stampFoot = 0,
     light = DEF_LIGHT, facing = 0, seed = 1 } = opts;
   const Bd = BUILD[o.build ?? "adult"], skin = o.skin ?? SKIN, two = Math.PI * 2, lid = lidOf(blink);
   const H = headBlob(seed, Bd.a, facing), W = 2 * H.a, HH = 2 * H.b, u = W / 100;
@@ -548,7 +551,8 @@ export const bodyFront = (p: Pen, o: Outfit, opts: FrontOpts) => {
   } else {
     const L = mode === "march" ? lift * 1.25 : mode === "stroll" ? lift * 0.55 : 0;
     for (const [side, ph] of [[-1, 0], [1, 0.5]] as const) {
-      const up = Math.max(0, Math.sin(two * (phase + ph))) * L;
+      const stomp = side === 1 && stampFoot > 0 ? 150 * Math.sin(Math.PI * Math.min(1, stampFoot / 0.6) * 0.5) * (stampFoot < 0.6 ? 1 : Math.max(0, (1 - stampFoot) / 0.4)) : 0;
+      const up = Math.max(0, Math.sin(two * (phase + ph))) * L + stomp;
       const hx = 300 + side * 15 * u, fx = 300 + side * 22 * u, fy = sole - 4 * u - up;
       const k: P2 = [(hx + fx) / 2 + side * (1.5 * u + up * 0.16), (hipY + fy) / 2 - up * 0.08];
       p.stroke(curve([hx, hipY], k, [fx, fy]), legW, legCol);
@@ -738,6 +742,7 @@ export const bodyFront = (p: Pen, o: Outfit, opts: FrontOpts) => {
       const col = prop === "folder" ? "#b8864a" : "#f1ead8";
       for (let k = 2; k >= 0; k--) p.poly([[hx - 26 * u + k * 3 * u, hy - 16 * u - k * 3 * u], [hx + 22 * u + k * 3 * u, hy - 18 * u - k * 3 * u], [hx + 24 * u + k * 3 * u, hy + 12 * u - k * 3 * u], [hx - 24 * u + k * 3 * u, hy + 14 * u - k * 3 * u]], col, 2 * u);
       if (prop === "policy") p.poly([[hx - 14 * u, hy - 6 * u], [hx + 14 * u, hy - 8 * u], [hx + 14 * u, hy + 2 * u], [hx - 14 * u, hy + 4 * u]], null, 2 * u);
+      if (prop === "folder") { p.g.save(); p.g.fillStyle = "#3a2414"; p.g.textAlign = "center"; p.g.font = `bold ${Math.round(8.5 * u)}px Georgia, serif`; p.g.fillText("SHIPPING", hx + 4 * u, hy - 5 * u); p.g.fillText("BILL", hx + 4 * u, hy + 5 * u); p.g.restore(); }
       p.dot(hx, hy, 5.5 * u);
     } else if (prop === "moneybag") {
       p.ell(hx + 4 * u, hy - 30 * u, 30 * u, 28 * u, "#b99560", 3 * u);

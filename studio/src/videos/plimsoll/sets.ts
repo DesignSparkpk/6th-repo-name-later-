@@ -7,7 +7,7 @@ import * as THREE from "three";
 import { Batch, V, lam, boxGeo } from "../bridge/build";
 import { ctex, rep, stoneHD } from "../bridge/paint";
 import { NOINK } from "../bridge/ink";
-import { WATER, BED, PLIM, WIN, COFFIN, WRECK, HOARD } from "./story";
+import { WATER, BED, PLIM, WIN, COFFIN, WRECK, HOARD, BIN } from "./story";
 
 // ---------------- painted textures ----------------
 const panelTex = () => ctex("oakPanel", 512, 1024, (g, r) => {
@@ -273,6 +273,8 @@ export const buildSets = (R: THREE.Object3D): Sets => {
   for (const s of [-1, 1]) { b.add(boxGeo(V(s * 0.75 - 0.25, 0.95, -0.4), V(s * 0.75 + 0.25, 1.3, 0.4)), lam("dispatchBox", () => ({ color: "#6b3a22" }))); b.add(boxGeo(V(s * 0.75 - 0.27, 1.12, -0.42), V(s * 0.75 + 0.27, 1.16, 0.42)), gold); }
   b.add(cyl(0.05, 0.05, 1.5).rotateX(Math.PI / 2), gold, M(0, 1.05, 2.4)); b.add(new THREE.SphereGeometry(0.16, 14, 10), gold, M(0, 1.05, 3.2));
   for (let i = 0; i < 7; i++) b.add(boxGeo(V(-0.5 + (i % 3) * 0.3, 0.95, -3 + i * 0.7), V(-0.3 + (i % 3) * 0.3, 0.97, -2.6 + i * 0.7)), lam("paper", () => ({ color: "#f1ead8" })));
+  // the waste-paper basket beside the dispatch box (the shipping bill ends up in it)
+  b.add(cyl(0.26, 0.2, 0.55, 16), lam("wicker", () => ({ map: ctex("wicker", 128, 128, (g) => { g.fillStyle = "#b08a52"; g.fillRect(0, 0, 128, 128); g.strokeStyle = "#7a5a30"; g.lineWidth = 4; for (let k = 0; k < 128; k += 12) { g.beginPath(); g.moveTo(k, 0); g.lineTo(k + 6, 128); g.stroke(); g.beginPath(); g.moveTo(0, k); g.lineTo(128, k + 4); g.stroke(); } }) })), M(BIN[0], 0.275, BIN[2]));
   // benches: 4 tiers each side, split by the gangway at z = 0
   for (const s of [-1, 1]) for (let t = 0; t < 4; t++) {
     const x0 = s * (1.9 + t * 1.0), seatY = 0.42 + t * 0.4, floorY = t * 0.4;
@@ -329,6 +331,9 @@ export const buildSets = (R: THREE.Object3D): Sets => {
       const fm = new THREE.Mesh(new THREE.SphereGeometry(0.05, 8, 6).scale(1, 1.8, 1), flame); fm.position.set(cx, 8.55, cz); fm.layers.set(NOINK); R.add(fm);
     }
   }
+  // the press gallery plaque on the west gallery front, near the Speaker's end
+  const plaque = new THREE.Mesh(new THREE.PlaneGeometry(2.2, 0.42), basic("pressPlaque", () => ({ map: ctex("pressPlaque", 512, 96, (g) => { g.fillStyle = "#2a1a12"; g.fillRect(0, 0, 512, 96); g.strokeStyle = "#c9a24e"; g.lineWidth = 6; g.strokeRect(6, 6, 500, 84); g.fillStyle = "#e2c26a"; g.font = "bold 54px Georgia, serif"; g.textAlign = "center"; g.fillText("PRESS GALLERY", 256, 68); }) })));
+  plaque.position.set(-5.48, 4.88, -9.0); plaque.rotation.y = Math.PI / 2; R.add(plaque);
   // the hook window: an open arch in the west wall, two leaded casements hinged at its sides
   const casement: THREE.Object3D[] = [];
   for (const side of [-1, 1]) {

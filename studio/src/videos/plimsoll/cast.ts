@@ -1,9 +1,9 @@
 // Who is on screen and what they do, plus the flat 2D effect cards (shout burst, splash, bubbles, fish, seaweed,
 // coin glints, the INSURED policy). Characters are the template's lit cards (Actor / Pool from ../bridge/cast).
 import * as THREE from "three";
-import { Pen, bodyFront, bodySide, SKIN, INK, fxBurst, fxRing, fxSplash, fxShadow, fxContact, Outfit, FrontOpts, SideOpts } from "./toon";
+import { Pen, bodyFront, bodySide, SKIN, INK, fxBurst, fxRing, fxSplash, fxShadow, fxContact, fxPuff, Outfit, FrontOpts, SideOpts } from "./toon";
 import type { Place, FxPlace, Stage, CamInfo } from "../bridge/cast";
-import { FPS, PLIM, WATER, HOARD, BED, COFFIN, T, talking, camAt, clamp01, smooth, OWNER, DESK, DSHIP, DX, SX, HULLPT, paperAt, shipSink, CUT, STRIKES, plimWalk, PL_STOP, MARK, HARB, dawnSink, DW, CLUB_CHAIRS, ownerWalk, OWNER_SEAT } from "./story";
+import { FPS, PLIM, WATER, HOARD, BED, COFFIN, T, talking, camAt, clamp01, smooth, OWNER, DESK, DSHIP, DX, SX, HULLPT, paperAt, shipSink, CUT, STRIKES, plimWalk, PL_STOP, MARK, HARB, dawnSink, DW, CLUB_CHAIRS, ownerWalk, OWNER_SEAT, PM, BIN, SPEAKER, WIFE, REPORTERS } from "./story";
 import type { Place as Place3 } from "./story";
 
 // ---------------- cast ----------------
@@ -22,6 +22,11 @@ const OWNER_O: Outfit = { jacket: "#3a2f4a", pants: "#2b2633", boots: "#1d1d22",
 const CLERK_O: Outfit = { jacket: "#2a2f3a", pants: "#2a2f3a", boots: "#1d1d22", hat: "hair", hair: "#3a2c22", style: "collar", trim: "#3a3a48", specs: true, skin: SKIN };
 const OWNER2_O: Outfit = { jacket: "#2c3d33", pants: "#2b2633", boots: "#1d1d22", hat: "tophat", style: "vest", trim: "#2f6b4a", chops: "#9a9a9a", chain: true, build: "stout", skin: SKIN };
 const OWNER3_O: Outfit = { jacket: "#2c3550", pants: "#2b2633", boots: "#1d1d22", hat: "tophat", style: "vest", trim: "#c9a24e", moustache: "#3a2c22", cigar: true, build: "stout", skin: SKIN };
+const PM_O: Outfit = { jacket: "#1f1f28", pants: "#2b2b33", boots: "#151518", hat: "hair", hair: "#1c1c22", style: "collar", trim: "#5a2a4a", moustache: "#1c1c22", skin: SKIN };
+const SPEAKER_O: Outfit = { jacket: "#1b1b22", pants: "#1b1b22", boots: "#151518", hat: "hair", hair: "#f1ede2", wig: true, style: "collar", trim: "#f2efe8", build: "stout", skin: SKIN };
+const WIFE_O: Outfit = { jacket: "#5a2a4a", pants: "#5a2a4a", boots: "#2a2026", hat: "bonnet", dress: "#7a3a5a", skin: SKIN };
+const REPORTER = (v: number): Outfit => ({ jacket: ["#4a4a52", "#5a4a3a", "#3a4a5a"][v % 3], pants: "#2b2b33", boots: "#1d1d22", hat: "bowler", style: "collar",
+  trim: ["#7a1f2b", "#2f4f7a", "#c9a24e"][v % 3], moustache: v % 3 === 1 ? "#3a2c22" : undefined, specs: v % 3 === 2, skin: SKIN });
 const HARBOUR_O: Outfit = { jacket: "#22304a", pants: "#22304a", boots: "#1b1b20", hat: "cap", cap: "#22304a", style: "collar", trim: "#c9a24e", moustache: "#5a4636",
   buttons: "#e2b84a", build: "stout", skin: SKIN };
 const SAILOR = (v: number): Outfit => ({ jacket: "#f2efe8", style: "stripes", trim: "#2c4f86", pants: ["#2b3a55", "#3a3a44", "#4a3b30"][v % 3], boots: "#3a2c22",
@@ -143,6 +148,13 @@ const brushHand = (p: Pen) => { // a hand holding a dripping paint brush, bristl
 };
 const monocleFly = (p: Pen) => { p.ell(64, 64, 44, 44, "rgba(220,235,255,0.35)", 7); p.stroke([[96, 96], [124, 126]], 4, "#d9b44a"); };
 const cigarFly = (p: Pen) => { p.band([[20, 64], [108, 64]], "#6b3f22", 16, 4, "round"); p.ell(110, 64, 9, 9, "#ff7a2e", 0); };
+const paperFly = (p: Pen) => { p.poly([[10, 10], [118, 4], [122, 150], [14, 156]], "#f4efe2", 6); for (let k = 0; k < 5; k++) p.stroke([[24, 34 + k * 22], [104, 32 + k * 22]], 4, "#8a8a9a"); };
+const folderFly = (p: Pen) => {
+  p.poly([[10, 20], [230, 10], [238, 170], [16, 180]], "#b8864a", 8);
+  p.g.save(); p.g.fillStyle = "#3a2414"; p.g.textAlign = "center"; p.g.font = "bold 34px Georgia, serif"; p.g.fillText("SHIPPING", 124, 88); p.g.fillText("BILL", 124, 128); p.g.restore();
+};
+const steam = (p: Pen, u: number) => { for (let i = 0; i < 3; i++) { const t2 = clamp01(u * 1.3 - i * 0.15); if (t2 <= 0) continue; p.ell(64 + 10 * i, 220 - 170 * t2 - i * 20, 26 + 30 * t2, 22 + 26 * t2, `rgba(245,245,245,${0.9 * (1 - t2)})`, 0); } };
+const hatFly = (p: Pen) => { p.poly([[40, 30], [120, 30], [124, 150], [36, 150]], "#2e2a36", 7); p.ell(80, 150, 70, 16, "#1d1b22", 7); p.stroke([[38, 124], [122, 124]], 12, "#5a2a4a"); };
 const capFly = (p: Pen, col: string) => { p.ell(64, 70, 50, 34, col, 7); p.ell(64, 96, 58, 12, col, 6); };
 const rainStreak = (p: Pen) => { p.g.globalAlpha = 0.85; p.stroke([[16, 8], [8, 248]], 7, "#dfe8f6"); p.g.globalAlpha = 1; };
 const gull = (p: Pen, u: number) => { const w = 30 * Math.sin(u * Math.PI * 2); p.stroke([[10, 60 + w], [60, 50], [110, 60 + w]], 9, "#2a2430"); };
@@ -184,6 +196,60 @@ export const stage = (place: Place3, f: number, cam: CamInfo): Stage => {
       fxAt(out, "cigarFly", 128, 128, cigarFly, CLUB_CHAIRS[2][0] - r.x * (0.3 + 1.0 * u), 1.3 + 1.2 * u - 2.0 * u * u, CLUB_CHAIRS[2][1] - r.z * (0.3 + 1.0 * u), 0.22, 0.22, { rot: -u * 12 });
     }
     for (let i = 0; i < 3; i++) { const u = q(((f / FPS) * 0.4 + i / 3) % 1, 20); fxAt(out, `smoke${u}`, 300, 300, (p) => fxBurst(p, u, "#d9c9c0", 5, 30, 120), -1.6 + i * 0.4, 2.2 + u * 0.8, 18.6 + i, 0.6, 0.6, { soft: true }); }
+  }
+  if (place === "chamber" && f >= T.snaps && f < CUT.papers) {
+    const r = cam.right;
+    // the Prime Minister at the dispatch box with the shipping bill, which goes in the bin on "dropped"
+    const holding = f < T.dropped - 2;
+    P({ i: 70, o: PM_O, okey: "pm" }, PM[0], 0, PM[2], { mode: "stand", expr: holding ? "neutral" : "smug", prop: holding ? "folder" : null, facing: -1 });
+    if (!holding && f < T.dropped + 14) { // the folder drops into the basket
+      const u = clamp01((f - T.dropped + 2) / 9);
+      fxAt(out, "folderFly", 256, 192, folderFly, BIN[0] + (PM[0] - BIN[0]) * (1 - u), 1.2 - 0.62 * u * u, BIN[2] + (PM[2] + 0.3 - BIN[2]) * (1 - u), 0.42, 0.32, { rot: u * 1.6 });
+      if (u >= 1) { const v = clamp01((f - T.dropped - 7) / 8); fxAt(out, `binThud${q(v, 8)}`, 500, 500, (p) => fxBurst(p, v, "#f3e6c8", 7, 70, 200), BIN[0], 0.65, BIN[2], 0.6, 0.6); }
+    }
+    // Plimsoll: twitch, stamp, slam, fist, yell, then arms folded
+    const pe = f >= T.refuses - LEAD ? "neutral" : f >= T.yells - LEAD ? (talking(f + LEAD) || f >= T.quoteI ? "yell" : "angry") : f >= T.stamps - LEAD ? "angry" : f >= T.plimSnap - LEAD ? (f % 6 < 3 ? "twitch" : "angry") : "stern";
+    const stampFoot = f >= T.stamps && f < T.foot + 8 ? (f < T.foot ? 0.6 * smooth((f - T.stamps) / (T.foot - 2 - T.stamps)) : Math.min(1, 0.6 + 0.4 * (f - T.foot + 2) / 2)) : 0;
+    const slamming = f >= T.slams - 4 && f < T.shakes - 2, fisting = f >= T.shakes - LEAD && f < T.refuses - LEAD;
+    P({ i: 1, o: PLIMSOLL, okey: "plim" }, PLIM[0], PLIM[1], PLIM[2], {
+      mode: "stand", expr: pe, facing: 1, look: f >= T.refuses ? -0.9 : 0, headTilt: f >= T.refuses ? 9 : 0,
+      fold: f >= T.refuses - LEAD, stampFoot, prop: slamming ? "copies" : null, swing: slamming ? smooth((f - (T.table - 6)) / 5) : 0,
+      fist: fisting ? q(((f / FPS) * (f >= T.yells ? 4.2 : 3.2)) % 1, 12) : undefined, tilt: f >= T.yells && f < T.refuses ? 6 : f >= T.foot && f < T.foot + 6 ? 3 : 0 });
+    blob(out, PLIM[0], 0, PLIM[2]);
+    if (f >= T.plimSnap - 4 && f < T.stamps + 10) for (const sd of [-1, 1]) { // steam out of his ears
+      const u = q((((f - T.plimSnap) / FPS) * 1.6) % 1, 16);
+      fxAt(out, `steam${u}`, 128, 256, (p) => steam(p, u), PLIM[0] + r.x * sd * 0.32, 1.72, PLIM[2] + r.z * sd * 0.32, 0.3, 0.6, { soft: true });
+    }
+    if (f >= T.foot && f < T.foot + 12) { const v = (f - T.foot) / 12; for (const sd of [-1, 1]) fxAt(out, `stompDust${q(v, 12)}`, 400, 400, (p) => fxPuff(p, v), PLIM[0] + r.x * (0.12 + sd * 0.28 * (0.4 + v)), 0.12 + 0.1 * v, PLIM[2] + r.z * (0.12 + sd * 0.28 * (0.4 + v)) + 0.08, 0.55, 0.55, { soft: true }); }
+    if (f >= T.table && f < T.table + 26) for (let k = 0; k < 9; k++) { // the protest explodes off the table
+      const u = (f - T.table) / 26, a = (k / 9) * Math.PI - Math.PI / 2 + (hh(k, 2) - 0.5) * 0.4, sp = 1.4 + hh(k, 3) * 1.2;
+      fxAt(out, "paperFly", 128, 160, paperFly, PLIM[0] + 0.55 + r.x * Math.sin(a) * sp * u, 1.0 + Math.cos(a) * 0.4 * sp * u + 2.2 * u - 2.6 * u * u, PLIM[2] - 0.2 + r.z * Math.sin(a) * sp * u, 0.22, 0.27, { rot: u * (6 + k) });
+    }
+    if (f >= T.yells && f < T.refuses - 4) { const u = q((((f - T.yells) / FPS) * 3) % 1, 10); fxAt(out, `shout${u}`, 500, 500, (p) => fxBurst(p, u, "#fff3d0", 7, 90, 230), PLIM[0] + r.x * 0.55 + 0.2, 1.45, PLIM[2] + r.z * 0.55 + 0.25, 0.75, 0.75); }
+    // MPs on the benches behind him: duck and recoil at the yell; a top hat flies off on "villains"
+    const seats: [number, number, number][] = [[-2.21, 0.3, 2.05], [-2.21, 0.3, -1.3], [-3.21, 0.7, 1.65], [-3.21, 0.7, 2.85], [-3.21, 0.7, -0.95], [-4.21, 1.1, 1.2], [-4.21, 1.1, -0.45], [-5.21, 1.5, 0.8], [-5.21, 1.5, -1.25]];
+    seats.forEach(([x, y, z], k) => {
+      const duck = f >= T.yells - LEAD + (k % 3) && f < T.refuses;
+      const hatGone = k === 3 && f >= T.villains2;
+      P({ i: 10 + k, o: hatGone ? { ...MP(k), hat: "hair" } : MP(k), okey: "mp" + k + (hatGone ? "h" : ""), }, x, y, z, { mode: "sit", expr: duck ? (k % 2 ? "shock" : "pained") : f >= T.plimSnap ? "nervous" : "stern", tilt: duck ? -10 - (k % 3) * 3 : 0, look: 0.6 });
+    });
+    if (f >= T.villains2 && f < T.villains2 + 30) { const u = (f - T.villains2) / 30; fxAt(out, "hatFly", 160, 180, hatFly, -3.21 + r.x * 1.2 * u, 2.3 + 2.2 * u - 2.2 * u * u, 2.85 + r.z * 1.2 * u, 0.36, 0.4, { rot: u * 9 }); }
+    // shipowners on the far benches enjoying it (seen behind the PM)
+    [[2.21, 0.3, -2.0, OWNER_O], [3.21, 0.7, -1.2, OWNER3_O], [3.21, 0.7, 1.6, OWNER2_O], [4.21, 1.1, 0.4, OWNER_O]].forEach(([x, y, z, o], k) =>
+      P({ i: 80 + k, o: o as Outfit, okey: "ownerOpp" + k }, x as number, y as number, z as number, { mode: "sit", expr: f >= T.dropped ? "grin" : "smug", look: -0.5 }));
+    // the Speaker on his chair, pointing down at Plimsoll on "orders"
+    P({ i: 90, o: SPEAKER_O, okey: "speaker" }, SPEAKER[0], SPEAKER[1], SPEAKER[2], { mode: "sit", expr: f >= T.orders - LEAD ? "angry" : "stern", point: f >= T.orders - LEAD && f < T.refuses + 20, tilt: f >= T.orders ? 5 : 0 });
+    // the press gallery: his wife, calm as anything, dealing copies of his protest to the reporters
+    if (f >= T.wife - 10) {
+      P({ i: 100, o: WIFE_O, okey: "wife" }, WIFE[0], WIFE[1], WIFE[2], { mode: "stand", expr: "smile_closed", prop: "copies", facing: -1 });
+      REPORTERS.forEach(([x, y, z], k) => P({ i: 101 + k, o: REPORTER(k), okey: "reporter" + k }, x, y, z, { mode: "stand", expr: f >= T.handing - LEAD ? (k % 2 ? "grin" : "shock") : "neutral", prop: "notebook", tilt: f >= T.handing ? 6 : 0 }));
+      for (let n = 0; n < 7; n++) { // copies flicked across one after another, like dealing cards
+        const f0 = T.handing + n * 8, u = (f - f0) / 10;
+        if (u < 0 || u > 1) continue;
+        const [tx, ty, tz] = REPORTERS[n % 3];
+        fxAt(out, "paperFly", 128, 160, paperFly, WIFE[0] + (tx - WIFE[0]) * u, 5.55 + 0.4 * Math.sin(Math.PI * u), WIFE[2] + (tz - WIFE[2]) * u, 0.2, 0.25, { rot: u * 5 });
+      }
+    }
   }
   if (place === "chamber" && f < CUT.dock) {
     // Plimsoll on his feet: fist up and shaking, mouth working with the words; "villains" is the loudest

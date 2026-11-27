@@ -52,6 +52,12 @@ export const T = {
   everyHull: wf("fix", "hull"), water: wf("fix", "water"), lineQ: wf("fix", "line", 1), stays: wf("fix", "stays"), home: wf("fix", "home"),
   laugh: wf("laugh"), laughW: wf("laugh", "laugh"), linePaint: wf("laugh", "line"), my: wf("laugh", "my"), worse: wf("worse"), plenty: wf("worse", "plenty"),
   parl2: wf("worse", "parliament"), snaps: wf("snaps"),
+  bill: wf("snaps", "bill"), dropped: wf("snaps", "dropped"), plimSnap: wf("snaps", "plimsoll"), snapW: wf("snaps", "snaps"),
+  yell: wf("yell"), stamps: wf("yell", "stamps"), foot: wf("yell", "foot"), slams: wf("yell", "slams"), table: wf("yell", "table"),
+  shakes: wf("yell", "shakes"), fistW: wf("yell", "fist"), yells: wf("yell", "yells"), quoteI: wf("yell", "i"), villains2: wf("yell", "villains"),
+  refuse: wf("refuse"), speaker: wf("refuse", "speaker"), orders: wf("refuse", "orders"), back: wf("refuse", "back"), refuses: wf("refuse", "refuses"),
+  wife: wf("wife"), gallery: wf("wife", "gallery"), wifeW: wf("wife", "wife"), handing: wf("wife", "handing"), reporters: wf("wife", "reporters"),
+  papers: wf("papers"),
 };
 /** dawn: Plimsoll strides down the quay toward the camera, stops at the edge with his pot and brush */
 export const PL_WALK0: V3 = [DX - 7.2, 0, -1.9], PL_STOP: V3 = [DX - 1.6, 0, -1.25];
@@ -72,6 +78,12 @@ export const ownerWalk = (f: number): { pos: V3; walking: boolean; phase: number
 };
 /** back in the chamber: he has already taken his seat among the other shipowner MPs (east benches, bar end) */
 export const OWNER_SEAT: V3 = [2.21, 0.3, 12.2];
+/** the climax in the chamber: the PM at the dispatch box (east), the Speaker's chair (z = -14), the west gallery */
+export const PM: V3 = [1.3, 0, 0.25];
+export const BIN: V3 = [1.75, 0, 0.95];
+export const SPEAKER: V3 = [0, 1.08, -13.85];
+export const WIFE: V3 = [-6.35, 4.5, -8.6];
+export const REPORTERS: V3[] = [[-6.45, 4.5, -9.6], [-6.25, 4.5, -10.5], [-6.55, 4.5, -7.7]];
 /** the stamped policy blowing off the clerk's desk and landing against the rotten hull */
 export const HULLPT: V3 = [DX + 0.9, DW + 1.05, 1.18];
 export const paperAt = (f: number): V3 => {
@@ -79,7 +91,7 @@ export const paperAt = (f: number): V3 => {
   return [v * v * p0[0] + 2 * u * v * c[0] + u * u * HULLPT[0], v * v * p0[1] + 2 * u * v * c[1] + u * u * HULLPT[1], v * v * p0[2] + 2 * u * v * c[2] + u * u * HULLPT[2]];
 };
 /** frames of the hidden cuts: under a rising-bubble wipe into the dock, under lightning flashes in and out of the storm */
-export const CUT = { dock: T_DOCK(), storm1: T.ifSinks, night: T.richer - 16, storm2: T.coffin, dawn: T.fix, club: T.laugh, snaps: T.snaps };
+export const CUT = { dock: T_DOCK(), storm1: T.ifSinks, night: T.richer - 16, storm2: T.coffin, dawn: T.fix, club: T.laugh, snaps: T.snaps, papers: T.papers };
 function T_DOCK() { return wf("yousee") + 6; }
 /** crate drops on the beat: [frame, crate index]; plus a fast time-lapse that fills the deck before "until" */
 export const DROPS: [number, number][] = [[T.cram, 0], [T.withC, 1], [T.cargo, 2], ...[3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13].map((k, i) => [T.cargo + 6 + i * 2, k] as [number, number])];
@@ -175,6 +187,26 @@ const KEYS: Key[] = [
   // "Plenty of them sit in Parliament": through the door into the chamber, the owners tipping their hats to each other
   { f: T.plenty - 2, dur: 14, s: () => ({ pos: [0.15, 1.62, 13.7], look: [1.4, 1.2, 10.4], fov: 42, roll: 0 }) },
   { f: T.plenty + 10, dur: 16, s: (f) => dolly([0.3, 1.65, 14.5], [OWNER_SEAT[0] + 0.7, 1.05, OWNER_SEAT[2] - 1.3], pushK(f, T.plenty + 26, 0.003), { fov: 44, roll: -0.03 }) },
+  // ---- "So when the safety bill gets dropped": glide down the chamber to the PM at the dispatch box; the bill goes in the bin ----
+  { f: T.snaps - 4, dur: 22, s: (f) => dolly([-0.55, 1.55, 1.9], [PM[0], 1.3, PM[2] - 0.2], pushK(f, T.snaps + 18, 0.003), { fov: 42, roll: 0.03 }) },
+  { f: T.dropped - 6, dur: 10, s: () => ({ pos: [2.35, 1.05, 2.15], look: [BIN[0] - 0.05, 0.45, BIN[2]], fov: 42, roll: 0.06 }) },   // down beside the basket as the folder drops
+  // "Plimsoll snaps": whip across the table to his face, eye twitching, steam from his ears
+  { f: T.plimSnap - 4, dur: 8, s: (f) => dolly([-0.35, 1.62, 4.25], [PLIM[0], 1.55, PLIM[2]], pushK(f, T.plimSnap + 4, 0.006), { fov: 38, roll: -0.05 }) },
+  // "He stamps his foot": drop to the floor for the stamp
+  { f: T.stamps - 4, dur: 10, s: () => ({ pos: [-0.45, 0.22, 4.95], look: [PLIM[0] + 0.05, 0.4, PLIM[2]], fov: 46, roll: 0.06 }) },
+  // "slams his protest on the table": up to the table edge, papers exploding
+  { f: T.slams - 5, dur: 10, s: (f) => dolly([0.75, 1.55, 4.9], [PLIM[0] + 0.22, 1.15, PLIM[2] - 0.1], pushK(f, T.slams + 5, 0.003), { fov: 44, roll: -0.04 }) },
+  // "shakes his fist": in on the fist
+  { f: T.shakes - 4, dur: 8, s: () => ({ pos: [-0.25, 1.85, 4.25], look: [PLIM[0] + 0.35, 1.82, PLIM[2]], fov: 40, roll: 0.07 }) },
+  // the yell: a big close-up, dutch, pushing in; the MPs behind him duck
+  { f: T.yells - 4, dur: 10, s: (f) => dolly([-0.6, 1.58, 4.6], [PLIM[0], 1.52, PLIM[2]], pushK(f, T.yells + 6, 0.005), { fov: 40, roll: -0.12 }) },
+  // "The Speaker orders him to take it back": low angle on the Speaker under his canopy, pointing down
+  { f: T.speaker - 4, dur: 9, s: (f) => dolly([0.2, 1.25, -10.6], [SPEAKER[0], 2.2, SPEAKER[2]], pushK(f, T.speaker + 6, 0.003), { fov: 42, roll: 0.04 }) },
+  // "He refuses": back on Plimsoll, arms folded, head turned away
+  { f: T.refuses - 6, dur: 9, s: (f) => dolly([-0.15, 1.55, 5.5], [PLIM[0], 1.35, PLIM[2]], pushK(f, T.refuses + 4, 0.003), { fov: 40, roll: 0.02 }) },
+  // "Meanwhile, up in the gallery": crane up over the chamber to the west gallery; his wife deals out copies to the reporters
+  { f: T.wife + 2, dur: 26, s: () => ({ pos: [-2.6, 5.7, -5.4], look: [WIFE[0], 5.15, WIFE[2] - 0.4], fov: 44, roll: 0 }) },
+  { f: T.handing - 8, dur: 18, s: (f) => dolly([-3.6, 5.45, -6.6], [WIFE[0], 5.2, WIFE[2] - 0.5], pushK(f, T.handing + 10, 0.003), { fov: 42, roll: 0.03 }) },
 ];
 const run = (f: number) => {
   let cur = full(KEYS[0].s(f));
@@ -187,7 +219,8 @@ const run = (f: number) => {
 };
 // impact kicks: image offset flips sign every frame and decays over 7 f
 const KICKS: [number, number][] = [[T.villains, 1.1], [T.parliament, 0.4], [T.bottom + 1, 0.6], [T.insure + 9, 1.0],
-  [T.cram, 0.8], [T.withC, 0.8], [T.cargo, 1.0], [T.sinks, 0.7], [T.richer, 0.9], [T.stays + 3, 1.0], [T.paint, 0.3], [T.laughW, 0.6], [T.my, 0.5]];
+  [T.cram, 0.8], [T.withC, 0.8], [T.cargo, 1.0], [T.sinks, 0.7], [T.richer, 0.9], [T.stays + 3, 1.0], [T.paint, 0.3], [T.laughW, 0.6], [T.my, 0.5],
+  [T.dropped + 4, 0.7], [T.snapW, 0.9], [T.foot, 1.3], [T.table, 1.3], [T.fistW, 0.6], [T.quoteI, 0.6], [T.villains2, 1.2], [T.back, 0.5], [T.refuses, 0.6]];
 export const kickAt = (f: number) => {
   let a = 0;
   for (const [f0, g] of KICKS) { const n = f - f0; if (n >= 0 && n < 7) a += g * (n % 2 ? -1 : 1) * (1 - n / 7) ** 1.5; }
@@ -216,6 +249,7 @@ export const placeAt = (f: number): Place => {
   if (f < CUT.dawn) return "storm";
   if (f < CUT.club) return "dawn";
   if (f < CUT.snaps) return c.pos[2] > 15.25 ? "club" : "chamber";
+  if (f < CUT.papers) return "chamber";
   return "chamber";
 };
 export const LIGHT_OF: Record<Place, LightName> = { chamber: "candle", river: "dusk", under: "under", dock: "fog", storm: "storm", night: "night", dawn: "dawn", club: "club" };
@@ -254,6 +288,17 @@ export const DOF: Dof[] = [
   { f: CUT.club, cInf: 9, focus: () => [CLUB_CHAIRS[0][0], 1.0, CLUB_CHAIRS[0][1]] },
   { f: T.worse - 6, dur: 10, cInf: 6, focus: (f) => ownerWalk(f).pos },
   { f: T.plenty - 2, dur: 10, cInf: 7, focus: () => [OWNER_SEAT[0], 1.0, OWNER_SEAT[2]] },
+  { f: T.snaps - 4, dur: 10, cInf: 10, focus: () => [PM[0], 1.3, PM[2]] },
+  { f: T.dropped - 6, dur: 6, cInf: 8, focus: () => [BIN[0], 0.6, BIN[2]] },
+  { f: T.plimSnap - 4, dur: 6, cInf: 13, focus: () => [PLIM[0], 1.55, PLIM[2]] },
+  { f: T.stamps - 4, dur: 6, cInf: 12, focus: () => [PLIM[0], 0.2, PLIM[2]] },
+  { f: T.slams - 5, dur: 6, cInf: 10, focus: () => [PLIM[0] + 0.5, 1.0, PLIM[2]] },
+  { f: T.shakes - 4, dur: 6, cInf: 12, focus: () => [PLIM[0] + 0.3, 1.8, PLIM[2]] },
+  { f: T.yells - 4, dur: 6, cInf: 13, focus: () => [PLIM[0], 1.5, PLIM[2]] },
+  { f: T.speaker - 4, dur: 6, cInf: 10, focus: () => [SPEAKER[0], 2.0, SPEAKER[2]] },
+  { f: T.refuses - 6, dur: 6, cInf: 11, focus: () => [PLIM[0], 1.4, PLIM[2]] },
+  { f: T.wife + 2, dur: 14, cInf: 4 },
+  { f: T.handing - 8, dur: 10, cInf: 9, focus: () => [WIFE[0], 5.2, WIFE[2]] },
 ];
 export const dofAt = (f: number) => {
   let cur = { cInf: DOF[0].cInf, focus: DOF[0].focus };
