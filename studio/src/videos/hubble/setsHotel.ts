@@ -161,7 +161,7 @@ export const buildHotel = (R: THREE.Object3D): HotelSet => {
   const lampBar = new THREE.Mesh(new THREE.BoxGeometry(0.04, 0.05, 0.7), basic("vanityLamp", () => ({ color: hdr("#fff1d8", 2.6) })));
   lampBar.position.set(x1 - 0.04, y0 + 1.95, 5.0); lampBar.layers.set(NOINK); R.add(lampBar);
   b.add(cyl(0.012, 0.012, 0.6, 8).rotateX(Math.PI / 2), chrome, M(-0.2, y0 + 1.25, z1 - 0.05 - 0.0));
-  b.add(boxGeo(V(0.25, y0 + 0.75, z1 - 0.09), V(0.55, y0 + 1.3, z1 - 0.03), 0), lam("towel", () => ({ map: ctex("towelTex", 64, 128, (g) => { g.fillStyle = "#f4f2ee"; g.fillRect(0, 0, 64, 128); g.fillStyle = "#2c4f86"; g.fillRect(0, 96, 64, 10); g.fillRect(0, 112, 64, 4); }) })));
+  b.add(boxGeo(V(1.18, y0 + 0.75, z1 - 0.09), V(1.38, y0 + 1.3, z1 - 0.03), 0), lam("towel", () => ({ map: ctex("towelTex", 64, 128, (g) => { g.fillStyle = "#f4f2ee"; g.fillRect(0, 0, 64, 128); g.fillStyle = "#2c4f86"; g.fillRect(0, 96, 64, 10); g.fillRect(0, 112, 64, 4); }) })));
   const ceilLamp = new THREE.Mesh(new THREE.CircleGeometry(0.16, 24), basic("ceilLamp", () => ({ color: hdr("#fff4e0", 3.0) })));
   ceilLamp.rotation.x = Math.PI / 2; ceilLamp.position.set(0.1, y0 + h - 0.01, 4.6); ceilLamp.layers.set(NOINK); R.add(ceilLamp);
   // ---- the window: frame, open casement, the facade around it ----
