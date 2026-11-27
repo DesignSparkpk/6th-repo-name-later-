@@ -206,7 +206,7 @@ const KEYS: Key[] = [
   // "Plimsoll snaps": whip across the table to his face, eye twitching, steam from his ears
   { f: T.plimSnap - 4, dur: 8, s: (f) => dolly([-0.35, 1.62, 4.25], [PLIM[0], 1.55, PLIM[2]], pushK(f, T.plimSnap + 4, 0.006), { fov: 38, roll: -0.05 }) },
   // "He stamps his foot": drop to the floor for the stamp
-  { f: T.stamps - 4, dur: 10, s: () => ({ pos: [-1.22, 0.24, 5.25], look: [PLIM[0] + 0.02, 0.42, PLIM[2]], fov: 46, roll: 0.06 }) },
+  { f: T.stamps - 4, dur: 10, s: (f) => dolly([-1.47, 0.34, 6.4], [PLIM[0] + 0.06, 0.98, PLIM[2]], pushK(f, T.foot, 0.002), { fov: 44, roll: 0.05 }) },
   // "slams his protest on the table": up to the table edge, papers exploding
   { f: T.slams - 5, dur: 10, s: (f) => dolly([0.75, 1.55, 4.9], [PLIM[0] + 0.22, 1.15, PLIM[2] - 0.1], pushK(f, T.slams + 5, 0.003), { fov: 44, roll: -0.04 }) },
   // "shakes his fist": in on the fist
@@ -333,7 +333,7 @@ export const DOF: Dof[] = [
   { f: T.snaps - 4, dur: 10, cInf: 10, focus: () => [PM[0], 1.3, PM[2]] },
   { f: T.dropped - 6, dur: 6, cInf: 8, focus: () => [BIN[0], 0.6, BIN[2]] },
   { f: T.plimSnap - 4, dur: 6, cInf: 13, focus: () => [PLIM[0], 1.55, PLIM[2]] },
-  { f: T.stamps - 4, dur: 6, cInf: 12, focus: () => [PLIM[0], 0.2, PLIM[2]] },
+  { f: T.stamps - 4, dur: 6, cInf: 12, focus: () => [PLIM[0], 0.9, PLIM[2]] },
   { f: T.slams - 5, dur: 6, cInf: 10, focus: () => [PLIM[0] + 0.5, 1.0, PLIM[2]] },
   { f: T.shakes - 4, dur: 6, cInf: 12, focus: () => [PLIM[0] + 0.3, 1.8, PLIM[2]] },
   { f: T.yells - 4, dur: 6, cInf: 13, focus: () => [PLIM[0], 1.5, PLIM[2]] },
