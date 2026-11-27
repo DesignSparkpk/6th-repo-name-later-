@@ -1,4 +1,5 @@
 gen/*.blend
 gen/*.blend1
+gen/b2_*.png
 gen/board.png
 gen/board_hd.png

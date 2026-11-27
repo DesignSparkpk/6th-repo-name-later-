@@ -43,6 +43,7 @@ def mat_pbr(aid, scale=1.0, tint=None):
     if t:
         if tint: mix = N.new("ShaderNodeMix"); mix.data_type = "RGBA"; mix.blend_type = "MULTIPLY"; mix.inputs["Factor"].default_value = 1; mix.inputs[7].default_value = (*tint, 1); Lk.new(t.outputs["Color"], mix.inputs[6]); Lk.new(mix.outputs[2], b.inputs["Base Color"])
         else: Lk.new(t.outputs["Color"], b.inputs["Base Color"])
+    elif tint: b.inputs["Base Color"].default_value = (*tint, 1)
     r = img("rough", False)
     if r: Lk.new(r.outputs["Color"], b.inputs["Roughness"])
     n = img("nor", False)
@@ -82,6 +83,7 @@ def plane(name, w, h, loc, rot, mat):
 def gltf(aid, loc, rot_z=0.0, scale=1.0):
     p = os.path.join(PH_MOD, aid, f"{aid}.gltf"); before = set(bpy.data.objects)
     bpy.ops.import_scene.gltf(filepath=p); new = [o for o in bpy.data.objects if o not in before]
+    for o in new: o.animation_data_clear()
     roots = [o for o in new if o.parent is None]
     for r in roots: r.location = loc; r.rotation_euler = (0, 0, rot_z); r.scale = (scale, scale, scale)
     return roots
@@ -211,10 +213,16 @@ def person(name, loc, outfit="#1e1e24", kind="suit", tie="#6a1a22", hair="#cfcfc
         bpy.ops.mesh.primitive_uv_sphere_add(segments=64, ring_count=32, radius=1); c = par(bpy.context.object); c.name = name + "_hair"; c.location = (0, 0.01, head_z)
         c.scale = (hr * 1.04, hr * 0.74, hr * 1.08); bpy.ops.object.shade_smooth()
         bm = bmesh.new(); bm.from_mesh(c.data)
-        if hairstyle == "sides": kill = [v for v in bm.verts if v.co.z > 0.5 or v.co.z < -0.25 or (v.co.y < -0.05 and abs(v.co.x) < 0.8)]
-        else: kill = [v for v in bm.verts if v.co.z < 0.35 or (v.co.y < -0.5 and v.co.z < 0.75 and abs(v.co.x) < 0.5)]
+        wav = lambda v: 0.07 * math.sin(v.co.x * 14) + 0.04 * math.sin(v.co.x * 31 + 1)
+        if hairstyle == "sides":   # grey tufts over the ears and round the back, bald on top
+            kill = [v for v in bm.verts if v.co.z > 0.38 + wav(v) or v.co.z < -0.3 + wav(v) or (v.co.y < 0.1 and abs(v.co.x) < 0.82)]
+        elif hairstyle == "slick":  # combed back: covers the crown down to a wavy hairline high on the forehead
+            kill = [v for v in bm.verts if (v.co.y < -0.1 and v.co.z < 0.62 + wav(v)) or (v.co.y >= -0.1 and v.co.z < 0.05 + wav(v))]
+        else:                       # cap with a fringe
+            kill = [v for v in bm.verts if (v.co.y < -0.1 and v.co.z < 0.45 + wav(v) * 1.5) or (v.co.y >= -0.1 and v.co.z < -0.05)]
         for v in kill: bm.verts.remove(v)
-        bm.to_mesh(c.data); bm.free(); c.data.materials.append(toon_mat(name + "_hairm", hexrgb(hair), flat=0.4))
+        bm.to_mesh(c.data); bm.free(); c.data.materials.append(toon_mat(name + "_hairm", hexrgb(hair), flat=0.35))
+        md = c.modifiers.new("thick", "SOLIDIFY"); md.thickness = 0.03; md.offset = 1.0
     outline(h, 0.02); outline(t, 0.018)
     # stick limbs: legs from the hip to the floor, arms from the top of the torso sides
     r = 0.012 * s
