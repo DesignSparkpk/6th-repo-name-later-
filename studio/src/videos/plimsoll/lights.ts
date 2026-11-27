@@ -12,7 +12,7 @@ export type LightPreset = {
   sunCol: string; sunI: number; sky: string; ground: string; hemiI: number;         // three lights (unpatched mats only)
   bias: number; normalBias: number;
 };
-export type LightName = "day" | "golden" | "overcast" | "desert" | "candle" | "dusk" | "under";
+export type LightName = "day" | "golden" | "overcast" | "desert" | "candle" | "dusk" | "under" | "fog" | "storm" | "night";
 export const LIGHTS: Record<LightName, LightPreset> = {
   day: {
     az: 75, el: 48,
@@ -82,6 +82,37 @@ export const LIGHTS: Record<LightName, LightPreset> = {
     sunCol: "#bdf5d8", sunI: 2.0, sky: "#9fe0c8", ground: "#1a3a35", hemiI: 0.8,
     bias: -0.0004, normalBias: 0.02,
   },
+  // the dock on a cold grey morning: soft flat light, thick fog swallowing the far end
+  fog: {
+    az: 60, el: 50,
+    lit: [1.08, 1.1, 1.14], shade: [0.42, 0.45, 0.56], lift: [0.06, 0.07, 0.1], lambert: 0.3, sideK: 0.88, term: 0.25,
+    charTint: [0.94, 0.96, 1.0], charShade: 0.9, charGrad: 0.06, bodyGrad: 0.16, sideTint: [0.9, 0.92, 0.98],
+    blob: [0.66, 0.68, 0.75], actorShadow: false,
+    top: "#8a9bad", hor: "#b6c0ca", skyCurve: [0.0, 0.5, 0.6], fog: "#a9b3bd", fogNear: 2.5, fogFar: 46, sunDisc: "#000000",
+    sunCol: "#e6eef8", sunI: 1.7, sky: "#d7e2ee", ground: "#6a6a6a", hemiI: 0.95,
+    bias: -0.0003, normalBias: 0.02,
+  },
+  // the storm at sea, night: blue-black, everything lit by the moonless sky and the lightning
+  storm: {
+    az: 40, el: 60,
+    lit: [0.55, 0.66, 1.0], shade: [0.07, 0.09, 0.2], lift: [0.03, 0.04, 0.1], lambert: 0.3, sideK: 0.85, term: 0.15,
+    charTint: [0.62, 0.72, 1.0], charShade: 0.88, charGrad: 0.08, bodyGrad: 0.2, sideTint: [0.8, 0.85, 1.0],
+    blob: [0.5, 0.55, 0.7], actorShadow: false,
+    top: "#0b1226", hor: "#22304e", skyCurve: [0.0, 0.5, 0.6], fog: "#1b2440", fogNear: 12, fogFar: 130, sunDisc: "#000000",
+    sunCol: "#9fb6ff", sunI: 1.5, sky: "#3a4a7a", ground: "#0e1426", hemiI: 0.75,
+    bias: -0.0003, normalBias: 0.02,
+  },
+  // the dock at night in the rain: cold blue with the gas lamps glowing warm
+  night: {
+    az: 50, el: 55,
+    lit: [0.62, 0.68, 1.0], shade: [0.1, 0.11, 0.24], lift: [0.04, 0.04, 0.11], lambert: 0.3, sideK: 0.86, term: 0.18,
+    charTint: [0.72, 0.78, 1.0], charShade: 0.88, charGrad: 0.09, bodyGrad: 0.22, sideTint: [0.85, 0.88, 1.0],
+    blob: [0.5, 0.55, 0.7], actorShadow: false,
+    top: "#0d1428", hor: "#26304a", skyCurve: [0.0, 0.5, 0.6], fog: "#222a40", fogNear: 6, fogFar: 62, sunDisc: "#000000",
+    sunCol: "#a8bcff", sunI: 1.4, sky: "#3c4a78", ground: "#141a2c", hemiI: 0.8,
+    bias: -0.0003, normalBias: 0.02,
+  },
+
 };
 
 /** world-only look per light (sky stops by elevation in degrees, river colours, cloud palette). All colours are
@@ -144,6 +175,27 @@ export const LOOK: Record<LightName, WorldLook> = {
     water: { near: "#1f5a52", mid: "#1f5a52", far: "#1f5a52", crest: "#6fc0a0", trough: "#123f3c", glint: "#d8ffe8", shade: [0.6, 0.8, 0.8] },
     cloud: { lit: "#9fe0c8", mid: "#6fc0a0", shade: "#3f8a76" },
     bounce: [0.0, 0.03, 0.03],
+    sat: 1.05,
+  },
+  fog: {
+    sky: { c: ["#b6c0ca", "#aab6c2", "#9eacba", "#93a3b3", "#8a9bad"], e: [0, 4, 10, 20, 40] },
+    water: { near: "#4f6d6a", mid: "#4f6d6a", far: "#7f9496", crest: "#c8d6d2", trough: "#334a48", glint: "#e6f0ee", shade: [0.6, 0.65, 0.72] },
+    cloud: { lit: "#c9d2dc", mid: "#b3bec9", shade: "#9aa6b3" },
+    bounce: [0, 0, 0],
+    sat: 1.0,
+  },
+  storm: {
+    sky: { c: ["#2a3a5e", "#22304e", "#1b2846", "#151f3a", "#0b1226"], e: [0, 4, 10, 20, 40] },
+    water: { near: "#1d3346", mid: "#1d3346", far: "#2a3a5e", crest: "#d8e6ee", trough: "#0e1a26", glint: "#c8d8ff", shade: [0.5, 0.55, 0.75] },
+    cloud: { lit: "#4a5a80", mid: "#34426a", shade: "#1e2848" },
+    bounce: [0, 0, 0.02],
+    sat: 1.05,
+  },
+  night: {
+    sky: { c: ["#26304a", "#1f2840", "#182036", "#121a2e", "#0d1428"], e: [0, 4, 10, 20, 40] },
+    water: { near: "#1f2a3a", mid: "#1f2a3a", far: "#26304a", crest: "#9fb0c8", trough: "#121a26", glint: "#ffd7a0", shade: [0.5, 0.55, 0.75] },
+    cloud: { lit: "#3e4a6a", mid: "#2e3858", shade: "#1e2640" },
+    bounce: [0.02, 0.01, 0.0],
     sat: 1.05,
   },
 };

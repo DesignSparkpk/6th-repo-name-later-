@@ -12,7 +12,7 @@ import { World } from "./world";
 import { InkPass, noInkFallback } from "../bridge/ink";
 import { LensBlur } from "../bridge/lensblur";
 import { GradeEffect, GRADES, GRADE_STRENGTH, gradeFor } from "../bridge/grade";
-import { TOTAL, dofAt, placeAt, WORDS_T, FPS } from "./story";
+import { TOTAL, dofAt, placeAt, WORDS_T, FPS, CUT } from "./story";
 
 export const PLIMSOLL_FRAMES = TOTAL;
 
@@ -109,6 +109,31 @@ const Plunge: React.FC = () => {
   );
 };
 
+/** rising bubbles that fill the frame for ~12 frames around the hidden cut into the dock */
+const BubbleWipe: React.FC = () => {
+  const f = useCurrentFrame(), k = f - (CUT.dock - 7);
+  if (k < 0 || k > 14) return null;
+  const u = k / 14, cover = Math.sin(Math.PI * u);
+  return (
+    <AbsoluteFill>
+      <svg width="1080" height="1920" viewBox="0 0 1080 1920">
+        <rect x="0" y="0" width="1080" height="1920" fill="#cfeee4" opacity={0.45 * cover} />
+        {Array.from({ length: 80 }, (_, i) => {
+          const x = hsh(i, 5) * 1080, y = 2100 - u * (2600 + hsh(i, 6) * 800) + hsh(i, 7) * 900, r = 20 + hsh(i, 8) * 120 * (0.4 + cover);
+          return <g key={i}><circle cx={x} cy={y} r={r} fill="#ffffff" opacity={0.8 * cover} /><circle cx={x - r * 0.3} cy={y - r * 0.32} r={r * 0.22} fill="#e9fff7" opacity={cover} /></g>;
+        })}
+      </svg>
+    </AbsoluteFill>
+  );
+};
+/** lightning: a white flash on the cuts in and out of the storm */
+const Flash: React.FC = () => {
+  const f = useCurrentFrame();
+  let a = 0;
+  for (const c0 of [CUT.storm1, CUT.night, CUT.storm2]) { const n = f - c0; if (n >= -1 && n < 4) a = Math.max(a, [0.85, 1, 0.65, 0.3, 0.1][n + 1]); }
+  return a > 0 ? <AbsoluteFill style={{ background: "#eef4ff", opacity: a }} /> : null;
+};
+
 const useFont = () => {
   const [handle] = useState(() => delayRender("caption font"));
   useEffect(() => {
@@ -126,6 +151,8 @@ export const PlimsollShort: React.FC = () => {
         <Inner />
       </ThreeCanvas>
       <Plunge />
+      <BubbleWipe />
+      <Flash />
       <Caption />
     </AbsoluteFill>
   );

@@ -8,8 +8,9 @@ import { NOINK } from "../bridge/ink";
 import { Pool, Actor, Fx } from "../bridge/cast";
 import { LIGHTS, LOOK } from "./lights";
 import { buildSets, Sets } from "./sets";
+import { buildSets2, Sets2, swell } from "./sets2";
 import { stage } from "./cast";
-import { FPS, camAt, placeAt, LIGHT_OF, SUN_OF, T, WIN, smooth } from "./story";
+import { FPS, camAt, placeAt, LIGHT_OF, SUN_OF, T, WIN, smooth, DX, DW, DSHIP, SX, DROPS, shipSink, strikeAt, CUT } from "./story";
 
 export class World {
   root = new THREE.Group();
@@ -20,7 +21,7 @@ export class World {
   private sky: THREE.Mesh; private skyMat: THREE.ShaderMaterial;
   private fog = new THREE.Fog("#bccbec", 25, 420);
   private clouds: THREE.Mesh[] = [];
-  private S: Sets;
+  private S: Sets; private S2: Sets2;
   private frustum = new THREE.Frustum(); private m4 = new THREE.Matrix4(); private v = new THREE.Vector3(); private sph = new THREE.Sphere();
 
   constructor() {
@@ -45,6 +46,7 @@ export class World {
       const w = 140 + (i % 4) * 40; m.scale.set(w, w / 2, 1); m.layers.set(NOINK); this.clouds.push(m); R.add(m);
     }
     this.S = buildSets(R);
+    this.S2 = buildSets2(R);
   }
 
   private actor(i: number) { while (this.actors.length <= i) this.actors.push(new Actor(this.root)); return this.actors[i]; }
@@ -73,11 +75,15 @@ export class World {
     // ---- sky + fog + clouds ----
     const su = this.skyMat.uniforms;
     K.sky.c.forEach((h, i) => untone(h, su["c" + i].value));
+    const strike = place === "storm" || place === "night" ? strikeAt(f) : 0;
+    if (strike > 0) { const w = new THREE.Color("#cfdcff"); for (let i = 0; i < 5; i++) (su["c" + i].value as THREE.Color).lerp(w, 0.75 * strike); this.hemi.intensity = L.hemiI + 2.6 * strike; }
     const e = K.sky.e.map((deg) => THREE.MathUtils.degToRad(deg)); su.e.value.set(e[1], e[2], e[3], e[4]);
     this.sky.position.copy(cam.position);
     untone(L.fog, this.fog.color); this.fog.near = L.fogNear; this.fog.far = L.fogFar; scene.fog = this.fog; scene.background = null;
+    const dark = place === "storm" || place === "night";
     this.clouds.forEach((m, i) => {
-      m.visible = place !== "under";
+      m.visible = place === "river" || dark;
+      (m.material as THREE.MeshBasicMaterial).color.setScalar(dark ? 0.32 + 0.9 * strike : 1.05);
       const a = Math.PI + ((i / 12) - 0.5) * 2.6, d = 640 + (i % 3) * 70; // banked up in the west, behind the far bank
       m.position.set(cam.position.x + Math.cos(a) * d, 60 + (i % 4) * 34, cam.position.z + Math.sin(a) * d);
       m.lookAt(cam.position.x, m.position.y, cam.position.z);
@@ -92,6 +98,45 @@ export class World {
     S.shafts.forEach((m, k) => { m.visible = place === "under"; m.rotation.z = 0.28 + 0.04 * Math.sin(t * 0.8 + k); });
     S.coffin.position.y = -6 + 0.35 + 0.05 * Math.sin(t * 1.4); S.coffin.rotation.z = 0.02 * Math.sin(t * 1.1);
     void WIN;
+    const S2 = this.S2;
+    // the dock ship: loaded crate by crate (each drop falls in and presses the hull down), then it sails away
+    const atDock = f < CUT.storm1;
+    const leaving = f >= T.makes - 2;
+    S2.dockShip.visible = atDock && !leaving;
+    S2.dockShip.position.y = shipSink(f) + 0.04 * Math.sin(t * 1.3);
+    S2.dockShip.rotation.z = 0.012 * Math.sin(t * 0.9);
+    for (const [f0, k] of DROPS) {
+      const c3 = S2.deckCrates[k], u = (f - f0) / 5;
+      c3.visible = f >= f0 - 6;
+      const home = c3.userData.home ?? (c3.userData.home = c3.position.y);
+      c3.position.y = home + 7 * Math.max(0, 1 - Math.max(0, u + 1.2) / 1.2) ** 2; // falls from ~7 m in 6 frames
+    }
+    S2.dockSails.visible = atDock && leaving;
+    if (leaving) {
+      const u = smooth((f - (T.makes - 2)) / 46);
+      S2.dockSails.position.set(DSHIP[0] + 3 * u, shipSink(f) + 0.04 * Math.sin(t * 1.3), DSHIP[2] + 20 * u); // straight out from the quay into the fog
+      S2.dockSails.rotation.y = -1.35 * smooth(u * 1.6);
+    }
+    S2.craneJib.rotation.y = 0.25 * Math.sin(t * 0.8) - 0.1;
+    S2.dockWaterTex.offset.set(0.01 * t, 0.006 * Math.sin(t * 0.5));
+    const camUnderDock = place === "under" && f >= CUT.dock;
+    S2.dockWater.visible = !camUnderDock; S2.dockUnder.visible = camUnderDock;
+    S2.lamps.forEach((m) => (m.material as THREE.MeshBasicMaterial).color.setRGB(...((place === "night" ? [3.2, 2.2, 1.0] : [2.0, 1.5, 0.8]) as [number, number, number])));
+    // the storm: the sea heaves; the ship pitches, then goes under bow first; its lantern dies on "ships"
+    const stormOn = place === "storm";
+    S2.sea.visible = stormOn; S2.stormShip.visible = stormOn;
+    if (stormOn) {
+      const pa = S2.sea.geometry.attributes.position as THREE.BufferAttribute, base = S2.seaBase;
+      for (let i = 0; i < pa.count; i++) pa.setY(i, swell(base[i * 3] + SX, base[i * 3 + 2], t));
+      pa.needsUpdate = true; S2.sea.geometry.computeVertexNormals();
+      S2.seaTex.offset.set(0.02 * t, 0.01 * t);
+      const sink = f < CUT.storm2 ? smooth((f - T.sinks + 4) / 34) : 0.72 + 0.1 * smooth((f - CUT.storm2) / 36);
+      const y0 = swell(SX, 0, t);
+      S2.stormShip.position.set(SX, y0 + 0.2 - 4.2 * sink, 0);
+      S2.stormShip.rotation.set(0.12 * Math.sin(t * 1.7), 0.3, 0.1 * Math.sin(t * 1.3) - 0.95 * sink);
+      S2.lantern.visible = f < T.cships;
+    }
+    void DX; void DW;
     // ---- cast + effects ----
     const right = V(0, 0, 0).setFromMatrixColumn(cam.matrixWorld, 0);
     const st = stage(place, f, { pos: cam.position, right, sun: sunDir });

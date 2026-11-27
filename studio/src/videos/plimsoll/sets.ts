@@ -153,18 +153,26 @@ const facadeOut = () => ctex("commonsRiverFront", 1024, 1024, (g, r) => {
   g.fillStyle = "rgba(40,30,40,0.5)"; g.fillRect(0, 0, 1024, 28);
 });
 
+const sailTex = (torn: boolean) => ctex(torn ? "sailTornTex" : "sailSetTex", 256, 256, (g, r) => {
+  g.fillStyle = torn ? "#c9bc98" : "#eee4cc"; g.fillRect(0, 0, 256, 256);
+  for (let x = 0; x < 256; x += 32) { g.fillStyle = "rgba(120,100,70,0.35)"; g.fillRect(x, 0, 3, 256); }
+  for (let i = 0; i < 300; i++) { g.fillStyle = `rgba(110,90,60,${r() * 0.1})`; g.fillRect(r() * 256, r() * 256, 3, 3); }
+  if (torn) { g.globalCompositeOperation = "destination-out"; for (let i = 0; i < 5; i++) { g.beginPath(); const x = r() * 256, y = r() * 256; g.moveTo(x, y); for (let k = 0; k < 6; k++) g.lineTo(x + (r() - 0.5) * 90, y + (r() - 0.5) * 90); g.fill(); } }
+  g.globalCompositeOperation = "source-over"; g.strokeStyle = "#5a4a30"; g.lineWidth = 6; g.strokeRect(3, 3, 250, 250);
+});
+
 // ---------------- geometry helpers ----------------
-const M = (x: number, y: number, z: number, ry = 0, rx = 0, rz = 0, s = 1) =>
+export const M = (x: number, y: number, z: number, ry = 0, rx = 0, rz = 0, s = 1) =>
   new THREE.Matrix4().compose(V(x, y, z), new THREE.Quaternion().setFromEuler(new THREE.Euler(rx, ry, rz)), V(s, s, s));
-const cyl = (r0: number, r1: number, h: number, n = 14) => new THREE.CylinderGeometry(r0, r1, h, n);
-const basic = (key: string, make: () => THREE.MeshBasicMaterialParameters) => {
+export const cyl = (r0: number, r1: number, h: number, n = 14) => new THREE.CylinderGeometry(r0, r1, h, n);
+export const basic = (key: string, make: () => THREE.MeshBasicMaterialParameters) => {
   const cache = basicCache.get(key); if (cache) return cache;
   const m = new THREE.MeshBasicMaterial(make()); basicCache.set(key, m); return m;
 };
 const basicCache = new Map<string, THREE.MeshBasicMaterial>();
 
 /** a wooden sailing ship (bow +x, deck at y = 0, keel at -D), built as one group; `rot` = the rotting coffin-ship paint */
-export const ship = (L: number, B: number, D: number, rot: boolean, opts: { masts?: number; crates?: number; seed?: number; broken?: boolean } = {}) => {
+export const ship = (L: number, B: number, D: number, rot: boolean, opts: { masts?: number; crates?: number; seed?: number; broken?: boolean; sails?: "furled" | "set" | "torn" } = {}) => {
   const g = new THREE.Group(), b = new Batch(), seed = opts.seed ?? 1;
   const N = 18, Mn = 9, pos: number[] = [], uv: number[] = [], idx: number[] = [];
   for (let i = 0; i <= N; i++) {
@@ -206,10 +214,18 @@ export const ship = (L: number, B: number, D: number, rot: boolean, opts: { mast
     const mx = (nm === 1 ? 0 : -L * 0.22 + (L * 0.44 * k) / (nm - 1)), h = (opts.broken && k === 1 ? 0.35 : 1) * L * (k === 0 ? 0.95 : 0.85);
     b.add(cyl(0.12, 0.17, h).translate(0, h / 2, 0), spar, M(mx, 0, 0));
     if (opts.broken && k === 1) continue;
-    for (const yk of [0.45, 0.7, 0.9]) {
-      const w = B * (1.5 - yk * 0.7);
+    const ys = [0.45, 0.7, 0.9];
+    for (let yi = 0; yi < ys.length; yi++) {
+      const yk = ys[yi], w = B * (1.5 - yk * 0.7);
       b.add(cyl(0.06, 0.06, w).rotateX(Math.PI / 2), spar, M(mx, h * yk, 0));
-      b.add(cyl(0.16, 0.12, w * 0.92, 10).rotateX(Math.PI / 2), canvas, M(mx + 0.08, h * yk - 0.16, 0)); // furled sail bundle
+      if ((opts.sails ?? "furled") === "furled") { b.add(cyl(0.16, 0.12, w * 0.92, 10).rotateX(Math.PI / 2), canvas, M(mx + 0.08, h * yk - 0.16, 0)); continue; }
+      // set square sail hanging from this yard down to the next one, bellied forward (+x)
+      const sh = (yi === 0 ? h * yk - 0.9 : h * (yk - ys[yi - 1])) - 0.15, sg = new THREE.PlaneGeometry(w * 0.9, sh, 8, 6);
+      const sp2 = sg.attributes.position as THREE.BufferAttribute;
+      for (let v = 0; v < sp2.count; v++) { const sx = sp2.getX(v) / (w * 0.45), sy = sp2.getY(v) / (sh / 2); sp2.setZ(v, 0.55 * (1 - sx * sx) * (1 - 0.5 * (sy - 0.2) ** 2)); }
+      sg.computeVertexNormals(); sg.rotateY(Math.PI / 2);
+      const sailM = lam(opts.sails === "torn" ? "sailTorn" : "sailSet", () => ({ map: sailTex(opts.sails === "torn"), side: THREE.DoubleSide, alphaTest: 0.5 }));
+      b.add(sg, sailM, M(mx + 0.15, h * yk - sh / 2 - 0.08, 0));
     }
     for (const s of [-1, 1]) for (const dx of [-0.6, 0.6]) { // shrouds
       const top = V(mx, h * 0.92, 0), bot = V(mx + dx, 0.5, s * B * 0.48), len = top.distanceTo(bot), mid = top.clone().add(bot).multiplyScalar(0.5);

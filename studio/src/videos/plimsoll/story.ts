@@ -31,10 +31,40 @@ export const COFFIN: V3 = [-34, WATER + 0.35, 2];  // the overloaded ship below 
 export const HOARD: V3 = [-44, BED, 4];             // burst sack of insurance gold on the riverbed
 export const WRECK: V3 = [-52.7, BED + 1.7, 8.8];   // the sunken ship on its side, right behind the hoard in the final framing
 
+export const DX = 400;                    // the dock (fog / night / dawn / sunrise)
+export const DW = -2.2;                   // dock water level (quay top at y = 0, water for z > 0)
+export const DSHIP: V3 = [DX + 2, DW + 1.6, 3.2];  // the rotting ship alongside (deck y moves as it is loaded)
+export const OWNER: V3 = [DX - 2.6, 0, -1.6];       // the shipowner on the quay
+export const DESK: V3 = [DX + 3.4, 0, -2.4];        // the insurance clerk's desk (a crate) under the office awning
+export const CRANE: V3 = [DX - 5.5, 0, -1.0];
+export const SX = 1500;                   // the storm at sea
+
 // ---------------- clocks ----------------
 export const T = {
   parliament: wf("hook", "parliament"), villains: wf("hook", "villains"), over: wf("hook", "over"), ships: wf("hook", "ships"),
   bottom: wf("hook", "bottom"), sea: wf("hook", "sea"), yousee: wf("yousee"),
+  britain: wf("yousee", "britain"), owners: wf("yousee", "shipowners"), nasty: wf("yousee", "nasty"),
+  insure: wf("trick", "over"), rotting: wf("trick", "rotting"), old: wf("trick", "old"), tships: wf("trick", "ships"),
+  cram: wf("trick", "cram"), withC: wf("trick", "with"), cargo: wf("trick", "cargo"), until: wf("trick", "until"), floating: wf("trick", "floating"),
+  makes: wf("rich", "makes"), rich: wf("rich", "rich"), ifSinks: wf("rich", "if", 1), sinks: wf("rich", "sinks"), richer: wf("rich", "richer"),
+  coffin: wf("coffin"), cships: wf("coffin", "ships"), fix: wf("fix"),
+};
+/** the stamped policy blowing off the clerk's desk and landing against the rotten hull */
+export const HULLPT: V3 = [DX + 0.9, DW + 1.05, 1.18];
+export const paperAt = (f: number): V3 => {
+  const p0: V3 = [DESK[0] - 0.2, 0.92, DESK[2]], c: V3 = [DX + 1.6, 2.6, -0.8], u = glide((f - (T.rotting - 3)) / 20), v = 1 - u;
+  return [v * v * p0[0] + 2 * u * v * c[0] + u * u * HULLPT[0], v * v * p0[1] + 2 * u * v * c[1] + u * u * HULLPT[1], v * v * p0[2] + 2 * u * v * c[2] + u * u * HULLPT[2]];
+};
+/** frames of the hidden cuts: under a rising-bubble wipe into the dock, under lightning flashes in and out of the storm */
+export const CUT = { dock: T_DOCK(), storm1: T.ifSinks, night: T.richer - 16, storm2: T.coffin };
+function T_DOCK() { return wf("yousee") + 6; }
+/** crate drops on the beat: [frame, crate index]; plus a fast time-lapse that fills the deck before "until" */
+export const DROPS: [number, number][] = [[T.cram, 0], [T.withC, 1], [T.cargo, 2], ...[3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13].map((k, i) => [T.cargo + 6 + i * 2, k] as [number, number])];
+/** deck height of the rotting ship: 1.6 m above the water empty, each crate presses it ~0.1 m lower (eased per drop) */
+export const shipSink = (f: number) => {
+  let d = 0;
+  for (const [f0] of DROPS) d += 0.1 * smooth((f - f0) / 5);
+  return DW + 1.6 - Math.min(d, 1.35);
 };
 
 // ---------------- camera: one continuous path, keys blended with an ease-in-out glide ----------------
@@ -67,6 +97,35 @@ const KEYS: Key[] = [
   { f: T.bottom - 11, dur: 17, s: () => ({ pos: [COFFIN[0] + 2.0, WATER - 3.4, COFFIN[2] + 3.2], look: [HOARD[0] + 1, BED + 1, HOARD[2]], fov: 46, roll: -0.03 }) },
   // HOOK 5 ("of the sea"): glide down onto the burst sack of gold on the riverbed, then a slow push
   { f: T.bottom + 4, dur: 22, s: (f) => dolly([HOARD[0] + 4.4, BED + 3.6, HOARD[2] - 2.6], [HOARD[0] - 0.6, BED + 0.6, HOARD[2] + 0.3], pushK(f, T.bottom + 26, 0.004), { fov: 44, roll: 0.02 }) },
+  // ---- "You see, in Victorian Britain": a rising-bubble wipe hides the cut; rise through the harbour water into the fog ----
+  { f: CUT.dock, cut: true, s: (f) => ({ pos: [DX - 9.6, DW - 4.4 + (f - CUT.dock) * 0.05, 4.8], look: [DX - 7.4, DW + 1.2, 1.4], fov: 46, roll: 0.03 }) },
+  { f: CUT.dock + 3, dur: 14, s: () => ({ pos: [DX - 8.4, DW + 1.0, 4.2], look: [DX - 3.6, 1.0, -2.2], fov: 44, roll: -0.02 }) },
+  // "Britain ... shipowners": arc round the owner onto the quay so his rotting ship looms behind him in the fog
+  { f: T.britain - 2, dur: 14, s: () => ({ pos: [DX - 6.6, 1.75, -0.3], look: [OWNER[0], 1.5, OWNER[2]], fov: 42, roll: 0.02 }) },
+  { f: T.britain + 12, dur: 16, s: (f) => dolly([DX - 4.8, 1.7, -4.8], [OWNER[0], 1.5, OWNER[2]], pushK(f, T.britain + 28, 0.003), { fov: 40, roll: -0.02 }) },
+  // "nasty trick": push into his smug face
+  { f: T.nasty - 6, dur: 16, s: () => ({ pos: [DX - 3.7, 1.64, -3.3], look: [OWNER[0], 1.56, OWNER[2]], fov: 38, roll: 0.03 }) },
+  // "over-insure": whip right to the clerk's desk, a top-down macro on the policy as the stamp slams
+  { f: T.insure - 3, dur: 9, s: (f) => dolly([DESK[0] - 0.22, 1.9, DESK[2] + 0.55], [DESK[0] - 0.22, 0.88, DESK[2]], pushK(f, T.insure + 6, 0.004), { fov: 38, roll: 0.05 }) },
+  // "rotting old ships": follow the paper as the wind takes it to the hull; a rat looks out of a hole
+  { f: T.rotting - 3, dur: 12, s: (f) => ({ pos: [DX + 3.0, 1.75, -1.0], look: paperAt(f), fov: 42, roll: 0 }) },
+  { f: T.old - 2, dur: 14, s: (f) => dolly([DX + 0.35, 0.85, 0.2], [HULLPT[0] + 0.1, HULLPT[1] + 0.05, HULLPT[2]], pushK(f, T.old + 12, 0.004), { fov: 40, roll: -0.05 }) },
+  // "then cram them with cargo": up and back over the quay, the crates drop on the beat and the ship sinks
+  { f: T.cram - 5, dur: 12, s: (f) => dolly([DX - 2.2, 4.4, -5.4], [DX + 1.8, -0.6, 3.0], pushK(f, T.cram + 8, 0.002), { fov: 46, roll: 0.03 }) },
+  // "until they're barely floating": over the gap between quay and hull, then down it to the waterline
+  { f: T.until - 3, dur: 10, s: () => ({ pos: [DX + 0.5, 1.2, 0.5], look: [DX + 5, DW + 0.4, 1.1], fov: 44, roll: 0 }) },
+  { f: T.until + 5, dur: 12, s: (f) => dolly([DX + 0.5, DW + 0.75, 0.55], [DX + 6, DW + 0.35, 1.15], pushK(f, T.until + 17, 0.003), { fov: 46, roll: -0.04 }) },
+  // "If a ship makes it": crane up out of the gap and back over the quay: the owner in front, his ship sailing off behind him
+  { f: T.makes - 14, dur: 8, s: () => ({ pos: [DX + 0.5, 1.4, 0.4], look: [DX + 5, 0.5, 2], fov: 44, roll: 0 }) },
+  { f: T.makes - 6, dur: 18, s: () => ({ pos: [OWNER[0] - 1.0, 1.7, OWNER[2] - 5.0], look: [OWNER[0] + 0.6, 1.25, OWNER[2] + 6], fov: 44, roll: 0.02 }) },
+  // "they get rich": in on the owner holding his hat out; coins rain into it
+  { f: T.rich - 5, dur: 12, s: (f) => dolly([DX - 1.4, 1.65, -4.4], [OWNER[0], 1.75, OWNER[2]], pushK(f, T.rich + 6, 0.003), { fov: 40 }) },
+  // "If it sinks": lightning, the open sea at night, the ship going under
+  { f: CUT.storm1, cut: true, s: (f) => dolly([SX - 24, 6.2, 17], [SX, 0.5, 0], pushK(f, CUT.storm1, 0.004), { fov: 44, roll: -0.04 }) },
+  // "they get even richer": lightning, the quay at night, the owner catches a bigger bag under his umbrella
+  { f: CUT.night, cut: true, s: (f) => dolly([DX - 4.8, 1.55, 0.9], [OWNER[0], 1.5, OWNER[2]], pushK(f, CUT.night, 0.004), { fov: 40, roll: 0.03 }) },
+  // "They're called coffin ships": lightning, back at sea, the stern rising like a headstone, the lantern goes out
+  { f: CUT.storm2, cut: true, s: (f) => dolly([SX - 13, 2.8, 9.5], [SX + 1, 2.4, 0], pushK(f, CUT.storm2, 0.0035), { fov: 42, roll: 0.05 }) },
 ];
 const run = (f: number) => {
   let cur = full(KEYS[0].s(f));
@@ -78,7 +137,8 @@ const run = (f: number) => {
   return cur;
 };
 // impact kicks: image offset flips sign every frame and decays over 7 f
-const KICKS: [number, number][] = [[T.villains, 1.1], [T.parliament, 0.4], [T.bottom + 1, 0.6]];
+const KICKS: [number, number][] = [[T.villains, 1.1], [T.parliament, 0.4], [T.bottom + 1, 0.6], [T.insure + 9, 1.0],
+  [T.cram, 0.8], [T.withC, 0.8], [T.cargo, 1.0], [T.sinks, 0.7], [T.richer, 0.9]];
 export const kickAt = (f: number) => {
   let a = 0;
   for (const [f0, g] of KICKS) { const n = f - f0; if (n >= 0 && n < 7) a += g * (n % 2 ? -1 : 1) * (1 - n / 7) ** 1.5; }
@@ -94,15 +154,27 @@ export const camAt = (f: number): Cam => {
 };
 
 // ---------------- light follows the camera: inside the chamber, out over the river, under the water ----------------
-export type Place = "chamber" | "river" | "under";
+export type Place = "chamber" | "river" | "under" | "dock" | "storm" | "night";
 export const placeAt = (f: number): Place => {
   const c = run(f);
-  if (c.pos[1] < WATER) return "under";
-  return c.pos[0] > WIN.x - 0.15 ? "chamber" : "river";
+  if (f < CUT.dock) {
+    if (c.pos[1] < WATER) return "under";
+    return c.pos[0] > WIN.x - 0.15 ? "chamber" : "river";
+  }
+  if (f < CUT.storm1) return c.pos[1] < DW ? "under" : "dock";
+  if (f < CUT.night) return "storm";
+  if (f < CUT.storm2) return "night";
+  return "storm";
 };
-export const LIGHT_OF: Record<Place, LightName> = { chamber: "candle", river: "dusk", under: "under" };
+export const LIGHT_OF: Record<Place, LightName> = { chamber: "candle", river: "dusk", under: "under", dock: "fog", storm: "storm", night: "night" };
 /** sun direction per place, world space (fixed: the camera moves continuously through each place) */
-export const SUN_OF: Record<Place, V3> = { chamber: [0.55, 0.8, 0.25], river: [-0.6, 0.24, -0.76], under: [-0.15, 0.97, 0.1] };
+export const SUN_OF: Record<Place, V3> = {
+  chamber: [0.55, 0.8, 0.25], river: [-0.6, 0.24, -0.76], under: [-0.15, 0.97, 0.1],
+  dock: [0.35, 0.75, -0.56], storm: [0.3, 0.8, 0.5], night: [0.3, 0.6, 0.75],
+};
+/** lightning: frames of the strikes (the cuts in and out of the storm hide under the first one) */
+export const STRIKES = [CUT.storm1, CUT.storm1 + 10, CUT.night, T.richer, CUT.storm2, T.cships - 3];
+export const strikeAt = (f: number) => { let a = 0; for (const s0 of STRIKES) { const n = f - s0; if (n >= 0 && n < 6) a = Math.max(a, [1, 0.55, 0.85, 0.35, 0.15, 0.05][n]); } return a; };
 
 // ---------------- lens ----------------
 export type Dof = { f: number; dur?: number; cInf: number; focus?: (f: number) => V3 };
@@ -110,6 +182,18 @@ export const DOF: Dof[] = [
   { f: 0, cInf: 11, focus: () => HEAD },                 // Plimsoll medium: the MPs behind go soft
   { f: T.villains + 9, dur: 10, cInf: 1 },               // the crane and the flight: everything sharp
   { f: T.bottom + 4, dur: 18, cInf: 7, focus: () => [HOARD[0] - 0.2, BED + 0.4, HOARD[2]] },
+  { f: CUT.dock, cInf: 2 },
+  { f: T.britain, dur: 14, cInf: 10, focus: () => [OWNER[0], 1.5, OWNER[2]] },   // the owner: the fog and warehouses go soft
+  { f: T.insure - 3, cInf: 14, focus: () => [DESK[0] - 0.22, 0.9, DESK[2]] },
+  { f: T.rotting - 3, cInf: 2 },
+  { f: T.old - 2, dur: 10, cInf: 12, focus: () => HULLPT },
+  { f: T.cram - 5, dur: 10, cInf: 4 },
+  { f: T.until - 3, dur: 10, cInf: 8 },
+  { f: T.makes - 9, dur: 10, cInf: 6, focus: () => [OWNER[0], 1.5, OWNER[2]] },
+  { f: T.rich - 5, dur: 8, cInf: 10, focus: () => [OWNER[0], 1.6, OWNER[2]] },
+  { f: CUT.storm1, cInf: 0 },
+  { f: CUT.night, cInf: 10, focus: () => [OWNER[0], 1.5, OWNER[2]] },
+  { f: CUT.storm2, cInf: 3 },
 ];
 export const dofAt = (f: number) => {
   let cur = { cInf: DOF[0].cInf, focus: DOF[0].focus };

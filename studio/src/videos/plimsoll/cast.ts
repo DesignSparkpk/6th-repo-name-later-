@@ -3,7 +3,8 @@
 import * as THREE from "three";
 import { Pen, bodyFront, SKIN, INK, fxBurst, fxRing, fxSplash, fxShadow, fxContact, Outfit, FrontOpts } from "./toon";
 import type { Place, FxPlace, Stage, CamInfo } from "../bridge/cast";
-import { FPS, PLIM, WATER, HOARD, BED, COFFIN, T, talking, camAt, clamp01, smooth } from "./story";
+import { FPS, PLIM, WATER, HOARD, BED, COFFIN, T, talking, camAt, clamp01, smooth, OWNER, DESK, DSHIP, DX, SX, HULLPT, paperAt, shipSink, CUT, STRIKES } from "./story";
+import type { Place as Place3 } from "./story";
 
 // ---------------- cast ----------------
 const PLIMSOLL: Outfit = { jacket: "#2b2e3d", pants: "#34343f", boots: "#1b1b20", hat: "hair", hair: "#6e5e50", beard: "#76604c", moustache: "#5e4a3a",
@@ -15,6 +16,12 @@ const MP = (v: number): Outfit => ({
   chops: v % 4 === 1 ? "#5a4636" : undefined, moustache: v % 3 === 0 ? "#3a2c22" : undefined, monocle: v === 4, skin: SKIN,
   build: v % 5 === 3 ? "stout" : "adult",
 });
+
+const OWNER_O: Outfit = { jacket: "#3a2f4a", pants: "#2b2633", boots: "#1d1d22", hat: "tophat", style: "vest", trim: "#8a1f2b", chops: "#5a4636",
+  monocle: true, chain: true, cigar: true, build: "stout", skin: SKIN };
+const CLERK_O: Outfit = { jacket: "#2a2f3a", pants: "#2a2f3a", boots: "#1d1d22", hat: "hair", hair: "#3a2c22", style: "collar", trim: "#3a3a48", specs: true, skin: SKIN };
+const SAILOR = (v: number): Outfit => ({ jacket: "#f2efe8", style: "stripes", trim: "#2c4f86", pants: ["#2b3a55", "#3a3a44", "#4a3b30"][v % 3], boots: "#3a2c22",
+  hat: "cap", cap: ["#2c3a55", "#7a1f2b", "#3a3a44"][v % 3], beard: v % 2 ? "#5a4636" : undefined, skin: SKIN });
 
 // ---------------- drawing helpers (same rules as the template cast) ----------------
 const q = (v: number, n = 120) => Math.round(v * n) / n;
@@ -79,10 +86,49 @@ const policy = (p: Pen) => { // the INSURED policy: soggy parchment with a red s
   p.g.fillStyle = "#c0202a"; p.g.font = "bold 58px Georgia, serif"; p.g.fillText("INSURED", 0, -2); p.g.font = "bold 34px Georgia, serif"; p.g.fillText("£20,000", 0, 36);
   p.g.restore();
 };
+const policyFlat = (stamped: boolean) => (p: Pen) => { // the policy lying on the desk: blank, then stamped
+  p.poly([[20, 30], [480, 14], [492, 330], [30, 350]], "#efe2bf", 8);
+  p.g.save(); p.g.fillStyle = "#4a3a2a"; p.g.font = "bold 42px Georgia, serif"; p.g.textAlign = "center"; p.g.fillText("MARINE POLICY", 255, 92);
+  for (let i = 0; i < 4; i++) p.g.fillRect(70, 130 + i * 30, 360 - (i % 2) * 90, 6);
+  if (stamped) { p.g.translate(270, 270); p.g.rotate(-0.16); p.g.strokeStyle = "#c0202a"; p.g.lineWidth = 9; p.g.strokeRect(-190, -52, 380, 96);
+    p.g.fillStyle = "#c0202a"; p.g.font = "bold 58px Georgia, serif"; p.g.fillText("INSURED", 0, -2); p.g.font = "bold 34px Georgia, serif"; p.g.fillText("£20,000", 0, 36); }
+  p.g.restore();
+};
+const rat = (p: Pen, u: number) => { // grey rat, head-on, whiskers twitching
+  p.ell(150, 150, 90, 70, "#8d8a92", 8); p.ell(85, 80, 34, 34, "#c9a2b0", 7); p.ell(215, 80, 34, 34, "#c9a2b0", 7);
+  p.dot(118, 140, 10); p.dot(182, 140, 10); p.ell(150, 190, 14, 10, "#e78fa6", 5);
+  const w = 6 * Math.sin(u * Math.PI * 6);
+  for (const sd of [-1, 1]) for (const k of [-1, 0, 1]) p.stroke([[150 + sd * 22, 192], [150 + sd * 95, 180 + k * 18 + w]], 3, "#2a2430");
+};
+const ratSide = (p: Pen, u: number) => { // leaping rat, side view
+  p.ell(150, 110, 95, 46, "#8d8a92", 8); p.ell(235, 92, 40, 34, "#8d8a92", 7); p.ell(222, 58, 16, 16, "#c9a2b0", 5); p.dot(252, 86, 7);
+  p.stroke([[58, 116], [20, 90 + 30 * Math.sin(u * 6)], [4, 60]], 9, "#e78fa6");
+  for (const [x, a] of [[110, 1], [190, -1]]) p.stroke([[x, 145], [x + 20 * a, 175]], 9, "#2a2430");
+};
+const coin = (p: Pen, k: number) => { p.ell(64, 64, 54 - (k % 3) * 18, 54, "#f2c14e", 7); p.ell(64, 64, 30 - (k % 3) * 10, 30, null, 4, 0, 360); };
+const bag = (p: Pen) => { // fat money bag
+  p.ell(150, 175, 125, 112, "#b99560", 10); p.poly([[110, 72], [190, 72], [175, 100], [125, 100]], "#b99560", 8); p.stroke([[112, 104], [188, 104]], 10, "#6b4520");
+  p.g.save(); p.g.fillStyle = "#5a2f1a"; p.g.font = "bold 130px Georgia, serif"; p.g.textAlign = "center"; p.g.fillText("£", 150, 222); p.g.restore();
+};
+const bolt = (p: Pen, seed: number) => { // lightning fork
+  const pts: [number, number][] = [[150 + (seed % 3) * 20, 0]]; let x = pts[0][0];
+  for (let y = 40; y <= 600; y += 40) { x += ((seed * 37 + y) % 70) - 35; pts.push([x, y]); }
+  p.stroke(pts, 26, "rgba(200,220,255,0.55)"); p.stroke(pts, 10, "#ffffff");
+  const bx = pts[6]; p.stroke([bx, [bx[0] + 60, bx[1] + 70], [bx[0] + 40, bx[1] + 140]], 6, "#ffffff");
+};
+const stampHand = (p: Pen, u: number) => { // the clerk's hand bringing the rubber stamp down (seen from above)
+  p.band([[150, -40], [150, 150]], "#2a2f3a", 70, 8, "butt");
+  p.ell(150, 170, 52, 44, "#fbf8f3", 8);
+  for (const d of [-26, -8, 10, 28]) p.arc(150 + d, 140, 10, 8, 180, 360, 4);
+  p.poly([[96, 200], [204, 200], [204, 262], [96, 262]], "#8a5a34", 7);
+  p.poly([[86, 262], [214, 262], [214, 290], [86, 290]], "#6b4520", 7);
+  if (u > 0.9) p.poly([[86, 290], [214, 290], [214, 298], [86, 298]], "#c0202a", 0);
+};
+const rainStreak = (p: Pen) => { p.g.globalAlpha = 0.85; p.stroke([[16, 8], [8, 248]], 7, "#dfe8f6"); p.g.globalAlpha = 1; };
 const gull = (p: Pen, u: number) => { const w = 30 * Math.sin(u * Math.PI * 2); p.stroke([[10, 60 + w], [60, 50], [110, 60 + w]], 9, "#2a2430"); };
 
 // ---------------- staging ----------------
-export const stage = (place: "chamber" | "river" | "under", f: number, cam: CamInfo): Stage => {
+export const stage = (place: Place3, f: number, cam: CamInfo): Stage => {
   const out: Stage = { places: [], fx: [] };
   if (cam.sun) SUN.copy(cam.sun).normalize();
   const P = (who: Who, x: number, y: number, z: number, fo: FrontOpts, sc = 1) => { out.places.push(person(cam, who, x, y, z, { blink: lidAt(f, who.i), ...fo }, sc)); };
@@ -155,7 +201,77 @@ export const stage = (place: "chamber" | "river" | "under", f: number, cam: CamI
     // the policy drifting down beside the sack
     fxAt(out, "policy", 512, 360, policy, HOARD[0] - 1.6, BED + 1.35 + 0.08 * Math.sin(t * 1.3), HOARD[2] + 0.9, 1.05, 0.74, { rot: 0.18 + 0.08 * Math.sin(t * 0.9) });
   }
-  void smooth;
+  if (place === "dock" || place === "night") {
+    const night = place === "night", c = camAt(f), r = cam.right;
+    // the shipowner: smug on the quay with his cigar; hat out for coins on "rich"; at night under an umbrella catching a bigger bag
+    const hatUp = !night && f >= T.rich - LEAD && f < CUT.storm1;
+    const oexpr = night ? (f >= T.richer - LEAD ? "laugh" : "smug") : hatUp ? "grin" : f >= T.nasty - LEAD ? "grin" : "smug";
+    P({ i: 30, o: OWNER_O, okey: "owner" }, OWNER[0], 0, OWNER[2], { mode: "stand", expr: oexpr, prop: night ? "umbrella" : hatUp ? "hatUp" : null, facing: 1, tilt: oexpr === "laugh" ? -5 : 0 });
+    blob(out, OWNER[0], 0, OWNER[2]);
+    if (!night && f < CUT.storm1 && f >= T.nasty - 2) { // a puff of cigar smoke curling up
+      const u = q(((f - T.nasty) / FPS * 0.6) % 1, 20); fxAt(out, `cigar${u}`, 300, 300, (p) => fxBurst(p, u, "#d9dde6", 5, 30, 120), OWNER[0] + r.x * 0.35, 1.9 + u * 0.4, OWNER[2] + r.z * 0.35, 0.45, 0.45, { soft: true });
+    }
+    if (hatUp) for (let k = 0; k < 16; k++) { // coins raining into the upturned hat
+      const age = (f - T.rich) / FPS - (k % 8) * 0.07 - Math.floor(k / 8) * 0.5;
+      if (age < 0 || age > 0.5) continue;
+      const hx = OWNER[0] + r.x * 0.55, hz = OWNER[2] + r.z * 0.55, y = 3.7 - 9.8 * age * age * 2.4;
+      if (y < 2.25) continue;
+      fxAt(out, `coin${k % 3}`, 128, 128, (p) => coin(p, k), hx + (hh(k, 3) - 0.5) * 0.3, y, hz, 0.17, 0.17);
+    }
+    if (night) {
+      if (f >= T.richer - 8) { // the bag drops out of the sky into his arm
+        const u = clamp01((f - (T.richer - 8)) / 8), y = 6.2 - 5.25 * u * u; // lands in the crook of his arm
+        fxAt(out, "bag", 300, 300, bag, OWNER[0] - r.x * 0.32, y, OWNER[2] + 0.25, 0.6, 0.6);
+        if (f >= T.richer && f < T.richer + 8) { const v = (f - T.richer) / 8; fxAt(out, `thump${q(v, 8)}`, 500, 500, (p) => fxBurst(p, v, "#ffe08a", 8, 110, 230), OWNER[0] - r.x * 0.7, 1.25, OWNER[2] + 0.3, 0.7, 0.7); }
+      }
+      for (let i = 0; i < 180; i++) { // rain in front of the lens
+        const sp = 12, y = 1.5 + 4.2 - (((f / FPS) * sp + hh(i, 1) * 4.2) % 4.2), x = c.pos[0] - 3 + hh(i, 2) * 6, z = c.pos[2] - 4.5 + hh(i, 3) * 4;
+        fxAt(out, "rain", 24, 256, rainStreak, x, y, z, 0.03, 0.55, { soft: true, rot: 0.12 });
+      }
+    } else {
+      // the clerk behind his desk: stamp raised, slammed on "insure"
+      const sw = smooth((f - (T.insure + 5)) / 4);
+      P({ i: 31, o: CLERK_O, okey: "clerk" }, DESK[0] + 0.15, 0, DESK[2] - 0.75, { mode: "stand", expr: f >= T.insure + 9 ? "smug" : "neutral", prop: "stamp", swing: sw, facing: -1 });
+      const stamped = f >= T.insure + 9;
+      if (f < T.rotting - 3) fxAt(out, `policy${stamped ? 1 : 0}`, 512, 360, policyFlat(stamped), DESK[0] - 0.22, 0.88, DESK[2], 0.46, 0.33, { flat: true, rot: 0.15 });
+      if (f >= T.insure + 9 && f < T.insure + 17) { const v = (f - T.insure - 9) / 8; fxAt(out, `stampHit${q(v, 8)}`, 500, 500, (p) => fxBurst(p, v, "#fff3d0", 8, 70, 220), DESK[0] - 0.22, 0.95, DESK[2], 0.4, 0.4); }
+      if (f >= T.insure - 3 && f < T.insure + 18) { // macro insert: the hand comes down with the stamp, then lifts away
+        const down = smooth((f - (T.insure + 3)) / 6), up = smooth((f - (T.insure + 12)) / 5), h = 0.98 + 0.55 * (1 - down) + 0.6 * up;
+        fxAt(out, `stampHand${down > 0.9 && up < 0.1 ? 1 : 0}`, 300, 300, (p) => stampHand(p, down > 0.9 && up < 0.1 ? 1 : 0), DESK[0] - 0.2, h, DESK[2] + 0.02, 0.34, 0.34);
+      }
+      if (f >= T.rotting - 3) { // blown off the desk to the hull, then stuck there
+        const pt = paperAt(f), spin = f < T.rotting + 17 ? (f - T.rotting) * 0.35 : 0.2;
+        fxAt(out, "policy1", 512, 360, policyFlat(true), pt[0], pt[1] + 0.15, pt[2] - (f >= T.rotting + 17 ? 0.04 : 0), 0.5, 0.36, { rot: spin });
+      }
+      // the rat: looks out of a hole on "old", jumps ship on "floating"
+      if (f >= T.old - 4 && f < T.cram) { const u = smooth((f - T.old + 4) / 8); fxAt(out, `rat${q(((f / FPS) * 2) % 1, 6)}`, 300, 260, (p) => rat(p, (f / FPS) * 2 % 1), HULLPT[0] + 0.55, HULLPT[1] - 0.18 + 0.06 * u, HULLPT[2] - 0.08 - 0.1 * u, 0.32 * u + 0.01, 0.28 * u + 0.01); }
+      if (f >= T.floating - 4 && f < T.floating + 14) {
+        const u = (f - T.floating + 4) / 18, x = DSHIP[0] - 1 + 2.4 * u, y = shipSink(f) + 0.2 + 1.4 * Math.sin(Math.PI * u), z = 1.6 - 2.2 * u;
+        fxAt(out, `ratLeap${q(u, 6)}`, 300, 200, (p) => ratSide(p, u), x, y, z, 0.42, 0.28);
+      }
+      // sailors: two on the quay, three nervous on the sinking deck
+      if (f < T.makes - 2) {
+        [[DX + 7.5, -3.6, 0], [DX - 9.5, -4.4, 1]].forEach(([x, z, k]) => P({ i: 40 + k, o: SAILOR(k), okey: "sailorQ" + k }, x, 0, z, { mode: "stand", expr: k ? "stern" : "neutral", look: k ? 0.5 : -0.5 }));
+        if (f >= T.cram - 5) [[-1.6, 3.6, 2], [1.2, 2.9, 3], [3.4, 3.7, 4]].forEach(([dx, z, k]) => P({ i: 40 + k, o: SAILOR(k), okey: "sailorD" + k }, DSHIP[0] + dx, shipSink(f) + 0.06, z, { mode: "stand", expr: f >= T.until - LEAD ? "nervous" : "stern", look: 0.4 }));
+      }
+      // gulls in the fog
+      [[DX + 6, 9, 8], [DX - 4, 11, 12]].forEach(([x, y, z], k) => { const u = q(((f / FPS) * 2.1 + k * 0.4) % 1, 12); fxAt(out, `gull${u}`, 128, 100, (p) => gull(p, u), x + (f / FPS) * 1.5, y, z, 1.1, 0.85); });
+    }
+  }
+
+  if (place === "storm") {
+    const c = camAt(f);
+    for (let i = 0; i < 220; i++) {
+      const sp = 14, y = c.pos[1] - 2 + 6 - (((f / FPS) * sp + hh(i, 1) * 6) % 6), x = c.pos[0] + 1 + hh(i, 2) * 8, z = c.pos[2] - 6 + hh(i, 3) * 8;
+      fxAt(out, "rain", 24, 256, rainStreak, x, y, z, 0.04, 0.7, { soft: true, rot: 0.25 });
+    }
+    for (const s0 of STRIKES) { const n = f - s0; if (n >= 0 && n < 3) fxAt(out, `bolt${s0 % 5}`, 400, 600, (p) => bolt(p, s0 % 5), SX + 18 - (s0 % 3) * 12, 26, -60, 22, 33); }
+    for (let k = 0; k < 4; k++) { // waves bursting over the bow
+      const u = q(((f / FPS) * 0.9 + k * 0.25) % 1, 20);
+      fxAt(out, `splash${u}`, 600, 600, (p) => fxSplash(p, u), SX - 4 + k * 3, 1.2, 2.6 - (k % 2) * 4, 3.2, 3.2);
+    }
+  }
+  void smooth; void DX;
   return out;
 };
 export { INK };
