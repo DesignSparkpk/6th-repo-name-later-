@@ -32,6 +32,17 @@ export const nebulaTex = () => ctex("nebula", 1080, 1920, (g, r) => {
   g.globalCompositeOperation = "lighter";
   for (let i = 0; i < 30; i++) { const x = 520 + (r() - 0.5) * 260, y = 820 + (r() - 0.5) * 260; const gr = g.createRadialGradient(x, y, 0, x, y, 40 + r() * 60); gr.addColorStop(0, "rgba(255,230,200,0.22)"); gr.addColorStop(1, "rgba(255,200,150,0)"); g.fillStyle = gr; g.beginPath(); g.arc(x, y, 100, 0, 7); g.fill(); }
   g.globalCompositeOperation = "source-over";
+  // wispy filaments: thin glowing strands sweeping round the bright heart, gold near it, teal further out
+  g.globalCompositeOperation = "lighter";
+  for (let i = 0; i < 260; i++) {
+    const a = r() * Math.PI * 2, r0 = 60 + r() * 520, len = 0.25 + r() * 0.6, cx = 540, cy = 860;
+    const near = r0 < 260, col = near ? `rgba(255,${190 + r() * 40},${120 + r() * 50},${0.05 + r() * 0.08})` : `rgba(${80 + r() * 60},${200 + r() * 40},${210 + r() * 40},${0.04 + r() * 0.07})`;
+    g.strokeStyle = col; g.lineWidth = 1 + r() * 3; g.beginPath();
+    for (let k = 0; k <= 12; k++) { const t = a + (k / 12) * len, rr = r0 * (1 + 0.15 * Math.sin(k * 0.9 + i)); const x = cx + Math.cos(t) * rr * 0.9, y = cy + Math.sin(t) * rr * 1.3; if (k) g.lineTo(x, y); else g.moveTo(x, y); }
+    g.stroke();
+  }
+  { const gr = g.createRadialGradient(540, 860, 0, 540, 860, 230); gr.addColorStop(0, "rgba(255,250,235,0.55)"); gr.addColorStop(0.4, "rgba(255,210,150,0.18)"); gr.addColorStop(1, "rgba(255,200,150,0)"); g.fillStyle = gr; g.beginPath(); g.arc(540, 860, 230, 0, 7); g.fill(); }
+  g.globalCompositeOperation = "source-over";
   // stars, a few big ones with four-point spikes
   for (let i = 0; i < 900; i++) { const s = r() ** 3 * 2.4 + 0.4; g.fillStyle = `rgba(255,${235 + r() * 20},${220 + r() * 35},${0.4 + r() * 0.6})`; g.beginPath(); g.arc(r() * 1080, r() * 1920, s, 0, 7); g.fill(); }
   for (let i = 0; i < 9; i++) {
