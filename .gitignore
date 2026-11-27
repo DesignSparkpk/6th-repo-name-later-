@@ -7,3 +7,4 @@ studio/out/
 studio/asset-library/
 render-work/
 render-out/
+__pycache__/
