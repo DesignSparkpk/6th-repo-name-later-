@@ -5,12 +5,13 @@ This one has a scam (coffin ships), a hero who loses his temper in Parliament, a
 an everyday payoff that UK and AU viewers own: plimsoll shoes. Competition: search found only technical "what is a load line" videos;
 no Short tells the story. (Rejected because Shorts already exist: Pisa, Hannibal, Carmel roundabouts, Houston baggage, zipper merge, cat's eyes, centre line.)
 
-## Narration v3: plotted like the reference shorts (210 words, ~57 s)
+## Narration v4: plotted like the reference shorts (221 words, ~60 s)
 Formula check:
 - The hook is an ACTION with conflict (fist, villains) and a mystery (over a line of paint?).
 - 'You see,' pivot. Scam escalation. The simple fix. Mockery in an in-character line.
 - Stakes (they sit in Parliament). Explosion with a real quote. Refusal. Crowd quote.
-- 'But it gets weirder' twist. Payoff loops into everyday life (shoes).
+- 'But it gets weirder' twist. Ironic payoff: he fought Parliament for sailors' lives and is remembered for gym class.
+- Dead-scene check: every line has a character DOING something, and no B-roll-only beat (the calendar montage and port flyover were removed).
 
 | key | narration | scene / camera |
 |---|---|---|
@@ -18,20 +19,19 @@ Formula check:
 | yousee | You see, in the 1870s, British shipowners have a trick. | Foggy grey docks, morning. Camera glides along the quay: barrels, crates, gas lamps, gulls. Diegetic sign: 'COAL & CO. SHIPOWNERS'. |
 | trick | They over-insure an old, rotting ship and cram it with so much cargo it sits almost underwater. | Follow-the-object: a fat shipowner (top hat, gold watch chain) stamps a policy 'INSURED £20,000' in a Lloyd's-style office, and the paper flies out of the window. Follow it to the rotting ship as cranes drop crate after crate, and the hull sinks lower each time. |
 | rich | If it floats, they get rich. If it sinks, they get even richer. | Split action: the ship floats away and coins rain on the owner. Then a storm night: the ship tips under, and an even bigger money pile lands on the owner, who grins. |
-| coffin | Sailors call them coffin ships. | Night storm sea, blue-black, lightning. A ship stern labelled 'COFFIN' in a sailor's chalk. Sailors on the dock cross themselves. |
-| idea | Then an MP, Samuel Plimsoll, has the simplest fix ever. | Crossfade to Plimsoll's study, warm lamp. He holds up a little model ship, and a light-bulb glint appears. |
-| paint | Paint a line on the hull. If the water's over the line, the ship doesn't sail. | Macro insert of the mechanism: a brush paints the circle-and-line mark on the hull. A water level rises in a tank model; past the line, a red 'NO SAIL' stamp hits the paper. |
+| coffin | They're called coffin ships. | Night storm sea, blue-black, lightning. A ship stern labelled 'COFFIN' in a sailor's chalk. Sailors on the dock cross themselves. |
+| idea | Then an MP, Samuel Plimsoll, has the simplest fix ever. | Plimsoll on the dock in the fog watches a low ship. Sailors look worried. He grabs a lump of chalk, an idea glint, and strides to the hull. |
+| paint | Paint a line on the hull. If the water's over the line, the ship doesn't sail. | He draws a big circle-and-line mark on the hull (macro insert with the brush or chalk). The tide rises in fast-forward; when the water passes the mark, a harbour master slams a red 'NO SAIL' stamp, and the ship's crew cheers. |
 | laugh | The shipowners just laugh. "A line of paint? On my ship?" | The shipowners' club, cigars, velvet chairs. Three owners laugh, one wipes a tear: 'A line of paint? On my ship?' (in-character line). |
 | seats | And plenty of them sit in Parliament. | Pull back: the same owners walk into the House of Commons and take their seats (Commons sign on the door). |
-| drop | So when the government quietly drops the shipping bill, Plimsoll explodes. | The Commons. The Prime Minister closes a folder marked 'SHIPPING BILL'. Plimsoll's eye twitches; a 2-frame kick on 'explodes'. |
+| drop | So when the government quietly drops the bill, Plimsoll explodes. | The Commons. The Prime Minister closes a folder marked 'SHIPPING BILL'. Plimsoll's eye twitches; a 2-frame kick on 'explodes'. |
 | yell | He jumps up, shakes his fist, and yells, "I am determined to unmask the villains!" | Close-up: Plimsoll on his feet, fist up, shouting. Members duck. Papers fly. |
 | refuse | The Speaker orders him to take it back. He refuses. | The Speaker in his tall wig points; Plimsoll crosses his arms, deadpan. Dutch tilt. |
 | papers | The papers print every word, and one crowd says, "If Mr Plimsoll is mad, he should bite a few more MPs!" | Screen-to-screen transfer: printing press rollers, then a newspaper 'PLIMSOLL'S OUTBURST!', then pull back to a street crowd in Sheffield waving the paper. A man shouts the 'bite a few more MPs' line. |
-| law | A year later, his line is the law. | Golden morning at the docks. An official paints the mark on a hull, and the sailors cheer. |
-| weird | But it gets weirder. The shipowners get to choose where to paint it. | Twist gag: a shipowner smirks, holds the brush, and the camera follows his brush up the hull toward the top. (No claim of a specific place; it just shows choice.) |
-| years | It takes years more shouting to fix that. | Montage via calendar pages flying (diegetic dates, no year shown). Plimsoll older and greyer, still shouting. |
-| today | Today it's on cargo ships worldwide. | Bright modern container port, a giant red cargo ship, crane flyover, and the mark on its hull in close-up. |
-| shoes | And rubber gym shoes with a stripe around the sole? Named after it. Plimsolls. | MATCH CUT: the hull line turns into the rubber stripe of a school plimsoll shoe in a bright gym, a kid jumping. End on 'Plimsolls.' |
+| law | A year later, his line is law. But it gets weirder: the shipowners get to choose where to paint it. | Sunrise at the docks: officials paint the mark on every hull and sailors throw their caps. On 'weirder' a whip pan to a smirking shipowner holding the brush, who winks and drags it up the hull out of frame (it shows choice, no specific place claimed). |
+| years | It takes him years more shouting to fix that. | Time-travel tracking shot, the camera locked on the painted mark: Plimsoll, greyer each time, yells beside it while the wooden hull turns to iron and then to steel in 3 morphs. |
+| today | Now it's on cargo ships worldwide. | The same tracking shot lands on a giant red container ship in a sunny modern port, the mark crisp, and cranes swing overhead (continuous, no cut). |
+| shoes | And rubber gym shoes with a stripe around the sole? Named after his line. He fought Parliament for sailors' lives, and he's remembered for gym class. | MATCH CUT: the hull line becomes the rubber stripe of a plimsoll in a bright school gym. A kid jumps, a whistle blows. Final beat: a portrait of Plimsoll on the gym wall with a deadpan face, hung right above a pile of gym shoes. Ends on 'gym class.' |
 
 In-character lines: 'A line of paint? On my ship?' is DRAMATISED (no named speaker). 'I am determined to unmask the villains...' is Plimsoll's real words, shortened.
 'If Mr Plimsoll is mad...' is a paraphrase of a real Sheffield meeting quote.
