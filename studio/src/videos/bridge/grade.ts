@@ -155,10 +155,10 @@ export class GradeEffect extends Effect {
 //   day: mid knot .60 for median Y' ~.57, darks pressed (.1 -> .085), a hint of violet in shadows.
 //   golden: stronger S (darks .1 -> .09, mids .5 -> .54), blue-violet shadow tint, orange highlight tint, heavier vignette.
 export const GRADE_DAY2: GradeParams = {
-  ky: [0, 0.1, 0.28, 0.6, 0.835, 0.945, 1],
-  sat: [1.0, 1.05, 1.0],
-  tintS: [0.01, 0.002], tintM: [0, 0], tintH: [0.006, 0],
-  vig: [0.12, 0.45],
+  ky: [0, 0.1, 0.25, 0.53, 0.8, 0.94, 1], // deathray QA: median luma .58 -> ~.47 (ref .45)
+  sat: [1.15, 1.5, 1.3],                    // deathray QA: sat p50 .26 -> ref .47
+  tintS: [0.03, -0.01], tintM: [0, 0], tintH: [0.01, 0.004],
+  vig: [0.3, 0.35],                         // ref corner/centre .72
 };
 export const GRADE_GOLDEN2: GradeParams = {
   ky: [0, 0.09, 0.245, 0.54, 0.8, 0.93, 1],

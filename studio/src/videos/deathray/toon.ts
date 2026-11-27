@@ -4,7 +4,7 @@
 // away from the light, soft painted crescents, deadpan lidded eyes, no blush, no catchlights.
 // Design space 600 x 1000 units (soles at y = 975); the canvas transform scales it.
 export const INK = "#241726";
-export const SKIN = "#ffe2c2";
+export const SKIN = "#fbf8f3"; // reference heads: V .97, sat .03 (white faces, tinted only by the scene light)
 const WHITE = "#ffffff";
 const MOUTH = "#5a1e28";
 const TONGUE = "#e86e78";
@@ -16,7 +16,7 @@ const SH_FELT: C3 = [0.62, 0.62, 0.7];
 export type Build = "adult" | "stout" | "kid";
 export type Outfit = {
   jacket: string; pants: string; boots: string; hat?: string | null; belt?: string | null; buttons?: string; rifle?: boolean;
-  sash?: string; sword?: boolean; moustache?: string; skin?: string; head?: number; cap?: string; hair?: string; dress?: string;
+  sash?: string; sword?: boolean; moustache?: string; skin?: string; head?: number; style?: "zip" | "stripes" | "collar" | "hawaii" | "vest"; trim?: string; cap?: string; hair?: string; dress?: string;
   build?: Build;
 };
 type P2 = [number, number];
@@ -456,7 +456,7 @@ export const bodyFront = (p: Pen, o: Outfit, opts: FrontOpts) => {
   const torsoBot = mode === "sit" ? sole - 0.2 * HH : sole - Bd.legs * HH + bob;
   const chin = torsoBot - Bd.torso * HH, hc = chin - H.b, crown = hc - H.b, hipY = torsoBot - 0.12 * HH;
   const thick = thickAngle(light), ow = 5 * u;
-  const legCol = mix(o.pants, INK, 0.55), armCol = mix(o.jacket, INK, 0.5), footCol = o.boots;
+  const legCol = INK, armCol = INK, footCol = o.boots; // reference: limbs are single ink strokes
   const legW = 5.8 * u, footW = 7.5 * u;
   // ---- legs + feet (not rotated) ----
   p.rot = null;
@@ -564,7 +564,14 @@ export const bodyFront = (p: Pen, o: Outfit, opts: FrontOpts) => {
         p.poly([[xc - 3.5 * u, yc - 3.5 * u], [xc + 3.5 * u, yc - 3.5 * u], [xc + 3.5 * u, yc + 3.5 * u], [xc - 3.5 * u, yc + 3.5 * u]], "#d9dde0", 1.5 * u);
       }
       if (o.sash) p.band([[tcx - 1.3 * T.a, torsoBot - 0.32 * HH], [tcx + 1.3 * T.a, torsoBot - 0.32 * HH]], o.sash, 0.13 * HH, 1.8 * u);
-      for (let i = 0; i < 4; i++) {
+      const top = chin - 0.1 * HH, bot = torsoBot + 0.05 * HH, tr = o.trim ?? shade(o.jacket, 0.62);
+      if (o.style === "stripes") for (let k = -4; k <= 4; k++) p.band([[tcx + k * 0.24 * T.a, top], [tcx + k * 0.24 * T.a, bot]], tr, 2.6 * u, 0);
+      if (o.style === "hawaii") for (let k = 0; k < 14; k++) { const x = tcx + (rnd(seed, 40 + k) - 0.5) * 2 * T.a, y = top + rnd(seed, 60 + k) * (bot - top); for (let q = 0; q < 5; q++) p.dot(x + 4.5 * u * Math.cos(q * 1.257), y + 4.5 * u * Math.sin(q * 1.257), 2.6 * u, tr); p.dot(x, y, 1.8 * u, "#ffe36b"); }
+      if (o.style === "vest") { for (const sd of [-1, 1]) p.poly([[tcx + sd * 0.05 * T.a, top], [tcx + sd * 1.2 * T.a, top], [tcx + sd * 1.2 * T.a, bot], [tcx + sd * 0.3 * T.a, bot]], tr, 1.6 * u); }
+      if (o.style === "zip") { p.stroke([[tcx + 2 * u * facing, chin + 0.05 * HH], [tcx + 2 * u * facing, bot]], 1.8 * u, INK); p.band([[tcx - 1.3 * T.a, torsoBot - 0.12 * HH], [tcx + 1.3 * T.a, torsoBot - 0.12 * HH]], tr, 0.09 * HH, 1.6 * u); }
+      if (o.style === "collar" || o.style === "zip" || o.style === "vest") for (const sd of [-1, 1]) p.poly([[tcx + sd * 1.5 * u, chin + 0.02 * HH], [tcx + sd * 0.55 * T.a, chin - 0.06 * HH], [tcx + sd * 0.32 * T.a, chin + 0.2 * HH]], o.style === "zip" ? tr : "#f6f3ee", 1.6 * u);
+      if (o.style === "collar") p.poly([[tcx - 2.5 * u, chin + 0.08 * HH], [tcx + 2.5 * u, chin + 0.08 * HH], [tcx + 4 * u, chin + 0.55 * HH], [tcx, chin + 0.62 * HH], [tcx - 4 * u, chin + 0.55 * HH]], tr, 1.4 * u);
+      if (!o.style) for (let i = 0; i < 4; i++) {
         const y = chin + 0.12 * HH + i * 0.2 * HH;
         if (o.sash && Math.abs(y - (torsoBot - 0.32 * HH)) < 0.08 * HH) continue;
         p.dot(tcx + 2 * u * facing, y, 2.2 * u + 0.8 * u, INK); p.dot(tcx + 2 * u * facing, y, 2.2 * u, o.buttons ?? shade(o.jacket, 0.7));

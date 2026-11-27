@@ -6,15 +6,15 @@ import type { Place, FxPlace, Stage, CamInfo } from "../bridge/cast";
 import { FPS, SHOTS, T, V3, GUEST, TABLE, BAR, LX, CAR, SPOT, SHOP, PAN, PX, LEAF, ARCH_Q, MIRROR, BADGE, PANEL, smooth, clamp01, meltAt, WORDS_T } from "./story";
 
 // ---------------- the cast ----------------
-const ARCH: Outfit = { jacket: "#2e3440", pants: "#2e3440", boots: "#16161b", hat: "hair", hair: "#d2d3d9", buttons: "#f1efe9", skin: SKIN };
-const GUEST_O: Outfit = { jacket: "#ff8f3a", pants: "#2c6fb3", boots: "#f2c79f", hat: "hair", hair: "#3b2a20", skin: "#f2c79f", build: "stout" };
-const BARMAN: Outfit = { jacket: "#f4f1ea", pants: "#24262d", boots: "#1b1b20", hat: "hair", hair: "#1c1c22", skin: "#c99067", buttons: "#24262d" };
-const WORKER = (v: number): Outfit => ({ jacket: "#2fb3a8", pants: "#efe6d6", boots: "#f4f1ea", hat: "cap", cap: ["#e0503f", "#3f6fb5"][v % 2], skin: ["#ecd0b6", "#c99067"][v % 2] });
-const OWNER: Outfit = { jacket: "#3b4f7a", pants: "#cdb995", boots: "#5a3b2a", hat: "hair", hair: "#6b4a2f", skin: SKIN };
-const SHOPK: Outfit = { jacket: "#c0533a", pants: "#3b3f52", boots: "#4a3426", hat: "hair", hair: "#2a201a", skin: "#c99067", moustache: "#2a201a" };
-const REPORTER: Outfit = { jacket: "#7b5ac9", pants: "#2d2f3a", boots: "#2d2f3a", hat: "hair", hair: "#a0522d", dress: "#e2b13c", skin: SKIN };
-const LONDONER = (v: number): Outfit => ({ jacket: ["#3f4a5c", "#6b3a3a", "#2f5f6a", "#5a5148"][v % 4], pants: "#2b2d35", boots: "#1d1d22", hat: "hair",
-  hair: ["#2a201a", "#c9a35a", "#5a3b2a", "#1c1c22"][v % 4], skin: ["#ffe2c2", "#c99067", "#f5c9a0", "#ecd0b6"][v % 4], cap: ["#1d2a44", "#7a1f2b", "#22252c", "#2f5f6a"][v % 4] });
+const ARCH: Outfit = { style: "collar", trim: "#c8343c", jacket: "#2e3440", pants: "#2e3440", boots: "#16161b", hat: "hair", hair: "#d2d3d9", buttons: "#f1efe9", skin: SKIN };
+const GUEST_O: Outfit = { style: "hawaii", trim: "#e8434f", jacket: "#ff9a2e", pants: "#2c6fb3", boots: "#f2c79f", hat: "hair", hair: "#3b2a20", skin: SKIN, build: "stout" };
+const BARMAN: Outfit = { style: "vest", trim: "#7a1f2b", jacket: "#f4f1ea", pants: "#24262d", boots: "#1b1b20", hat: "hair", hair: "#1c1c22", skin: SKIN, buttons: "#24262d" };
+const WORKER = (v: number): Outfit => ({ style: "vest", trim: "#1d6f68", jacket: "#2fb3a8", pants: "#efe6d6", boots: "#f4f1ea", hat: "cap", cap: ["#e0503f", "#3f6fb5"][v % 2], skin: ["#fbf8f3", "#f6f0ea", "#fdf6ee", "#f3eee9"][v % 4] });
+const OWNER: Outfit = { style: "zip", trim: "#d9b44a", jacket: "#1f6b4f", pants: "#cdb995", boots: "#5a3b2a", hat: "hair", hair: "#6b4a2f", skin: SKIN };
+const SHOPK: Outfit = { style: "stripes", trim: "#f3e6c8", jacket: "#c0533a", pants: "#3b3f52", boots: "#4a3426", hat: "hair", hair: "#2a201a", skin: SKIN, moustache: "#2a201a" };
+const REPORTER: Outfit = { style: "zip", trim: "#f2c94c", jacket: "#7b5ac9", pants: "#2d2f3a", boots: "#2d2f3a", hat: "hair", hair: "#a0522d", dress: "#e2b13c", skin: SKIN };
+const LONDONER = (v: number): Outfit => ({ style: (["zip", "collar", "stripes", "vest"] as const)[v % 4], jacket: ["#3f4a5c", "#6b3a3a", "#2f5f6a", "#5a5148"][v % 4], pants: "#2b2d35", boots: "#1d1d22", hat: "hair",
+  hair: ["#2a201a", "#c9a35a", "#5a3b2a", "#1c1c22"][v % 4], skin: ["#fbf8f3", "#f6f0ea", "#fdf6ee", "#f3eee9"][v % 4], cap: ["#1d2a44", "#7a1f2b", "#22252c", "#2f5f6a"][v % 4] });
 
 // ---------------- drawing helpers (same rules as the template cast) ----------------
 const SU = 0.00216;
