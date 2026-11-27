@@ -5,22 +5,20 @@ This one has a scam (coffin ships), a hero who loses his temper in Parliament, a
 an everyday payoff that UK and AU viewers own: plimsoll shoes. Competition: search found only technical "what is a load line" videos;
 no Short tells the story. (Rejected because Shorts already exist: Pisa, Hannibal, Carmel roundabouts, Houston baggage, zipper merge, cat's eyes, centre line.)
 
-## Narration (~235 words, ~65 s)
-1. He wanted one line painted on the side of every ship, and it nearly got him thrown out of Parliament.
-2. London, the 1870s. Shipowners have found a trick.
-3. Buy an old, rotting ship, insure it for more than it's worth, then cram it with so much cargo it sits almost underwater.
-4. If it makes it, they get rich. If it sinks, they get even richer.
+## Narration v2 (55 s target: ~199 words at the narrator's 3.65 words/s)
+1. He wanted one line painted on every ship, and it nearly got him thrown out of Parliament.
+2. London, the 1870s. Shipowners have a trick.
+3. Insure an old, rotting ship for more than it's worth, then cram it with so much cargo it sits almost underwater.
+4. If it floats, they get rich. If it sinks, they get richer.
 5. Sailors call them coffin ships.
-6. Then an MP named Samuel Plimsoll has an idea so simple it sounds like a joke: paint a line on the hull. If the water is over the line, the ship doesn't sail.
-7. The shipowners hate it, and a lot of them are sitting right there in Parliament.
-8. So when the government quietly drops the shipping bill, Plimsoll snaps.
-9. He jumps up, shakes his fist and calls the members villains. The Speaker orders him to take it back. He refuses.
-10. The newspapers print every word, and one crowd says: if Mr Plimsoll is mad, he should go bite a few more MPs.
-11. Wait. Did it work?
-12. Kind of. In 1876 the line became law. But there was a catch: the shipowners got to decide where to paint it.
-13. It took years more of fighting before the government fixed exactly where the line goes.
-14. Today you'll find it on cargo ships all over the world, and it's called the Plimsoll line.
-15. And those rubber shoes you wore in gym class? The stripe around the sole looked so much like his line that they were named after it. Plimsolls.
+6. Then an MP named Samuel Plimsoll has an idea that sounds like a joke. Paint a line on the hull. Water over the line, the ship stays home.
+7. The shipowners hate it, and plenty of them sit in Parliament.
+8. So when the government drops the bill, Plimsoll snaps. He shakes his fist and calls them villains. Told to take it back, he refuses.
+9. The papers print every word. One crowd says if he's mad, he should bite a few more MPs.
+10. Wait. Did it work?
+11. Kind of. In 1876 the line became law, but the shipowners got to decide where to paint it.
+12. Years later, the government finally fixed its spot. Now it's on cargo ships worldwide.
+13. And those rubber gym shoes? The stripe around the sole looked so much like his line, they were named after it. Plimsolls.
 
 ## Beat map
 - Hook: the stakes (nearly thrown out of Parliament) plus an odd, tiny thing (one painted line).
